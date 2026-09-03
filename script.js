@@ -5,6 +5,10 @@
 const API_URL =
     "https://cleansurface-api.luizinfernando19.workers.dev";
 
+// Intervalo de consulta do resultado
+let consultaResultado = null;
+
+
 // ========================================
 // NAVEGAÇÃO
 // ========================================
@@ -57,6 +61,7 @@ function showPage(pageName) {
     }
 }
 
+
 // ========================================
 // INICIAR ANÁLISE
 // ========================================
@@ -103,7 +108,7 @@ async function iniciarAnalise() {
 
     if (readingDetail) {
         readingDetail.textContent =
-            "Entrando em contato com o servidor CleanSurface AI...";
+            "Enviando solicitação para o CleanSurface AI...";
     }
 
     try {
@@ -145,8 +150,7 @@ async function iniciarAnalise() {
 
         if (readingDetail) {
             readingDetail.textContent =
-                dados.mensagem ||
-                "Aguardando resultado do dispositivo.";
+                "A solicitação foi enviada. Aguardando o dispositivo realizar a análise.";
         }
 
         if (botao) {
@@ -154,6 +158,9 @@ async function iniciarAnalise() {
             botao.textContent =
                 "🔍 INICIAR ANÁLISE";
         }
+
+        // Começa a procurar um resultado
+        iniciarConsultaResultado();
 
     } catch (erro) {
 
@@ -189,6 +196,70 @@ async function iniciarAnalise() {
         }
     }
 }
+
+
+// ========================================
+// CONSULTAR RESULTADO
+// ========================================
+
+function iniciarConsultaResultado() {
+
+    // Evita criar vários intervalos
+    if (consultaResultado) {
+        clearInterval(consultaResultado);
+    }
+
+    // Consulta imediatamente
+    verificarResultado();
+
+    // Depois consulta a cada 3 segundos
+    consultaResultado = setInterval(
+        verificarResultado,
+        3000
+    );
+}
+
+
+async function verificarResultado() {
+
+    try {
+
+        const resposta = await fetch(
+            API_URL + "/resultado"
+        );
+
+        if (!resposta.ok) {
+            return;
+        }
+
+        const dados = await resposta.json();
+
+        console.log(
+            "Resposta do resultado:",
+            dados
+        );
+
+        // Se ainda não houver resultado, continua esperando
+        if (!dados.disponivel) {
+            return;
+        }
+
+        // Resultado encontrado
+        receberResultado(dados);
+
+        if (consultaResultado) {
+            clearInterval(consultaResultado);
+            consultaResultado = null;
+        }
+
+    } catch (erro) {
+
+        console.log(
+            "Aguardando resultado..."
+        );
+    }
+}
+
 
 // ========================================
 // RECEBER RESULTADO DO ESP32
@@ -257,6 +328,7 @@ function receberResultado(dados) {
     }
 }
 
+
 // ========================================
 // CONFIGURAÇÕES
 // ========================================
@@ -280,6 +352,7 @@ function saveSettings() {
     }, 3000);
 }
 
+
 // ========================================
 // INICIALIZAÇÃO
 // ========================================
@@ -287,6 +360,8 @@ function saveSettings() {
 document.addEventListener(
     "DOMContentLoaded",
     () => {
+
         showPage("dashboard");
+
     }
 );
