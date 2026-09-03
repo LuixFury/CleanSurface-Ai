@@ -284,16 +284,8 @@ function saveSettings() {
     }
 
 
-    setTimeout(() => {
-
-        if (saved) {
-
-            saved.textContent = "";
-
-        }
-
-    }, 3000);
-
+// Aguardando o ESP32 enviar o resultado.
+// Nenhum resultado é inventado pelo site.
 }
 
 
