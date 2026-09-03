@@ -286,7 +286,6 @@ function saveSettings() {
 
 // Aguardando o ESP32 enviar o resultado.
 // Nenhum resultado é inventado pelo site.
-}
 
 
 // ========================================
