@@ -1,367 +1,291 @@
-// ========================================
-// CleanSurface AI
-// ========================================
-
 const API_URL =
-    "https://cleansurface-api.luizinfernando19.workers.dev";
+  "https://cleansurface-api.luizinfernando19.workers.dev";
 
-// Intervalo de consulta do resultado
 let consultaResultado = null;
 
 
-// ========================================
-// NAVEGAÇÃO
-// ========================================
-
-const navItems = document.querySelectorAll(".nav-item");
-const pages = document.querySelectorAll(".page");
-const pageTitle = document.getElementById("page-title");
-
-navItems.forEach(item => {
-    item.addEventListener("click", () => {
-        showPage(item.dataset.page);
-    });
-});
-
-function showPage(pageName) {
-
-    pages.forEach(page => {
-        page.classList.remove("active-page");
-    });
-
-    navItems.forEach(item => {
-        item.classList.remove("active");
-    });
-
-    const page = document.getElementById(pageName);
-
-    const button = document.querySelector(
-        `.nav-item[data-page="${pageName}"]`
-    );
-
-    if (page) {
-        page.classList.add("active-page");
-    }
-
-    if (button) {
-        button.classList.add("active");
-    }
-
-    const titles = {
-        dashboard: "Dashboard",
-        monitoramento: "Monitoramento",
-        alertas: "Alertas",
-        historico: "Histórico",
-        configuracoes: "Configurações"
-    };
-
-    if (pageTitle) {
-        pageTitle.textContent =
-            titles[pageName] || "CleanSurface AI";
-    }
-}
-
-
-// ========================================
+// ===============================
 // INICIAR ANÁLISE
-// ========================================
+// ===============================
 
 async function iniciarAnalise() {
 
-    const botao =
-        document.getElementById("analisarBtn");
+  const botao = document.getElementById("analisarBtn");
+  const status = document.getElementById("statusAnalise");
 
-    const status =
-        document.getElementById("statusAnalise");
+  if (botao) {
+    botao.disabled = true;
+    botao.textContent = "⏳ ENVIANDO...";
+  }
 
-    const deviceStatus =
-        document.getElementById("device-status");
+  if (status) {
+    status.textContent = "Enviando solicitação...";
+  }
 
-    const readingStatus =
-        document.getElementById("reading-status");
+  try {
 
-    const readingDetail =
-        document.getElementById("reading-detail");
+    const resposta = await fetch(
+      API_URL + "/iniciar-analise",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
 
-    if (botao) {
-        botao.disabled = true;
-        botao.textContent =
-            "⏳ SOLICITANDO...";
+    if (!resposta.ok) {
+      throw new Error("Erro HTTP: " + resposta.status);
     }
+
+    const dados = await resposta.json();
+
+    console.log("Análise criada:", dados);
+
+    if (dados.sucesso) {
+
+      if (status) {
+        status.textContent =
+          "⏳ Aguardando ESP32-S3-CAM";
+      }
+
+      iniciarConsultaResultado();
+
+    } else {
+
+      if (status) {
+        status.textContent =
+          "❌ Não foi possível iniciar a análise.";
+      }
+
+    }
+
+  } catch (erro) {
+
+    console.error("Erro:", erro);
 
     if (status) {
-        status.textContent =
-            "Enviando solicitação...";
+      status.textContent =
+        "❌ Erro de conexão com a API.";
     }
 
-    if (deviceStatus) {
-        deviceStatus.textContent =
-            "Conectando...";
+    if (botao) {
+      botao.disabled = false;
+      botao.textContent = "🔍 INICIAR ANÁLISE";
     }
-
-    showPage("monitoramento");
-
-    if (readingStatus) {
-        readingStatus.textContent =
-            "Solicitando análise";
-    }
-
-    if (readingDetail) {
-        readingDetail.textContent =
-            "Enviando solicitação para o CleanSurface AI...";
-    }
-
-    try {
-
-        const resposta = await fetch(
-            API_URL + "/iniciar-analise",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            }
-        );
-
-        const dados = await resposta.json();
-
-        console.log("Resposta da API:", dados);
-
-        if (!resposta.ok) {
-            throw new Error(
-                "Erro HTTP " + resposta.status
-            );
-        }
-
-        if (status) {
-            status.textContent =
-                "Solicitação enviada.";
-        }
-
-        if (deviceStatus) {
-            deviceStatus.textContent =
-                "Aguardando ESP32";
-        }
-
-        if (readingStatus) {
-            readingStatus.textContent =
-                "Aguardando ESP32-S3-CAM";
-        }
-
-        if (readingDetail) {
-            readingDetail.textContent =
-                "A solicitação foi enviada. Aguardando o dispositivo realizar a análise.";
-        }
-
-        if (botao) {
-            botao.disabled = false;
-            botao.textContent =
-                "🔍 INICIAR ANÁLISE";
-        }
-
-        // Começa a procurar um resultado
-        iniciarConsultaResultado();
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao iniciar análise:",
-            erro
-        );
-
-        if (status) {
-            status.textContent =
-                "Erro ao conectar com o servidor.";
-        }
-
-        if (deviceStatus) {
-            deviceStatus.textContent =
-                "Offline";
-        }
-
-        if (readingStatus) {
-            readingStatus.textContent =
-                "Erro de conexão";
-        }
-
-        if (readingDetail) {
-            readingDetail.textContent =
-                "Não foi possível entrar em contato com a API.";
-        }
-
-        if (botao) {
-            botao.disabled = false;
-            botao.textContent =
-                "🔍 TENTAR NOVAMENTE";
-        }
-    }
+  }
 }
 
 
-// ========================================
+// ===============================
 // CONSULTAR RESULTADO
-// ========================================
+// ===============================
 
 function iniciarConsultaResultado() {
 
-    // Evita criar vários intervalos
-    if (consultaResultado) {
-        clearInterval(consultaResultado);
-    }
+  // Evita criar vários timers
+  if (consultaResultado) {
+    clearInterval(consultaResultado);
+  }
 
-    // Consulta imediatamente
-    verificarResultado();
+  // Verifica imediatamente
+  verificarResultado();
 
-    // Depois consulta a cada 3 segundos
-    consultaResultado = setInterval(
-        verificarResultado,
-        3000
-    );
+  // Depois verifica a cada 3 segundos
+  consultaResultado = setInterval(
+    verificarResultado,
+    3000
+  );
 }
 
 
 async function verificarResultado() {
 
-    try {
+  try {
 
-        const resposta = await fetch(
-            API_URL + "/resultado"
-        );
+    const resposta = await fetch(
+      API_URL + "/resultado"
+    );
 
-        if (!resposta.ok) {
-            return;
-        }
-
-        const dados = await resposta.json();
-
-        console.log(
-            "Resposta do resultado:",
-            dados
-        );
-
-        // Se ainda não houver resultado, continua esperando
-        if (!dados.disponivel) {
-            return;
-        }
-
-        // Resultado encontrado
-        receberResultado(dados);
-
-        if (consultaResultado) {
-            clearInterval(consultaResultado);
-            consultaResultado = null;
-        }
-
-    } catch (erro) {
-
-        console.log(
-            "Aguardando resultado..."
-        );
+    if (!resposta.ok) {
+      throw new Error("Erro HTTP: " + resposta.status);
     }
+
+    const dados = await resposta.json();
+
+    console.log("Resultado recebido:", dados);
+
+    // Ainda não existe resultado
+    if (!dados.disponivel) {
+      return;
+    }
+
+    // Resultado encontrado
+    receberResultado(dados);
+
+    // Para de consultar
+    if (consultaResultado) {
+      clearInterval(consultaResultado);
+      consultaResultado = null;
+    }
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao consultar resultado:",
+      erro
+    );
+
+  }
 }
 
 
-// ========================================
-// RECEBER RESULTADO DO ESP32
-// ========================================
+// ===============================
+// MOSTRAR RESULTADO
+// ===============================
 
 function receberResultado(dados) {
 
-    const botao =
-        document.getElementById("analisarBtn");
+  const statusAnalise =
+    document.getElementById("statusAnalise");
 
-    const status =
-        document.getElementById("statusAnalise");
+  const resultado =
+    document.getElementById("last-result");
 
-    const deviceStatus =
-        document.getElementById("device-status");
+  const readingValue =
+    document.getElementById("reading-value");
 
-    const lastResult =
-        document.getElementById("last-result");
+  const readingStatus =
+    document.getElementById("reading-status");
 
-    const readingValue =
-        document.getElementById("reading-value");
+  const readingDetail =
+    document.getElementById("reading-detail");
 
-    const readingStatus =
-        document.getElementById("reading-status");
+  const botao =
+    document.getElementById("analisarBtn");
 
-    const readingDetail =
-        document.getElementById("reading-detail");
 
-    if (botao) {
-        botao.disabled = false;
-        botao.textContent =
-            "🔍 INICIAR ANÁLISE";
-    }
+  // Status principal
+  if (statusAnalise) {
+    statusAnalise.textContent =
+      "✅ Análise concluída";
+  }
 
-    if (status) {
-        status.textContent =
-            "Análise concluída.";
-    }
 
-    if (deviceStatus) {
-        deviceStatus.textContent =
-            "Online";
-    }
+  // Último resultado
+  if (resultado) {
+    resultado.textContent =
+      dados.valor || "Resultado recebido";
+  }
 
-    if (dados.valor !== undefined) {
 
-        if (readingValue) {
-            readingValue.textContent =
-                dados.valor;
-        }
+  // Valor da análise
+  if (readingValue) {
+    readingValue.textContent =
+      dados.valor || "--";
+  }
 
-        if (lastResult) {
-            lastResult.textContent =
-                dados.valor + "%";
-        }
-    }
 
-    if (dados.status && readingStatus) {
-        readingStatus.textContent =
-            dados.status;
-    }
+  // Status
+  if (readingStatus) {
+    readingStatus.textContent =
+      dados.status || "--";
+  }
 
-    if (dados.detalhe && readingDetail) {
-        readingDetail.textContent =
-            dados.detalhe;
-    }
+
+  // Detalhes
+  if (readingDetail) {
+    readingDetail.textContent =
+      dados.detalhe || "--";
+  }
+
+
+  // Libera o botão novamente
+  if (botao) {
+    botao.disabled = false;
+    botao.textContent =
+      "🔍 INICIAR ANÁLISE";
+  }
+
+  console.log(
+    "Análise exibida no site:",
+    dados
+  );
 }
 
 
-// ========================================
+// ===============================
+// NAVEGAÇÃO DO MENU
+// ===============================
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function () {
+
+    const links =
+      document.querySelectorAll(
+        ".sidebar a, .menu-item"
+      );
+
+    links.forEach(function (link) {
+
+      link.addEventListener(
+        "click",
+        function (event) {
+
+          const destino =
+            link.getAttribute("href");
+
+          if (
+            destino &&
+            destino.startsWith("#")
+          ) {
+
+            event.preventDefault();
+
+            const elemento =
+              document.querySelector(destino);
+
+            if (elemento) {
+
+              elemento.scrollIntoView({
+                behavior: "smooth"
+              });
+
+            }
+          }
+
+        }
+      );
+
+    });
+
+  }
+);
+
+
+// ===============================
 // CONFIGURAÇÕES
-// ========================================
+// ===============================
 
 function saveSettings() {
 
-    const saved =
-        document.getElementById("saved");
+  const mensagem =
+    document.getElementById(
+      "settings-message"
+    );
 
-    if (saved) {
-        saved.textContent =
-            "✓ Configurações salvas!";
-    }
+  if (mensagem) {
 
-    setTimeout(() => {
+    mensagem.textContent =
+      "✅ Configurações salvas.";
 
-        if (saved) {
-            saved.textContent = "";
-        }
+    setTimeout(function () {
+
+      mensagem.textContent = "";
 
     }, 3000);
+
+  }
+
 }
-
-
-// ========================================
-// INICIALIZAÇÃO
-// ========================================
-
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        showPage("dashboard");
-
-    }
-);
