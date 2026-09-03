@@ -1,6 +1,5 @@
 // ========================================
 // CleanSurface AI
-// Sistema principal
 // ========================================
 
 
@@ -12,14 +11,11 @@ const navItems = document.querySelectorAll(".nav-item");
 const pages = document.querySelectorAll(".page");
 const pageTitle = document.getElementById("page-title");
 
-
 navItems.forEach(item => {
 
     item.addEventListener("click", () => {
 
-        const pageName = item.dataset.page;
-
-        showPage(pageName);
+        showPage(item.dataset.page);
 
     });
 
@@ -29,18 +25,12 @@ navItems.forEach(item => {
 function showPage(pageName) {
 
     pages.forEach(page => {
-
         page.classList.remove("active-page");
-
     });
-
 
     navItems.forEach(item => {
-
         item.classList.remove("active");
-
     });
-
 
     const page = document.getElementById(pageName);
 
@@ -48,48 +38,31 @@ function showPage(pageName) {
         `.nav-item[data-page="${pageName}"]`
     );
 
-
     if (page) {
-
         page.classList.add("active-page");
-
     }
-
 
     if (button) {
-
         button.classList.add("active");
-
     }
-
 
     const titles = {
-
         dashboard: "Dashboard",
-
         monitoramento: "Monitoramento",
-
         alertas: "Alertas",
-
         historico: "Histórico",
-
         configuracoes: "Configurações"
-
     };
 
-
     if (pageTitle) {
-
         pageTitle.textContent =
             titles[pageName] || "CleanSurface AI";
-
     }
-
 }
 
 
 // ========================================
-// INICIAR ANÁLISE
+// BOTÃO INICIAR ANÁLISE
 // ========================================
 
 function iniciarAnalise() {
@@ -100,39 +73,8 @@ function iniciarAnalise() {
     const status =
         document.getElementById("statusAnalise");
 
-
-    if (!botao) return;
-
-
-    botao.disabled = true;
-
-    botao.textContent =
-        "⏳ ANALISANDO...";
-
-
-    if (status) {
-
-        status.textContent =
-            "O CleanSurface AI está realizando a análise...";
-
-    }
-
-
-    // Mostra a tela de monitoramento
-
-    showPage("monitoramento");
-
-
     const deviceStatus =
         document.getElementById("device-status");
-
-    if (deviceStatus) {
-
-        deviceStatus.textContent =
-            "Analisando";
-
-    }
-
 
     const readingStatus =
         document.getElementById("reading-status");
@@ -141,10 +83,45 @@ function iniciarAnalise() {
         document.getElementById("reading-detail");
 
 
+    // Muda o botão
+
+    if (botao) {
+
+        botao.disabled = true;
+
+        botao.textContent =
+            "⏳ ANALISANDO...";
+
+    }
+
+
+    // Mostra que está aguardando o ESP32
+
+    if (status) {
+
+        status.textContent =
+            "Aguardando o ESP32-S3-CAM...";
+
+    }
+
+
+    if (deviceStatus) {
+
+        deviceStatus.textContent =
+            "Solicitando análise";
+
+    }
+
+
+    // Abre o monitoramento
+
+    showPage("monitoramento");
+
+
     if (readingStatus) {
 
         readingStatus.textContent =
-            "Analisando superfície...";
+            "Análise em andamento";
 
     }
 
@@ -159,28 +136,23 @@ function iniciarAnalise() {
 
     /*
     ========================================
-    SIMULAÇÃO TEMPORÁRIA
+    IMPORTANTE
 
-    Depois vamos substituir esta parte
-    pela comunicação real com o ESP32.
+    Nenhum resultado é inventado aqui.
+
+    O resultado será colocado nesta função
+    quando o ESP32 enviar os dados reais.
     ========================================
     */
-
-
-    setTimeout(() => {
-
-        finalizarAnalise(92);
-
-    }, 3000);
 
 }
 
 
 // ========================================
-// FINALIZAR ANÁLISE
+// RECEBER RESULTADO DO ESP32
 // ========================================
 
-function finalizarAnalise(valor) {
+function receberResultado(dados) {
 
     const botao =
         document.getElementById("analisarBtn");
@@ -204,47 +176,7 @@ function finalizarAnalise(valor) {
         document.getElementById("reading-detail");
 
 
-    // Resultado
-
-    if (readingValue) {
-
-        readingValue.textContent =
-            valor;
-
-    }
-
-
-    if (readingStatus) {
-
-        readingStatus.textContent =
-            "Superfície limpa";
-
-    }
-
-
-    if (readingDetail) {
-
-        readingDetail.textContent =
-            "Análise concluída com sucesso.";
-
-    }
-
-
-    if (lastResult) {
-
-        lastResult.textContent =
-            valor + "%";
-
-    }
-
-
-    if (deviceStatus) {
-
-        deviceStatus.textContent =
-            "Online";
-
-    }
-
+    // Reativa o botão
 
     if (botao) {
 
@@ -263,6 +195,48 @@ function finalizarAnalise(valor) {
 
     }
 
+
+    if (deviceStatus) {
+
+        deviceStatus.textContent =
+            "Online";
+
+    }
+
+
+    // Resultado recebido
+
+    if (dados.valor !== undefined && readingValue) {
+
+        readingValue.textContent =
+            dados.valor;
+
+    }
+
+
+    if (dados.status && readingStatus) {
+
+        readingStatus.textContent =
+            dados.status;
+
+    }
+
+
+    if (dados.detalhe && readingDetail) {
+
+        readingDetail.textContent =
+            dados.detalhe;
+
+    }
+
+
+    if (dados.valor !== undefined && lastResult) {
+
+        lastResult.textContent =
+            dados.valor + "%";
+
+    }
+
 }
 
 
@@ -275,7 +249,6 @@ function saveSettings() {
     const saved =
         document.getElementById("saved");
 
-
     if (saved) {
 
         saved.textContent =
@@ -283,9 +256,17 @@ function saveSettings() {
 
     }
 
+    setTimeout(() => {
 
-// Aguardando o ESP32 enviar o resultado.
-// Nenhum resultado é inventado pelo site.
+        if (saved) {
+
+            saved.textContent = "";
+
+        }
+
+    }, 3000);
+
+}
 
 
 // ========================================
