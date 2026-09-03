@@ -2,6 +2,8 @@
 // CleanSurface AI
 // ========================================
 
+const API_URL =
+    "https://cleansurface-api.luizinfernando19.workers.dev";
 
 // ========================================
 // NAVEGAÇÃO
@@ -12,15 +14,10 @@ const pages = document.querySelectorAll(".page");
 const pageTitle = document.getElementById("page-title");
 
 navItems.forEach(item => {
-
     item.addEventListener("click", () => {
-
         showPage(item.dataset.page);
-
     });
-
 });
-
 
 function showPage(pageName) {
 
@@ -60,12 +57,11 @@ function showPage(pageName) {
     }
 }
 
-
 // ========================================
-// BOTÃO INICIAR ANÁLISE
+// INICIAR ANÁLISE
 // ========================================
 
-function iniciarAnalise() {
+async function iniciarAnalise() {
 
     const botao =
         document.getElementById("analisarBtn");
@@ -82,71 +78,117 @@ function iniciarAnalise() {
     const readingDetail =
         document.getElementById("reading-detail");
 
-
-    // Muda o botão
-
     if (botao) {
-
         botao.disabled = true;
-
         botao.textContent =
-            "⏳ ANALISANDO...";
-
+            "⏳ SOLICITANDO...";
     }
-
-
-    // Mostra que está aguardando o ESP32
 
     if (status) {
-
         status.textContent =
-            "Aguardando o ESP32-S3-CAM...";
-
+            "Enviando solicitação...";
     }
-
 
     if (deviceStatus) {
-
         deviceStatus.textContent =
-            "Solicitando análise";
-
+            "Conectando...";
     }
-
-
-    // Abre o monitoramento
 
     showPage("monitoramento");
 
-
     if (readingStatus) {
-
         readingStatus.textContent =
-            "Análise em andamento";
-
+            "Solicitando análise";
     }
-
 
     if (readingDetail) {
-
         readingDetail.textContent =
-            "Aguardando resultado do ESP32-S3-CAM.";
-
+            "Entrando em contato com o servidor CleanSurface AI...";
     }
 
+    try {
 
-    /*
-    ========================================
-    IMPORTANTE
+        const resposta = await fetch(
+            API_URL + "/iniciar-analise",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
 
-    Nenhum resultado é inventado aqui.
+        const dados = await resposta.json();
 
-    O resultado será colocado nesta função
-    quando o ESP32 enviar os dados reais.
-    ========================================
-    */
+        console.log("Resposta da API:", dados);
 
+        if (!resposta.ok) {
+            throw new Error(
+                "Erro HTTP " + resposta.status
+            );
+        }
+
+        if (status) {
+            status.textContent =
+                "Solicitação enviada.";
+        }
+
+        if (deviceStatus) {
+            deviceStatus.textContent =
+                "Aguardando ESP32";
+        }
+
+        if (readingStatus) {
+            readingStatus.textContent =
+                "Aguardando ESP32-S3-CAM";
+        }
+
+        if (readingDetail) {
+            readingDetail.textContent =
+                dados.mensagem ||
+                "Aguardando resultado do dispositivo.";
+        }
+
+        if (botao) {
+            botao.disabled = false;
+            botao.textContent =
+                "🔍 INICIAR ANÁLISE";
+        }
+
+    } catch (erro) {
+
+        console.error(
+            "Erro ao iniciar análise:",
+            erro
+        );
+
+        if (status) {
+            status.textContent =
+                "Erro ao conectar com o servidor.";
+        }
+
+        if (deviceStatus) {
+            deviceStatus.textContent =
+                "Offline";
+        }
+
+        if (readingStatus) {
+            readingStatus.textContent =
+                "Erro de conexão";
+        }
+
+        if (readingDetail) {
+            readingDetail.textContent =
+                "Não foi possível entrar em contato com a API.";
+        }
+
+        if (botao) {
+            botao.disabled = false;
+            botao.textContent =
+                "🔍 TENTAR NOVAMENTE";
+        }
+    }
 }
-
 
 // ========================================
 // RECEBER RESULTADO DO ESP32
@@ -175,70 +217,45 @@ function receberResultado(dados) {
     const readingDetail =
         document.getElementById("reading-detail");
 
-
-    // Reativa o botão
-
     if (botao) {
-
         botao.disabled = false;
-
         botao.textContent =
             "🔍 INICIAR ANÁLISE";
-
     }
-
 
     if (status) {
-
         status.textContent =
             "Análise concluída.";
-
     }
-
 
     if (deviceStatus) {
-
         deviceStatus.textContent =
             "Online";
-
     }
 
+    if (dados.valor !== undefined) {
 
-    // Resultado recebido
+        if (readingValue) {
+            readingValue.textContent =
+                dados.valor;
+        }
 
-    if (dados.valor !== undefined && readingValue) {
-
-        readingValue.textContent =
-            dados.valor;
-
+        if (lastResult) {
+            lastResult.textContent =
+                dados.valor + "%";
+        }
     }
-
 
     if (dados.status && readingStatus) {
-
         readingStatus.textContent =
             dados.status;
-
     }
-
 
     if (dados.detalhe && readingDetail) {
-
         readingDetail.textContent =
             dados.detalhe;
-
     }
-
-
-    if (dados.valor !== undefined && lastResult) {
-
-        lastResult.textContent =
-            dados.valor + "%";
-
-    }
-
 }
-
 
 // ========================================
 // CONFIGURAÇÕES
@@ -250,24 +267,18 @@ function saveSettings() {
         document.getElementById("saved");
 
     if (saved) {
-
         saved.textContent =
             "✓ Configurações salvas!";
-
     }
 
     setTimeout(() => {
 
         if (saved) {
-
             saved.textContent = "";
-
         }
 
     }, 3000);
-
 }
-
 
 // ========================================
 // INICIALIZAÇÃO
@@ -276,8 +287,6 @@ function saveSettings() {
 document.addEventListener(
     "DOMContentLoaded",
     () => {
-
         showPage("dashboard");
-
     }
 );
