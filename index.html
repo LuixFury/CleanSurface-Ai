@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
@@ -6,8 +6,11 @@
   <title>CleanSurface AI</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
   <aside class="sidebar">
+
     <div class="brand">
       <div class="brand-icon">✦</div>
       <div>
@@ -17,11 +20,25 @@
     </div>
 
     <nav>
-      <button class="nav-item active" data-page="dashboard">⌂ <span>Dashboard</span></button>
-      <button class="nav-item" data-page="monitoramento">◉ <span>Monitoramento</span></button>
-      <button class="nav-item" data-page="alertas">⚠ <span>Alertas</span></button>
-      <button class="nav-item" data-page="historico">◷ <span>Histórico</span></button>
-      <button class="nav-item" data-page="configuracoes">⚙ <span>Configurações</span></button>
+      <button class="nav-item active" data-page="dashboard">
+        ⌂ <span>Dashboard</span>
+      </button>
+
+      <button class="nav-item" data-page="monitoramento">
+        ◉ <span>Monitoramento</span>
+      </button>
+
+      <button class="nav-item" data-page="alertas">
+        ⚠ <span>Alertas</span>
+      </button>
+
+      <button class="nav-item" data-page="historico">
+        ◷ <span>Histórico</span>
+      </button>
+
+      <button class="nav-item" data-page="configuracoes">
+        ⚙ <span>Configurações</span>
+      </button>
     </nav>
 
     <div class="connection-card">
@@ -31,129 +48,446 @@
         <strong>Pronto para conectar</strong>
       </div>
     </div>
+
   </aside>
 
+
   <main class="main">
+
     <header class="topbar">
+
       <div>
         <p class="eyebrow">MONITORAMENTO INTELIGENTE</p>
         <h1 id="page-title">Dashboard</h1>
       </div>
+
       <div class="top-actions">
-        <div class="user-chip">CA <span>CleanSurface AI</span></div>
+        <div class="user-chip">
+          CA <span>CleanSurface AI</span>
+        </div>
       </div>
+
     </header>
 
+
+    <!-- DASHBOARD -->
+
     <section id="dashboard" class="page active-page">
+
       <div class="hero">
+
         <div>
-          <p class="eyebrow">CLEAN SURFACE INTELLIGENCE</p>
-          <h2>Monitore suas superfícies<br><em>de forma inteligente.</em></h2>
-          <p class="hero-text">O CleanSurface AI recebe os dados do dispositivo, interpreta os resultados e prepara alertas para o usuário.</p>
-          <button class="primary" onclick="showPage('monitoramento')">Abrir monitoramento →</button>
+
+          <p class="eyebrow">
+            CLEAN SURFACE INTELLIGENCE
+          </p>
+
+          <h2>
+            Monitore suas superfícies<br>
+            <em>de forma inteligente.</em>
+          </h2>
+
+          <p class="hero-text">
+            O CleanSurface AI recebe os dados do dispositivo,
+            interpreta os resultados e prepara alertas para o usuário.
+          </p>
+
+
+          <!-- BOTÃO DE ANÁLISE -->
+
+          <button
+            class="primary"
+            id="analisarBtn"
+            onclick="iniciarAnalise()">
+            🔍 INICIAR ANÁLISE
+          </button>
+
+          <p id="statusAnalise">
+            Pronto para analisar
+          </p>
+
+
+          <button
+            class="primary"
+            onclick="showPage('monitoramento')">
+            Abrir monitoramento →
+          </button>
+
         </div>
+
+
         <div class="hero-orb">
+
           <div class="orb-ring"></div>
-          <div class="orb-core">AI</div>
+
+          <div class="orb-core">
+            AI
+          </div>
+
         </div>
+
       </div>
+
+
+      <!-- CARDS -->
 
       <div class="cards">
+
         <div class="stat-card">
+
           <div class="stat-icon">◉</div>
+
           <span>DISPOSITIVO</span>
-          <strong id="device-status">Aguardando</strong>
-          <small>ESP32-S3-CAM</small>
+
+          <strong id="device-status">
+            Aguardando
+          </strong>
+
+          <small>
+            ESP32-S3-CAM
+          </small>
+
         </div>
+
+
         <div class="stat-card">
+
           <div class="stat-icon">⌁</div>
+
           <span>ÚLTIMA LEITURA</span>
-          <strong id="last-result">Nenhuma</strong>
-          <small>Os dados aparecerão aqui</small>
+
+          <strong id="last-result">
+            Nenhuma
+          </strong>
+
+          <small>
+            Os dados aparecerão aqui
+          </small>
+
         </div>
+
+
         <div class="stat-card">
+
           <div class="stat-icon">⚠</div>
+
           <span>ALERTAS</span>
-          <strong id="alert-count">0</strong>
-          <small>Alertas registrados</small>
+
+          <strong id="alert-count">
+            0
+          </strong>
+
+          <small>
+            Alertas registrados
+          </small>
+
         </div>
+
       </div>
+
+
+      <!-- FLUXO -->
 
       <div class="section-card">
+
         <div class="section-head">
+
           <div>
-            <h3>Fluxo do sistema</h3>
-            <p>Como o CleanSurface AI funcionará</p>
+
+            <h3>
+              Fluxo do sistema
+            </h3>
+
+            <p>
+              Como o CleanSurface AI funcionará
+            </p>
+
           </div>
+
         </div>
+
+
         <div class="flow">
-          <div class="flow-step"><b>01</b><strong>ESP32-S3-CAM</strong><span>Realiza a leitura</span></div>
+
+          <div class="flow-step">
+            <b>01</b>
+            <strong>ESP32-S3-CAM</strong>
+            <span>Realiza a leitura</span>
+          </div>
+
           <div class="flow-line"></div>
-          <div class="flow-step"><b>02</b><strong>CleanSurface AI</strong><span>Recebe e interpreta</span></div>
+
+          <div class="flow-step">
+            <b>02</b>
+            <strong>CleanSurface AI</strong>
+            <span>Recebe e interpreta</span>
+          </div>
+
           <div class="flow-line"></div>
-          <div class="flow-step"><b>03</b><strong>Notificação</strong><span>WhatsApp / E-mail</span></div>
+
+          <div class="flow-step">
+            <b>03</b>
+            <strong>Notificação</strong>
+            <span>WhatsApp / E-mail</span>
+          </div>
+
         </div>
+
       </div>
+
     </section>
+
+
+    <!-- MONITORAMENTO -->
 
     <section id="monitoramento" class="page">
+
       <div class="section-card big">
+
         <div class="section-head">
+
           <div>
-            <p class="eyebrow">TEMPO REAL</p>
-            <h3>Monitoramento</h3>
-            <p>Esta tela ficará conectada ao ESP32 quando integrarmos o código.</p>
+
+            <p class="eyebrow">
+              TEMPO REAL
+            </p>
+
+            <h3>
+              Monitoramento
+            </h3>
+
+            <p>
+              Resultado da análise realizada pelo ESP32-S3-CAM.
+            </p>
+
           </div>
-          <span class="badge waiting">AGUARDANDO DISPOSITIVO</span>
+
+          <span class="badge waiting">
+            AGUARDANDO DISPOSITIVO
+          </span>
+
         </div>
+
+
         <div class="reading">
-          <div class="reading-circle"><span id="reading-value">--</span><small>%</small></div>
-          <div>
-            <span class="label">RESULTADO DA ANÁLISE</span>
-            <h2 id="reading-status">Aguardando leitura</h2>
-            <p id="reading-detail">Nenhum dado recebido ainda.</p>
+
+          <div class="reading-circle">
+
+            <span id="reading-value">
+              --
+            </span>
+
+            <small>
+              %
+            </small>
+
           </div>
+
+
+          <div>
+
+            <span class="label">
+              RESULTADO DA ANÁLISE
+            </span>
+
+            <h2 id="reading-status">
+              Aguardando leitura
+            </h2>
+
+            <p id="reading-detail">
+              Nenhum dado recebido ainda.
+            </p>
+
+          </div>
+
         </div>
+
       </div>
+
     </section>
+
+
+    <!-- ALERTAS -->
 
     <section id="alertas" class="page">
+
       <div class="section-card big">
+
         <div class="section-head">
-          <div><p class="eyebrow">NOTIFICAÇÕES</p><h3>Alertas</h3><p>Os alertas do dispositivo aparecerão nesta área.</p></div>
+
+          <div>
+
+            <p class="eyebrow">
+              NOTIFICAÇÕES
+            </p>
+
+            <h3>
+              Alertas
+            </h3>
+
+            <p>
+              Os alertas do dispositivo aparecerão nesta área.
+            </p>
+
+          </div>
+
         </div>
-        <div class="empty"><div>✓</div><strong>Nenhum alerta</strong><span>Quando o ESP32 enviar uma condição de alerta, ela aparecerá aqui.</span></div>
+
+
+        <div class="empty">
+
+          <div>✓</div>
+
+          <strong>
+            Nenhum alerta
+          </strong>
+
+          <span>
+            Quando o ESP32 enviar uma condição de alerta,
+            ela aparecerá aqui.
+          </span>
+
+        </div>
+
       </div>
+
     </section>
+
+
+    <!-- HISTÓRICO -->
 
     <section id="historico" class="page">
+
       <div class="section-card big">
+
         <div class="section-head">
-          <div><p class="eyebrow">REGISTROS</p><h3>Histórico</h3><p>Histórico das análises realizadas.</p></div>
+
+          <div>
+
+            <p class="eyebrow">
+              REGISTROS
+            </p>
+
+            <h3>
+              Histórico
+            </h3>
+
+            <p>
+              Histórico das análises realizadas.
+            </p>
+
+          </div>
+
         </div>
+
+
         <div class="table-placeholder">
-          <div>Data e hora</div><div>Resultado</div><div>Nível</div><div>Status</div>
-          <p>O histórico será preenchido automaticamente após a integração com o ESP32.</p>
+
+          <div>Data e hora</div>
+          <div>Resultado</div>
+          <div>Nível</div>
+          <div>Status</div>
+
+          <p>
+            O histórico será preenchido automaticamente
+            após a integração com o ESP32.
+          </p>
+
         </div>
+
       </div>
+
     </section>
+
+
+    <!-- CONFIGURAÇÕES -->
 
     <section id="configuracoes" class="page">
+
       <div class="section-card big">
+
         <div class="section-head">
-          <div><p class="eyebrow">SISTEMA</p><h3>Configurações</h3><p>Defina como deseja receber os avisos.</p></div>
+
+          <div>
+
+            <p class="eyebrow">
+              SISTEMA
+            </p>
+
+            <h3>
+              Configurações
+            </h3>
+
+            <p>
+              Defina como deseja receber os avisos.
+            </p>
+
+          </div>
+
         </div>
+
+
         <div class="settings">
-          <label>WhatsApp para receber alertas<input type="text" placeholder="+55 (00) 00000-0000"></label>
-          <label>E-mail para receber alertas<input type="email" placeholder="seuemail@exemplo.com"></label>
-          <label>Nível mínimo para alerta<input type="number" min="0" max="100" value="70"></label>
-          <button class="primary" onclick="saveSettings()">Salvar configurações</button>
-          <span id="saved" class="saved"></span>
+
+          <label>
+
+            WhatsApp para receber alertas
+
+            <input
+              type="text"
+              placeholder="+55 (00) 00000-0000">
+
+          </label>
+
+
+          <label>
+
+            E-mail para receber alertas
+
+            <input
+              type="email"
+              placeholder="seuemail@exemplo.com">
+
+          </label>
+
+
+          <label>
+
+            Nível mínimo para alerta
+
+            <input
+              type="number"
+              min="0"
+              max="100"
+              value="70">
+
+          </label>
+
+
+          <button
+            class="primary"
+            onclick="saveSettings()">
+
+            Salvar configurações
+
+          </button>
+
+
+          <span
+            id="saved"
+            class="saved">
+          </span>
+
         </div>
+
       </div>
+
     </section>
+
   </main>
 
+
   <script src="script.js"></script>
+
 </body>
 </html>
