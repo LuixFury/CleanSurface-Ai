@@ -1,8 +1,12 @@
 // ============================================================
 // CleanSurface AI - script.js
+// Integração com API + ESP32-S3-CAM
 // ============================================================
 
 const API_URL = "https://cleansurface-api.luizinfernando19.workers.dev";
+
+let analiseAtualId = null;
+let verificandoResultado = false;
 
 
 // ============================================================
@@ -10,15 +14,11 @@ const API_URL = "https://cleansurface-api.luizinfernando19.workers.dev";
 // ============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-
     configurarNavegacao();
-
     carregarConfiguracoes();
-
     carregarHistorico();
-
     atualizarDashboard();
-
+    verificarAPI();
 });
 
 
@@ -27,109 +27,102 @@ document.addEventListener("DOMContentLoaded", () => {
 // ============================================================
 
 function configurarNavegacao() {
-
     const botoes = document.querySelectorAll(".nav-item");
 
     botoes.forEach(botao => {
-
         botao.addEventListener("click", () => {
-
             const pagina = botao.dataset.page;
 
-            mostrarPagina(pagina);
-
+            if (pagina) {
+                mostrarPagina(pagina);
+            }
         });
-
     });
-
 }
 
-
 function mostrarPagina(nomePagina) {
-
     const paginas = document.querySelectorAll(".page");
     const botoes = document.querySelectorAll(".nav-item");
 
     paginas.forEach(pagina => {
-
         pagina.classList.remove("active-page");
-
     });
-
 
     botoes.forEach(botao => {
-
         botao.classList.remove("active");
-
     });
 
-
-    const paginaSelecionada =
-        document.getElementById(nomePagina);
+    const paginaSelecionada = document.getElementById(nomePagina);
 
     if (paginaSelecionada) {
-
         paginaSelecionada.classList.add("active-page");
-
     }
-
 
     const botaoSelecionado =
-        document.querySelector(
-            `.nav-item[data-page="${nomePagina}"]`
-        );
+        document.querySelector(`.nav-item[data-page="${nomePagina}"]`);
 
     if (botaoSelecionado) {
-
         botaoSelecionado.classList.add("active");
-
     }
 
-
-    const titulo =
-        document.getElementById("page-title");
+    const titulo = document.getElementById("page-title");
 
     if (titulo) {
-
         const titulos = {
-
             dashboard: "Dashboard",
-
             monitoramento: "Monitoramento",
-
             alertas: "Alertas",
-
             historico: "Histórico",
-
             configuracoes: "Configurações",
-
             creditos: "Equipe / Créditos"
-
         };
 
         titulo.textContent =
             titulos[nomePagina] || "CleanSurface AI";
-
     }
-
-
-    // Sempre atualiza o histórico ao abrir a página
 
     if (nomePagina === "historico") {
-
         carregarHistorico();
-
     }
+}
 
+function showPage(nomePagina) {
+    mostrarPagina(nomePagina);
 }
 
 
-// Compatibilidade caso algum botão antigo use showPage()
+// ============================================================
+// VERIFICAR API
+// ============================================================
 
-function showPage(nomePagina) {
+async function verificarAPI() {
+    const dispositivo = document.getElementById("device-status");
 
-    mostrarPagina(nomePagina);
+    try {
+        const resposta = await fetch(API_URL, {
+            method: "GET",
+            cache: "no-store"
+        });
 
+        if (!resposta.ok) {
+            throw new Error("API offline");
+        }
+
+        const dados = await resposta.json();
+
+        console.log("API CleanSurface AI:", dados);
+
+        if (dispositivo) {
+            dispositivo.textContent = "Online";
+        }
+
+    } catch (erro) {
+        console.error("API:", erro);
+
+        if (dispositivo) {
+            dispositivo.textContent = "Offline";
+        }
+    }
 }
 
 
@@ -139,239 +132,216 @@ function showPage(nomePagina) {
 
 async function iniciarAnalise() {
 
-    const botao =
-        document.getElementById("analisarBtn");
+    const botao = document.getElementById("analisarBtn");
+    const status = document.getElementById("statusAnalise");
+    const dispositivo = document.getElementById("device-status");
 
-    const status =
-        document.getElementById("statusAnalise");
-
-    const dispositivo =
-        document.getElementById("device-status");
-
+    if (verificandoResultado) {
+        return;
+    }
 
     if (botao) {
-
         botao.disabled = true;
-
-        botao.innerHTML =
-            "⏳ SOLICITANDO ANÁLISE...";
-
+        botao.innerHTML = "⏳ SOLICITANDO ANÁLISE...";
     }
-
 
     if (status) {
-
         status.textContent =
-            "Solicitando análise ao sistema...";
-
+            "Solicitando análise ao ESP32-S3-CAM...";
     }
-
 
     if (dispositivo) {
-
-        dispositivo.textContent =
-            "Conectando...";
-
+        dispositivo.textContent = "Solicitando...";
     }
-
 
     try {
 
-        const resposta =
-            await fetch(`${API_URL}/analise`, {
+        const configuracoes =
+            obterConfiguracoes();
 
-                method: "GET",
+        const resposta = await fetch(
+            `${API_URL}/iniciar-analise`,
+            {
+                method: "POST",
 
                 headers: {
+                    "Content-Type": "application/json"
+                },
 
-                    "Accept": "application/json"
+                body: JSON.stringify({
+                    email: configuracoes.email || ""
+                }),
 
-                }
-
-            });
-
+                cache: "no-store"
+            }
+        );
 
         if (!resposta.ok) {
-
             throw new Error(
                 `Erro HTTP ${resposta.status}`
             );
-
         }
 
-
-        const dados =
-            await resposta.json();
-
+        const dados = await resposta.json();
 
         console.log(
-            "Resposta da API:",
+            "Análise criada:",
             dados
         );
 
+        if (!dados.sucesso) {
+            throw new Error(
+                dados.mensagem ||
+                "Não foi possível iniciar a análise."
+            );
+        }
+
+        analiseAtualId =
+            dados.analise_id;
 
         if (status) {
-
             status.textContent =
-                dados.mensagem ||
                 "Análise solicitada. Aguardando ESP32-S3-CAM...";
-
         }
-
 
         if (dispositivo) {
-
             dispositivo.textContent =
                 "Aguardando ESP32";
-
         }
 
-
-        // Começa a procurar um resultado
-
+        // Começa a procurar o resultado
         aguardarResultado();
 
-    }
-
-    catch (erro) {
+    } catch (erro) {
 
         console.error(
             "Erro ao iniciar análise:",
             erro
         );
 
-
         if (status) {
-
             status.textContent =
-                "❌ Não foi possível conectar à API.";
-
+                "❌ Não foi possível iniciar a análise.";
         }
-
 
         if (dispositivo) {
-
             dispositivo.textContent =
                 "Offline";
-
         }
 
-    }
-
-    finally {
+    } finally {
 
         if (botao) {
-
             botao.disabled = false;
-
             botao.innerHTML =
                 "🔍 INICIAR ANÁLISE";
-
         }
-
     }
-
 }
 
 
 // ============================================================
-// AGUARDAR RESULTADO
+// AGUARDAR RESULTADO DO ESP32
 // ============================================================
-
-let verificandoResultado = false;
-
 
 async function aguardarResultado() {
 
     if (verificandoResultado) {
-
         return;
-
     }
 
+    if (!analiseAtualId) {
+        console.error(
+            "Nenhum analise_id disponível."
+        );
+        return;
+    }
 
     verificandoResultado = true;
-
 
     const status =
         document.getElementById("statusAnalise");
 
-
     const dispositivo =
         document.getElementById("device-status");
 
-
     if (status) {
-
         status.textContent =
             "Aguardando resultado do ESP32-S3-CAM...";
-
     }
-
 
     if (dispositivo) {
-
         dispositivo.textContent =
-            "Aguardando resultado";
-
+            "Aguardando ESP32";
     }
-
-
-    /*
-       Tentamos verificar o endpoint de resultado.
-
-       Caso a API ainda não disponibilize uma consulta GET,
-       o erro é ignorado e o sistema continua funcionando.
-    */
 
     let tentativas = 0;
 
-    const limiteTentativas = 20;
+    const limiteTentativas = 40;
 
+    const intervalo = setInterval(
+        async () => {
 
-    const intervalo = setInterval(async () => {
+            tentativas++;
 
-        tentativas++;
+            try {
 
+                const resposta =
+                    await fetch(
+                        `${API_URL}/resultado?analise_id=${analiseAtualId}`,
+                        {
+                            method: "GET",
+                            headers: {
+                                "Accept":
+                                    "application/json"
+                            },
+                            cache: "no-store"
+                        }
+                    );
 
-        try {
+                if (!resposta.ok) {
+                    throw new Error(
+                        `HTTP ${resposta.status}`
+                    );
+                }
 
-            const resposta =
-                await fetch(`${API_URL}/resultado`, {
+                const dados =
+                    await resposta.json();
 
-                    method: "GET",
-
-                    headers: {
-
-                        "Accept": "application/json"
-
-                    },
-
-                    cache: "no-store"
-
-                });
-
-
-            if (!resposta.ok) {
-
-                throw new Error(
-                    `HTTP ${resposta.status}`
+                console.log(
+                    "Consulta resultado:",
+                    dados
                 );
 
-            }
+                // Ainda não existe resultado
+                if (
+                    dados.disponivel !== true
+                ) {
 
+                    if (status) {
+                        status.textContent =
+                            "Aguardando análise do ESP32-S3-CAM...";
+                    }
 
-            const dados =
-                await resposta.json();
+                    return;
+                }
 
+                // Confirma que o resultado pertence
+                // à análise atual
+                if (
+                    String(dados.analise_id) !==
+                    String(analiseAtualId)
+                ) {
 
-            console.log(
-                "Resultado recebido:",
-                dados
-            );
+                    console.log(
+                        "Resultado antigo ignorado:",
+                        dados.analise_id
+                    );
 
+                    return;
+                }
 
-            if (dados && temResultado(dados)) {
+                // RESULTADO ENCONTRADO
 
                 clearInterval(intervalo);
 
@@ -379,78 +349,38 @@ async function aguardarResultado() {
 
                 processarResultado(dados);
 
-                return;
+            } catch (erro) {
 
+                console.log(
+                    "Aguardando resultado...",
+                    erro.message
+                );
             }
 
-        }
+            // Timeout
+            if (
+                tentativas >=
+                limiteTentativas
+            ) {
 
-        catch (erro) {
+                clearInterval(intervalo);
 
-            console.log(
-                "Aguardando resultado...",
-                erro.message
-            );
+                verificandoResultado = false;
 
-        }
+                if (status) {
+                    status.textContent =
+                        "⏳ Análise ainda não concluída. O ESP32 pode estar processando.";
+                }
 
-
-        if (tentativas >= limiteTentativas) {
-
-            clearInterval(intervalo);
-
-            verificandoResultado = false;
-
-
-            if (status) {
-
-                status.textContent =
-                    "Análise solicitada. Aguardando ESP32-S3-CAM.";
-
+                if (dispositivo) {
+                    dispositivo.textContent =
+                        "Aguardando";
+                }
             }
 
-
-            if (dispositivo) {
-
-                dispositivo.textContent =
-                    "Aguardando";
-
-            }
-
-        }
-
-    }, 3000);
-
-}
-
-
-// ============================================================
-// VERIFICAR SE EXISTE RESULTADO
-// ============================================================
-
-function temResultado(dados) {
-
-    if (!dados) {
-
-        return false;
-
-    }
-
-
-    return (
-
-        dados.valor !== undefined ||
-
-        dados.resultado !== undefined ||
-
-        dados.status !== undefined ||
-
-        dados.detalhe !== undefined ||
-
-        dados.mensagem !== undefined
-
+        },
+        3000
     );
-
 }
 
 
@@ -461,41 +391,34 @@ function temResultado(dados) {
 function processarResultado(dados) {
 
     console.log(
-        "Processando resultado:",
+        "Resultado final:",
         dados
     );
 
-
     const valor =
         dados.valor ??
-        dados.resultado ??
-        dados.nivel ??
         "--";
-
 
     const resultadoStatus =
         dados.status ??
-        dados.resultado_status ??
         "Analisado";
-
 
     const detalhe =
         dados.detalhe ??
-        dados.mensagem ??
         "Resultado recebido pelo CleanSurface AI.";
 
-
+    // Atualiza monitoramento
     atualizarMonitoramento(
         valor,
         resultadoStatus,
         detalhe
     );
 
-
+    // Salva histórico local
     salvarHistorico({
 
         id:
-            dados.id ??
+            dados.analise_id ??
             Date.now(),
 
         data:
@@ -510,17 +433,34 @@ function processarResultado(dados) {
 
         detalhe:
             detalhe
-
     });
-
 
     atualizarDashboard();
 
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
+
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
+
+    if (status) {
+        status.textContent =
+            "✅ Análise concluída.";
+    }
+
+    if (dispositivo) {
+        dispositivo.textContent =
+            "Online";
+    }
 }
 
 
 // ============================================================
-// ATUALIZAR MONITORAMENTO
+// MONITORAMENTO
 // ============================================================
 
 function atualizarMonitoramento(
@@ -530,64 +470,54 @@ function atualizarMonitoramento(
 ) {
 
     const valorElemento =
-        document.getElementById("reading-value");
-
+        document.getElementById(
+            "reading-value"
+        );
 
     const statusElemento =
-        document.getElementById("reading-status");
-
+        document.getElementById(
+            "reading-status"
+        );
 
     const detalheElemento =
-        document.getElementById("reading-detail");
-
+        document.getElementById(
+            "reading-detail"
+        );
 
     const ultimoResultado =
-        document.getElementById("last-result");
-
+        document.getElementById(
+            "last-result"
+        );
 
     const dispositivo =
-        document.getElementById("device-status");
-
+        document.getElementById(
+            "device-status"
+        );
 
     if (valorElemento) {
-
         valorElemento.textContent =
             valor;
-
     }
-
 
     if (statusElemento) {
-
         statusElemento.textContent =
             formatarStatus(status);
-
     }
-
 
     if (detalheElemento) {
-
         detalheElemento.textContent =
             detalhe;
-
     }
-
 
     if (ultimoResultado) {
-
         ultimoResultado.textContent =
             formatarStatus(status);
-
     }
-
 
     if (dispositivo) {
-
         dispositivo.textContent =
             "Online";
-
     }
-
 }
 
 
@@ -598,44 +528,32 @@ function atualizarMonitoramento(
 function formatarStatus(status) {
 
     if (!status) {
-
         return "Analisado";
-
     }
-
 
     const texto =
         String(status);
 
-
     const normalizado =
         texto.toLowerCase();
-
 
     if (
         normalizado === "aprovado" ||
         normalizado === "ok" ||
         normalizado === "limpo"
     ) {
-
         return "Aprovado";
-
     }
-
 
     if (
         normalizado === "reprovado" ||
         normalizado === "alerta" ||
         normalizado === "sujo"
     ) {
-
         return "Alerta";
-
     }
 
-
     return texto;
-
 }
 
 
@@ -649,54 +567,33 @@ const CHAVE_HISTORICO =
 
 function salvarHistorico(resultado) {
 
-    let historico = obterHistorico();
-
-
-    /*
-       Evita duplicar exatamente o mesmo registro.
-    */
+    let historico =
+        obterHistorico();
 
     const existe =
-        historico.some(item =>
-
-            String(item.id) ===
-            String(resultado.id)
-
+        historico.some(
+            item =>
+                String(item.id) ===
+                String(resultado.id)
         );
 
-
     if (!existe) {
-
-        historico.unshift(resultado);
-
+        historico.unshift(
+            resultado
+        );
     }
-
-
-    /*
-       Mantém os últimos 100 registros.
-    */
 
     historico =
         historico.slice(0, 100);
 
-
     localStorage.setItem(
-
         CHAVE_HISTORICO,
-
         JSON.stringify(historico)
-
     );
 
-
     carregarHistorico();
-
 }
 
-
-// ============================================================
-// OBTER HISTÓRICO
-// ============================================================
 
 function obterHistorico() {
 
@@ -707,79 +604,46 @@ function obterHistorico() {
                 CHAVE_HISTORICO
             );
 
-
         if (!salvo) {
-
             return [];
-
         }
-
 
         const dados =
             JSON.parse(salvo);
 
-
         if (!Array.isArray(dados)) {
-
             return [];
-
         }
-
 
         return dados;
 
-    }
-
-    catch (erro) {
+    } catch (erro) {
 
         console.error(
             "Erro ao ler histórico:",
             erro
         );
 
-
         return [];
-
     }
-
 }
 
-
-// ============================================================
-// CARREGAR HISTÓRICO NA TELA
-// ============================================================
 
 function carregarHistorico() {
 
     const historico =
         obterHistorico();
 
-
-    /*
-       Procuramos a área existente no index.html.
-    */
-
     const tabela =
         document.querySelector(
             ".table-placeholder"
         );
 
-
     if (!tabela) {
-
         return;
-
     }
 
-
-    /*
-       Limpa o conteúdo antigo.
-    */
-
     tabela.innerHTML = "";
-
-
-    // Cabeçalho
 
     const cabecalhoData =
         document.createElement("div");
@@ -826,8 +690,6 @@ function carregarHistorico() {
     );
 
 
-    // Nenhum registro
-
     if (historico.length === 0) {
 
         const vazio =
@@ -836,14 +698,13 @@ function carregarHistorico() {
         vazio.textContent =
             "Nenhuma análise registrada ainda.";
 
-        tabela.appendChild(vazio);
+        tabela.appendChild(
+            vazio
+        );
 
         return;
-
     }
 
-
-    // Registros
 
     historico.forEach(item => {
 
@@ -851,7 +712,9 @@ function carregarHistorico() {
             document.createElement("div");
 
         data.textContent =
-            formatarData(item.data);
+            formatarData(
+                item.data
+            );
 
 
         const resultado =
@@ -867,7 +730,8 @@ function carregarHistorico() {
             document.createElement("div");
 
         nivel.textContent =
-            item.valor ?? "--";
+            item.valor ??
+            "--";
 
 
         const status =
@@ -879,41 +743,33 @@ function carregarHistorico() {
 
 
         tabela.appendChild(data);
-
         tabela.appendChild(resultado);
-
         tabela.appendChild(nivel);
-
         tabela.appendChild(status);
-
     });
-
 }
 
 
 // ============================================================
-// FORMATAR DATA
+// DATA
 // ============================================================
 
 function formatarData(data) {
 
     if (!data) {
-
         return "--";
-
     }
-
 
     const dataObj =
         new Date(data);
 
-
-    if (isNaN(dataObj.getTime())) {
-
+    if (
+        isNaN(
+            dataObj.getTime()
+        )
+    ) {
         return String(data);
-
     }
-
 
     return dataObj.toLocaleString(
         "pt-BR",
@@ -922,12 +778,11 @@ function formatarData(data) {
             timeStyle: "short"
         }
     );
-
 }
 
 
 // ============================================================
-// ATUALIZAR DASHBOARD
+// DASHBOARD
 // ============================================================
 
 function atualizarDashboard() {
@@ -935,12 +790,10 @@ function atualizarDashboard() {
     const historico =
         obterHistorico();
 
-
     const contador =
         document.getElementById(
             "alert-count"
         );
-
 
     if (contador) {
 
@@ -952,39 +805,33 @@ function atualizarDashboard() {
                         item.status ?? ""
                     ).toLowerCase();
 
-
                 return (
-
-                    status.includes("alerta") ||
-
-                    status.includes("reprovado") ||
-
-                    status.includes("sujo")
-
+                    status.includes(
+                        "alerta"
+                    ) ||
+                    status.includes(
+                        "reprovado"
+                    ) ||
+                    status.includes(
+                        "sujo"
+                    )
                 );
-
             });
-
 
         contador.textContent =
             alertas.length;
-
     }
 
-
-    // Último resultado
 
     if (historico.length > 0) {
 
         const ultimo =
             historico[0];
 
-
         const ultimoElemento =
             document.getElementById(
                 "last-result"
             );
-
 
         if (ultimoElemento) {
 
@@ -992,11 +839,8 @@ function atualizarDashboard() {
                 formatarStatus(
                     ultimo.status
                 );
-
         }
-
     }
-
 }
 
 
@@ -1011,12 +855,10 @@ function saveSettings() {
             "email"
         );
 
-
     const nivel =
         document.getElementById(
             "nivelAlerta"
         );
-
 
     const salvo =
         document.getElementById(
@@ -1027,24 +869,22 @@ function saveSettings() {
     const configuracoes = {
 
         email:
-            email ?
-            email.value :
-            "",
+            email
+                ? email.value
+                : "",
 
         nivelAlerta:
-            nivel ?
-            nivel.value :
-            70
-
+            nivel
+                ? nivel.value
+                : 70
     };
 
 
     localStorage.setItem(
-
         "cleansurface_config",
-
-        JSON.stringify(configuracoes)
-
+        JSON.stringify(
+            configuracoes
+        )
     );
 
 
@@ -1058,15 +898,9 @@ function saveSettings() {
             salvo.textContent = "";
 
         }, 3000);
-
     }
-
 }
 
-
-// ============================================================
-// CARREGAR CONFIGURAÇÕES
-// ============================================================
 
 function carregarConfiguracoes() {
 
@@ -1077,23 +911,17 @@ function carregarConfiguracoes() {
                 "cleansurface_config"
             );
 
-
         if (!salvo) {
-
             return;
-
         }
-
 
         const configuracoes =
             JSON.parse(salvo);
-
 
         const email =
             document.getElementById(
                 "email"
             );
-
 
         const nivel =
             document.getElementById(
@@ -1104,43 +932,68 @@ function carregarConfiguracoes() {
         if (email) {
 
             email.value =
-                configuracoes.email || "";
-
+                configuracoes.email ||
+                "";
         }
 
 
         if (nivel) {
 
             nivel.value =
-                configuracoes.nivelAlerta ?? 70;
-
+                configuracoes.nivelAlerta ??
+                70;
         }
 
-    }
-
-    catch (erro) {
+    } catch (erro) {
 
         console.error(
             "Erro ao carregar configurações:",
             erro
         );
-
     }
+}
 
+
+function obterConfiguracoes() {
+
+    try {
+
+        const salvo =
+            localStorage.getItem(
+                "cleansurface_config"
+            );
+
+        if (!salvo) {
+
+            return {
+                email: "",
+                nivelAlerta: 70
+            };
+        }
+
+        return JSON.parse(
+            salvo
+        );
+
+    } catch (erro) {
+
+        return {
+            email: "",
+            nivelAlerta: 70
+        };
+    }
 }
 
 
 // ============================================================
-// ATALHOS
+// DISPONIBILIZAR FUNÇÕES PARA O HTML
 // ============================================================
 
 window.iniciarAnalise =
     iniciarAnalise;
 
-
 window.saveSettings =
     saveSettings;
-
 
 window.showPage =
     showPage;
