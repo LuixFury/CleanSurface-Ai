@@ -1,227 +1,263 @@
 const API_URL = "https://cleansurface-api.luizinfernando19.workers.dev";
 
-let analiseAtual = null;
-let intervaloResultado = null;
+const EMAIL_API =
+  "https://script.google.com/macros/s/AKfycbztIf_nTXIvrN3hSTbwtHR_l56JVKWsSYqww5qsgbDYv44uTSXoVgWQEPGvX0GTZbpU/exec";
 
 
 // ===============================
 // NAVEGAÇÃO
 // ===============================
 
-const navItems = document.querySelectorAll(".nav-item");
-const pages = document.querySelectorAll(".page");
-const pageTitle = document.getElementById("page-title");
+function showPage(pageName) {
 
-const titulos = {
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active-page");
+  });
+
+  document.querySelectorAll(".nav-item").forEach(item => {
+    item.classList.remove("active");
+  });
+
+  const page = document.getElementById(pageName);
+
+  if (page) {
+    page.classList.add("active-page");
+  }
+
+  const button = document.querySelector(
+    `.nav-item[data-page="${pageName}"]`
+  );
+
+  if (button) {
+    button.classList.add("active");
+  }
+
+  const titles = {
     dashboard: "Dashboard",
     monitoramento: "Monitoramento",
     alertas: "Alertas",
     historico: "Histórico",
     configuracoes: "Configurações"
-};
+  };
 
-navItems.forEach(item => {
+  const title = document.getElementById("page-title");
 
-    item.addEventListener("click", () => {
+  if (title) {
+    title.textContent = titles[pageName] || "Dashboard";
+  }
+}
 
-        const pagina = item.dataset.page;
 
-        navItems.forEach(nav => nav.classList.remove("active"));
-        item.classList.add("active");
+// Configura os botões do menu
+document.querySelectorAll(".nav-item").forEach(button => {
 
-        pages.forEach(page => {
-            page.classList.remove("active");
-        });
+  button.addEventListener("click", function () {
 
-        const paginaSelecionada = document.getElementById(pagina);
+    const pageName = this.getAttribute("data-page");
 
-        if (paginaSelecionada) {
-            paginaSelecionada.classList.add("active");
-        }
+    showPage(pageName);
 
-        if (pageTitle) {
-            pageTitle.textContent = titulos[pagina] || "Dashboard";
-        }
-
-    });
+  });
 
 });
 
 
 // ===============================
-// ELEMENTOS
+// CONFIGURAÇÕES
 // ===============================
 
-const canalNotificacao = document.getElementById("canalNotificacao");
-const campoWhatsapp = document.getElementById("campoWhatsapp");
-const campoEmail = document.getElementById("campoEmail");
+const canalNotificacao =
+  document.getElementById("canalNotificacao");
 
-const whatsappInput = document.getElementById("whatsapp");
-const emailInput = document.getElementById("email");
-const nivelAlertaInput = document.getElementById("nivelAlerta");
+const campoWhatsapp =
+  document.getElementById("campoWhatsapp");
 
-const iniciarBtn = document.getElementById("iniciarAnalise");
+const campoEmail =
+  document.getElementById("campoEmail");
 
-const deviceStatus = document.getElementById("device-status");
-const lastResult = document.getElementById("last-result");
-const alertCount = document.getElementById("alert-count");
+const whatsapp =
+  document.getElementById("whatsapp");
 
-const readingValue = document.getElementById("reading-value");
-const readingStatus = document.getElementById("reading-status");
-const readingDetail = document.getElementById("reading-detail");
+const email =
+  document.getElementById("email");
 
-const savedMessage = document.getElementById("saved");
+const nivelAlerta =
+  document.getElementById("nivelAlerta");
 
 
-// ===============================
-// CONFIGURAÇÃO
-// ===============================
-
-function carregarConfiguracao() {
-
-    const configSalva =
-        localStorage.getItem("cleansurface_config");
-
-    if (!configSalva) return;
-
-    try {
-
-        const config = JSON.parse(configSalva);
-
-        if (canalNotificacao && config.canal) {
-            canalNotificacao.value = config.canal;
-        }
-
-        if (whatsappInput && config.whatsapp) {
-            whatsappInput.value = config.whatsapp;
-        }
-
-        if (emailInput && config.email) {
-            emailInput.value = config.email;
-        }
-
-        if (nivelAlertaInput && config.nivel !== undefined) {
-            nivelAlertaInput.value = config.nivel;
-        }
-
-        atualizarCamposNotificacao();
-
-    } catch (erro) {
-
-        console.error(
-            "Erro ao carregar configuração:",
-            erro
-        );
-
-    }
-
-}
-
-
+// Mostrar/esconder campos
 function atualizarCamposNotificacao() {
 
-    if (!canalNotificacao) return;
+  if (!canalNotificacao) return;
 
-    const canal = canalNotificacao.value;
+  const canal = canalNotificacao.value;
 
-    if (campoWhatsapp) {
-        campoWhatsapp.style.display =
-            canal === "whatsapp" || canal === "ambos"
-                ? "block"
-                : "none";
-    }
+  if (canal === "whatsapp") {
 
-    if (campoEmail) {
-        campoEmail.style.display =
-            canal === "email" || canal === "ambos"
-                ? "block"
-                : "none";
-    }
+    campoWhatsapp.style.display = "block";
+    campoEmail.style.display = "none";
+
+  }
+
+  else if (canal === "email") {
+
+    campoWhatsapp.style.display = "none";
+    campoEmail.style.display = "block";
+
+  }
+
+  else if (canal === "ambos") {
+
+    campoWhatsapp.style.display = "block";
+    campoEmail.style.display = "block";
+
+  }
 
 }
 
 
 if (canalNotificacao) {
 
-    canalNotificacao.addEventListener(
-        "change",
-        atualizarCamposNotificacao
-    );
+  canalNotificacao.addEventListener(
+    "change",
+    atualizarCamposNotificacao
+  );
 
 }
 
 
-function salvarConfiguracao() {
+// ===============================
+// CARREGAR CONFIGURAÇÕES
+// ===============================
 
-    const config = {
+function carregarConfiguracoes() {
 
-        canal:
-            canalNotificacao
-                ? canalNotificacao.value
-                : "email",
+  const configuracaoSalva =
+    localStorage.getItem("cleansurface_config");
 
-        whatsapp:
-            whatsappInput
-                ? whatsappInput.value.trim()
-                : "",
+  if (!configuracaoSalva) {
 
-        email:
-            emailInput
-                ? emailInput.value.trim()
-                : "",
+    atualizarCamposNotificacao();
 
-        nivel:
-            nivelAlertaInput
-                ? Number(nivelAlertaInput.value)
-                : 70
+    return;
+  }
 
-    };
+  try {
 
-    localStorage.setItem(
-        "cleansurface_config",
-        JSON.stringify(config)
-    );
+    const config =
+      JSON.parse(configuracaoSalva);
 
-    if (savedMessage) {
-
-        savedMessage.textContent =
-            "Configurações salvas com sucesso.";
-
-        savedMessage.style.display = "block";
-
-        setTimeout(() => {
-            savedMessage.style.display = "none";
-        }, 3000);
-
+    if (canalNotificacao && config.canal) {
+      canalNotificacao.value = config.canal;
     }
 
+    if (whatsapp && config.whatsapp) {
+      whatsapp.value = config.whatsapp;
+    }
+
+    if (email && config.email) {
+      email.value = config.email;
+    }
+
+    if (nivelAlerta && config.nivel) {
+      nivelAlerta.value = config.nivel;
+    }
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao carregar configurações:",
+      erro
+    );
+
+  }
+
+  atualizarCamposNotificacao();
+
 }
 
 
-const botoesSalvar =
-    document.querySelectorAll(
-        '[data-action="salvar"], #salvarConfiguracao, .save-btn'
-    );
-
-botoesSalvar.forEach(botao => {
-
-    botao.addEventListener(
-        "click",
-        salvarConfiguracao
-    );
-
-});
-
-
 // ===============================
-// PEGAR E-MAIL
+// SALVAR CONFIGURAÇÕES
 // ===============================
 
-function obterEmail() {
+function saveSettings() {
 
-    if (!emailInput) return "";
+  const canal =
+    canalNotificacao.value;
 
-    return emailInput.value.trim();
+  const numeroWhatsapp =
+    whatsapp.value.trim();
+
+  const enderecoEmail =
+    email.value.trim();
+
+  const nivel =
+    nivelAlerta.value;
+
+
+  // Validação WhatsApp
+  if (
+    (canal === "whatsapp" || canal === "ambos") &&
+    !numeroWhatsapp
+  ) {
+
+    alert(
+      "Informe o número do WhatsApp."
+    );
+
+    return;
+  }
+
+
+  // Validação E-mail
+  if (
+    (canal === "email" || canal === "ambos") &&
+    !enderecoEmail
+  ) {
+
+    alert(
+      "Informe o e-mail."
+    );
+
+    return;
+  }
+
+
+  const configuracao = {
+
+    canal: canal,
+
+    whatsapp: numeroWhatsapp,
+
+    email: enderecoEmail,
+
+    nivel: nivel
+
+  };
+
+
+  localStorage.setItem(
+    "cleansurface_config",
+    JSON.stringify(configuracao)
+  );
+
+
+  const saved =
+    document.getElementById("saved");
+
+  if (saved) {
+
+    saved.textContent =
+      "✓ Configurações salvas!";
+
+    setTimeout(() => {
+
+      saved.textContent = "";
+
+    }, 3000);
+
+  }
 
 }
 
@@ -232,174 +268,178 @@ function obterEmail() {
 
 async function iniciarAnalise() {
 
-    const email = obterEmail();
+  const botao =
+    document.getElementById("analisarBtn");
 
-    if (!email) {
+  const status =
+    document.getElementById("statusAnalise");
 
-        alert(
-            "Digite um e-mail para receber o resultado da análise."
-        );
 
-        if (emailInput) {
-            emailInput.focus();
+  // Recupera configurações
+  let config = {};
+
+  try {
+
+    config = JSON.parse(
+      localStorage.getItem(
+        "cleansurface_config"
+      ) || "{}"
+    );
+
+  } catch (erro) {
+
+    config = {};
+
+  }
+
+
+  // Se não houver configuração,
+  // abre a página de configurações
+  if (!config.canal) {
+
+    alert(
+      "Configure primeiro como deseja receber o resultado."
+    );
+
+    showPage("configuracoes");
+
+    return;
+  }
+
+
+  // Verifica e-mail quando necessário
+  if (
+    (config.canal === "email" ||
+     config.canal === "ambos") &&
+    !config.email
+  ) {
+
+    alert(
+      "Informe o e-mail nas Configurações."
+    );
+
+    showPage("configuracoes");
+
+    return;
+  }
+
+
+  try {
+
+    if (botao) {
+
+      botao.disabled = true;
+
+      botao.textContent =
+        "⏳ SOLICITANDO ANÁLISE...";
+
+    }
+
+
+    if (status) {
+
+      status.textContent =
+        "Enviando solicitação para o sistema...";
+
+    }
+
+
+    // Solicita análise ao Worker
+    const resposta =
+      await fetch(
+        API_URL + "/iniciar-analise",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify({
+
+            canal: config.canal,
+
+            whatsapp: config.whatsapp || "",
+
+            email: config.email || "",
+
+            nivel: config.nivel || 70
+
+          })
         }
-
-        return;
-
-    }
+      );
 
 
-    // Validação simples
-    if (!email.includes("@") || !email.includes(".")) {
+    const dados =
+      await resposta.json();
 
-        alert(
-            "Digite um e-mail válido."
-        );
 
-        emailInput.focus();
+    if (!resposta.ok || !dados.sucesso) {
 
-        return;
+      throw new Error(
+        dados.erro ||
+        "Não foi possível iniciar a análise."
+      );
 
     }
 
 
-    if (iniciarBtn) {
+    if (status) {
 
-        iniciarBtn.disabled = true;
-
-        iniciarBtn.textContent =
-            "⏳ SOLICITANDO ANÁLISE...";
+      status.textContent =
+        "✓ Solicitação enviada. Aguardando ESP32-S3-CAM...";
 
     }
 
+
+    const deviceStatus =
+      document.getElementById(
+        "device-status"
+      );
 
     if (deviceStatus) {
-        deviceStatus.textContent =
-            "Aguardando ESP32-S3-CAM";
-    }
 
-
-    try {
-
-        const resposta = await fetch(
-            API_URL + "/iniciar-analise",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-
-                    email: email,
-
-                    canal:
-                        canalNotificacao
-                            ? canalNotificacao.value
-                            : "email",
-
-                    whatsapp:
-                        whatsappInput
-                            ? whatsappInput.value.trim()
-                            : "",
-
-                    nivel:
-                        nivelAlertaInput
-                            ? Number(nivelAlertaInput.value)
-                            : 70
-
-                })
-
-            }
-        );
-
-
-        const dados = await resposta.json();
-
-
-        if (!resposta.ok || !dados.sucesso) {
-
-            throw new Error(
-                dados.erro ||
-                dados.mensagem ||
-                "Erro ao iniciar análise."
-            );
-
-        }
-
-
-        analiseAtual = dados.analise_id;
-
-
-        if (deviceStatus) {
-            deviceStatus.textContent =
-                "Análise aguardando ESP32";
-        }
-
-
-        if (lastResult) {
-            lastResult.textContent =
-                "Aguardando resultado...";
-        }
-
-
-        if (readingValue) {
-            readingValue.textContent =
-                "Aguardando...";
-        }
-
-
-        if (readingStatus) {
-            readingStatus.textContent =
-                "Processando";
-        }
-
-
-        if (readingDetail) {
-            readingDetail.textContent =
-                "O ESP32-S3-CAM realizará a análise.";
-        }
-
-
-        iniciarMonitoramentoResultado();
-
-    } catch (erro) {
-
-        console.error(erro);
-
-        alert(
-            "Não foi possível iniciar a análise:\n\n" +
-            erro.message
-        );
-
-        if (deviceStatus) {
-            deviceStatus.textContent =
-                "Erro de conexão";
-        }
-
-    } finally {
-
-        if (iniciarBtn) {
-
-            iniciarBtn.disabled = false;
-
-            iniciarBtn.textContent =
-                "🔍 INICIAR ANÁLISE";
-
-        }
+      deviceStatus.textContent =
+        "Aguardando ESP32";
 
     }
 
-}
 
-
-if (iniciarBtn) {
-
-    iniciarBtn.addEventListener(
-        "click",
-        iniciarAnalise
+    // Começa a procurar resultado
+    verificarResultado(
+      dados.analise_id,
+      config
     );
+
+
+  } catch (erro) {
+
+    console.error(erro);
+
+
+    if (status) {
+
+      status.textContent =
+        "❌ Erro ao iniciar análise.";
+
+    }
+
+    alert(
+      "Erro ao iniciar análise:\n\n" +
+      erro.message
+    );
+
+
+    if (botao) {
+
+      botao.disabled = false;
+
+      botao.textContent =
+        "🔍 INICIAR ANÁLISE";
+
+    }
+
+  }
 
 }
 
@@ -408,79 +448,95 @@ if (iniciarBtn) {
 // VERIFICAR RESULTADO
 // ===============================
 
-function iniciarMonitoramentoResultado() {
-
-    if (intervaloResultado) {
-        clearInterval(intervaloResultado);
-    }
-
-    verificarResultado();
-
-    intervaloResultado =
-        setInterval(
-            verificarResultado,
-            3000
-        );
-
-}
+let verificandoResultado = false;
 
 
-async function verificarResultado() {
+async function verificarResultado(
+  analiseId,
+  config
+) {
 
-    try {
+  if (verificandoResultado) return;
 
-        const resposta = await fetch(
-            API_URL + "/resultado",
-            {
-                method: "GET",
-                cache: "no-store"
-            }
-        );
+  verificandoResultado = true;
 
 
-        if (!resposta.ok) {
-            return;
-        }
+  const status =
+    document.getElementById(
+      "statusAnalise"
+    );
+
+  const botao =
+    document.getElementById(
+      "analisarBtn"
+    );
 
 
-        const dados = await resposta.json();
+  const intervalo =
+    setInterval(async () => {
+
+      try {
+
+        const resposta =
+          await fetch(
+            API_URL + "/resultado"
+          );
 
 
-        if (!dados.disponivel) {
-            return;
-        }
+        const dados =
+          await resposta.json();
 
 
-        // Se estamos esperando uma análise específica,
-        // ignoramos resultados antigos.
         if (
-            analiseAtual !== null &&
-            Number(dados.analise_id) !==
-            Number(analiseAtual)
+          dados.disponivel &&
+          Number(dados.analise_id) ===
+          Number(analiseId)
         ) {
-            return;
+
+          clearInterval(intervalo);
+
+          verificandoResultado = false;
+
+
+          mostrarResultado(dados);
+
+
+          // Enviar e-mail
+          if (
+            (config.canal === "email" ||
+             config.canal === "ambos") &&
+            config.email
+          ) {
+
+            enviarEmail(
+              config.email,
+              dados
+            );
+
+          }
+
+
+          if (botao) {
+
+            botao.disabled = false;
+
+            botao.textContent =
+              "🔍 INICIAR ANÁLISE";
+
+          }
+
         }
 
-
-        mostrarResultado(dados);
-
-
-        if (intervaloResultado) {
-
-            clearInterval(intervaloResultado);
-
-            intervaloResultado = null;
-
-        }
-
-    } catch (erro) {
+      } catch (erro) {
 
         console.error(
-            "Erro ao consultar resultado:",
-            erro
+          "Erro verificando resultado:",
+          erro
         );
 
-    }
+      }
+
+    }, 3000);
 
 }
 
@@ -491,46 +547,198 @@ async function verificarResultado() {
 
 function mostrarResultado(dados) {
 
-    const valor =
-        dados.valor || "Não informado";
+  const status =
+    document.getElementById(
+      "statusAnalise"
+    );
 
-    const status =
-        dados.status || "Não informado";
+  const deviceStatus =
+    document.getElementById(
+      "device-status"
+    );
 
-    const detalhe =
-        dados.detalhe || "Sem detalhes";
+  const lastResult =
+    document.getElementById(
+      "last-result"
+    );
+
+  const readingValue =
+    document.getElementById(
+      "reading-value"
+    );
+
+  const readingStatus =
+    document.getElementById(
+      "reading-status"
+    );
+
+  const readingDetail =
+    document.getElementById(
+      "reading-detail"
+    );
 
 
-    if (lastResult) {
-        lastResult.textContent = valor;
+  if (status) {
+
+    status.textContent =
+      "✓ Análise concluída";
+
+  }
+
+
+  if (deviceStatus) {
+
+    deviceStatus.textContent =
+      "Online";
+
+  }
+
+
+  if (lastResult) {
+
+    lastResult.textContent =
+      dados.valor || "Sem resultado";
+
+  }
+
+
+  if (readingStatus) {
+
+    readingStatus.textContent =
+      dados.status ||
+      "Resultado recebido";
+
+  }
+
+
+  if (readingDetail) {
+
+    readingDetail.textContent =
+      dados.detalhe ||
+      "Análise concluída pelo ESP32-S3-CAM.";
+
+  }
+
+
+  if (readingValue) {
+
+    const numero =
+      extrairNumero(dados.valor);
+
+    if (numero !== null) {
+
+      readingValue.textContent =
+        numero;
+
+    } else {
+
+      readingValue.textContent =
+        "--";
+
     }
 
-
-    if (readingValue) {
-        readingValue.textContent = valor;
-    }
+  }
 
 
-    if (readingStatus) {
-        readingStatus.textContent = status;
-    }
+  // Abre monitoramento automaticamente
+  showPage("monitoramento");
+
+}
 
 
-    if (readingDetail) {
-        readingDetail.textContent = detalhe;
-    }
+// ===============================
+// EXTRAIR NÚMERO
+// ===============================
+
+function extrairNumero(valor) {
+
+  if (!valor) return null;
+
+  const texto =
+    String(valor);
+
+  const encontrado =
+    texto.match(
+      /(\d+(?:[.,]\d+)?)/
+    );
+
+  if (!encontrado) {
+
+    return null;
+
+  }
+
+  return encontrado[1]
+    .replace(",", ".");
+
+}
 
 
-    if (deviceStatus) {
-        deviceStatus.textContent =
-            "Análise concluída";
-    }
+// ===============================
+// ENVIAR E-MAIL
+// ===============================
+
+async function enviarEmail(
+  enderecoEmail,
+  dados
+) {
+
+  try {
+
+    const resposta =
+      await fetch(
+        EMAIL_API,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+
+            email: enderecoEmail,
+
+            analise_id:
+              dados.analise_id,
+
+            valor:
+              dados.valor ||
+              "Não informado",
+
+            status:
+              dados.status ||
+              "Não informado",
+
+            detalhe:
+              dados.detalhe ||
+              "Nenhum detalhe informado"
+
+          })
+
+        }
+      );
+
+
+    const retorno =
+      await resposta.json();
 
 
     console.log(
-        "Resultado recebido:",
-        dados
+      "E-mail:",
+      retorno
     );
+
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao enviar e-mail:",
+      erro
+    );
+
+  }
 
 }
 
@@ -539,5 +747,13 @@ function mostrarResultado(dados) {
 // INICIALIZAÇÃO
 // ===============================
 
-carregarConfiguracao();
-atualizarCamposNotificacao();
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    carregarConfiguracoes();
+
+    showPage("dashboard");
+
+  }
+);
