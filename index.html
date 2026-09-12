@@ -13,11 +13,13 @@
 
     <div class="brand">
       <div class="brand-icon">✦</div>
+
       <div>
         <strong>CleanSurface</strong>
         <span>AI</span>
       </div>
     </div>
+
 
     <nav>
 
@@ -43,13 +45,16 @@
 
     </nav>
 
+
     <div class="connection-card">
+
       <div class="status-dot"></div>
 
       <div>
         <small>STATUS DO SISTEMA</small>
         <strong>Pronto para conectar</strong>
       </div>
+
     </div>
 
   </aside>
@@ -60,20 +65,33 @@
     <header class="topbar">
 
       <div>
-        <p class="eyebrow">MONITORAMENTO INTELIGENTE</p>
-        <h1 id="page-title">Dashboard</h1>
+
+        <p class="eyebrow">
+          MONITORAMENTO INTELIGENTE
+        </p>
+
+        <h1 id="page-title">
+          Dashboard
+        </h1>
+
       </div>
 
+
       <div class="top-actions">
+
         <div class="user-chip">
           CA <span>CleanSurface AI</span>
         </div>
+
       </div>
 
     </header>
 
 
+
+    <!-- ========================= -->
     <!-- DASHBOARD -->
+    <!-- ========================= -->
 
     <section id="dashboard" class="page active-page">
 
@@ -95,21 +113,28 @@
             interpreta os resultados e prepara alertas para o usuário.
           </p>
 
+
           <button
             class="primary"
             id="analisarBtn"
             onclick="iniciarAnalise()">
+
             🔍 INICIAR ANÁLISE
+
           </button>
+
 
           <p id="statusAnalise">
             Pronto para analisar
           </p>
 
+
           <button
             class="primary"
             onclick="showPage('monitoramento')">
+
             Abrir monitoramento →
+
           </button>
 
         </div>
@@ -128,15 +153,21 @@
       </div>
 
 
+
       <!-- CARDS -->
 
       <div class="cards">
 
+
         <div class="stat-card">
 
-          <div class="stat-icon">◉</div>
+          <div class="stat-icon">
+            ◉
+          </div>
 
-          <span>DISPOSITIVO</span>
+          <span>
+            DISPOSITIVO
+          </span>
 
           <strong id="device-status">
             Aguardando
@@ -149,11 +180,16 @@
         </div>
 
 
+
         <div class="stat-card">
 
-          <div class="stat-icon">⌁</div>
+          <div class="stat-icon">
+            ⌁
+          </div>
 
-          <span>ÚLTIMA LEITURA</span>
+          <span>
+            ÚLTIMA LEITURA
+          </span>
 
           <strong id="last-result">
             Nenhuma
@@ -166,11 +202,16 @@
         </div>
 
 
+
         <div class="stat-card">
 
-          <div class="stat-icon">⚠</div>
+          <div class="stat-icon">
+            ⚠
+          </div>
 
-          <span>ALERTAS</span>
+          <span>
+            ALERTAS
+          </span>
 
           <strong id="alert-count">
             0
@@ -183,6 +224,7 @@
         </div>
 
       </div>
+
 
 
       <!-- FLUXO -->
@@ -208,26 +250,61 @@
 
         <div class="flow">
 
+
           <div class="flow-step">
-            <b>01</b>
-            <strong>ESP32-S3-CAM</strong>
-            <span>Realiza a leitura</span>
+
+            <b>
+              01
+            </b>
+
+            <strong>
+              ESP32-S3-CAM
+            </strong>
+
+            <span>
+              Realiza a leitura
+            </span>
+
           </div>
+
 
           <div class="flow-line"></div>
 
+
           <div class="flow-step">
-            <b>02</b>
-            <strong>CleanSurface AI</strong>
-            <span>Recebe e interpreta</span>
+
+            <b>
+              02
+            </b>
+
+            <strong>
+              CleanSurface AI
+            </strong>
+
+            <span>
+              Recebe e interpreta
+            </span>
+
           </div>
+
 
           <div class="flow-line"></div>
 
+
           <div class="flow-step">
-            <b>03</b>
-            <strong>Notificação</strong>
-            <span>WhatsApp / E-mail</span>
+
+            <b>
+              03
+            </b>
+
+            <strong>
+              Notificação
+            </strong>
+
+            <span>
+              E-mail
+            </span>
+
           </div>
 
         </div>
@@ -237,7 +314,10 @@
     </section>
 
 
+
+    <!-- ========================= -->
     <!-- MONITORAMENTO -->
+    <!-- ========================= -->
 
     <section id="monitoramento" class="page">
 
@@ -261,6 +341,7 @@
 
           </div>
 
+
           <span class="badge waiting">
             AGUARDANDO DISPOSITIVO
           </span>
@@ -268,7 +349,9 @@
         </div>
 
 
+
         <div class="reading">
+
 
           <div class="reading-circle">
 
@@ -281,6 +364,7 @@
             </small>
 
           </div>
+
 
 
           <div>
@@ -306,7 +390,10 @@
     </section>
 
 
+
+    <!-- ========================= -->
     <!-- ALERTAS -->
+    <!-- ========================= -->
 
     <section id="alertas" class="page">
 
@@ -335,7 +422,9 @@
 
         <div class="empty">
 
-          <div>✓</div>
+          <div>
+            ✓
+          </div>
 
           <strong>
             Nenhum alerta
@@ -353,7 +442,10 @@
     </section>
 
 
+
+    <!-- ========================= -->
     <!-- HISTÓRICO -->
+    <!-- ========================= -->
 
     <section id="historico" class="page">
 
@@ -382,10 +474,22 @@
 
         <div class="table-placeholder">
 
-          <div>Data e hora</div>
-          <div>Resultado</div>
-          <div>Nível</div>
-          <div>Status</div>
+          <div>
+            Data e hora
+          </div>
+
+          <div>
+            Resultado
+          </div>
+
+          <div>
+            Nível
+          </div>
+
+          <div>
+            Status
+          </div>
+
 
           <p>
             O histórico será preenchido automaticamente
@@ -399,11 +503,15 @@
     </section>
 
 
+
+    <!-- ========================= -->
     <!-- CONFIGURAÇÕES -->
+    <!-- ========================= -->
 
     <section id="configuracoes" class="page">
 
       <div class="section-card big">
+
 
         <div class="section-head">
 
@@ -426,24 +534,21 @@
         </div>
 
 
+
         <div class="settings">
+
+
+          <!-- E-MAIL -->
 
           <label>
 
             Como deseja receber o resultado?
 
-            <select id="canalNotificacao">
 
-              <option value="whatsapp">
-                📱 WhatsApp
-              </option>
+            <select id="canalNotificacao">
 
               <option value="email">
                 ✉️ E-mail
-              </option>
-
-              <option value="ambos">
-                📱 WhatsApp + ✉️ E-mail
               </option>
 
             </select>
@@ -451,24 +556,8 @@
           </label>
 
 
-          <label id="campoWhatsapp">
 
-            Número do WhatsApp
-
-            <input
-              type="tel"
-              id="whatsapp"
-              placeholder="+55 (00) 00000-0000"
-              maxlength="19">
-
-            <small>
-              Informe o número que receberá as notificações.
-            </small>
-
-          </label>
-
-
-          <label id="campoEmail" style="display:none;">
+          <label id="campoEmail">
 
             E-mail
 
@@ -479,6 +568,9 @@
 
           </label>
 
+
+
+          <!-- NÍVEL DE ALERTA -->
 
           <label>
 
@@ -494,6 +586,9 @@
           </label>
 
 
+
+          <!-- SALVAR -->
+
           <button
             class="primary"
             onclick="saveSettings()">
@@ -508,6 +603,7 @@
             class="saved">
           </span>
 
+
         </div>
 
       </div>
@@ -517,7 +613,9 @@
   </main>
 
 
+
   <script src="script.js"></script>
 
 </body>
 </html>
+
