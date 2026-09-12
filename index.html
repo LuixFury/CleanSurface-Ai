@@ -13,16 +13,19 @@
 
     <div class="brand">
       <div class="brand-icon">✦</div>
-
       <div>
         <strong>CleanSurface</strong>
         <span>AI</span>
       </div>
     </div>
 
+    <div class="school-mini">
+      <img src="logo-escola.png" alt="Logo CEEP Ozório Gonçalves Nogueira">
+      <strong>CEEP Ozório Gonçalves Nogueira</strong>
+      <small>Bandeirantes - PR</small>
+    </div>
 
     <nav>
-
       <button class="nav-item active" data-page="dashboard">
         ⌂ <span>Dashboard</span>
       </button>
@@ -43,18 +46,17 @@
         ⚙ <span>Configurações</span>
       </button>
 
+      <button class="nav-item" data-page="creditos">
+        ★ <span>Equipe / Créditos</span>
+      </button>
     </nav>
 
-
     <div class="connection-card">
-
       <div class="status-dot"></div>
-
       <div>
         <small>STATUS DO SISTEMA</small>
         <strong>Pronto para conectar</strong>
       </div>
-
     </div>
 
   </aside>
@@ -63,48 +65,31 @@
   <main class="main">
 
     <header class="topbar">
-
       <div>
-
-        <p class="eyebrow">
-          MONITORAMENTO INTELIGENTE
-        </p>
-
-        <h1 id="page-title">
-          Dashboard
-        </h1>
-
+        <p class="eyebrow">MONITORAMENTO INTELIGENTE</p>
+        <h1 id="page-title">Dashboard</h1>
       </div>
 
-
       <div class="top-actions">
-
         <div class="user-chip">
           CA <span>CleanSurface AI</span>
         </div>
-
       </div>
-
     </header>
 
 
-
-    <!-- ========================= -->
     <!-- DASHBOARD -->
-    <!-- ========================= -->
 
     <section id="dashboard" class="page active-page">
 
       <div class="hero">
 
         <div>
-
-          <p class="eyebrow">
-            CLEAN SURFACE INTELLIGENCE
-          </p>
+          <p class="eyebrow">CLEAN SURFACE INTELLIGENCE</p>
 
           <h2>
-            Monitore suas superfícies<br>
+            Monitore suas superfícies
+            <br>
             <em>de forma inteligente.</em>
           </h2>
 
@@ -113,198 +98,76 @@
             interpreta os resultados e prepara alertas para o usuário.
           </p>
 
-
-          <button
-            class="primary"
-            id="analisarBtn"
-            onclick="iniciarAnalise()">
-
-            🔍 INICIAR ANÁLISE
-
-          </button>
-
-
-          <p id="statusAnalise">
-            Pronto para analisar
-          </p>
-
-
-          <button
-            class="primary"
-            onclick="showPage('monitoramento')">
-
+          <button class="primary" onclick="showPage('monitoramento')">
             Abrir monitoramento →
-
           </button>
-
         </div>
 
-
         <div class="hero-orb">
-
           <div class="orb-ring"></div>
-
-          <div class="orb-core">
-            AI
-          </div>
-
+          <div class="orb-core">AI</div>
         </div>
 
       </div>
 
-
-
-      <!-- CARDS -->
 
       <div class="cards">
 
-
         <div class="stat-card">
-
-          <div class="stat-icon">
-            ◉
-          </div>
-
-          <span>
-            DISPOSITIVO
-          </span>
-
-          <strong id="device-status">
-            Aguardando
-          </strong>
-
-          <small>
-            ESP32-S3-CAM
-          </small>
-
+          <div class="stat-icon">◉</div>
+          <span>DISPOSITIVO</span>
+          <strong id="device-status">Aguardando</strong>
+          <small>ESP32-S3-CAM</small>
         </div>
 
-
-
         <div class="stat-card">
-
-          <div class="stat-icon">
-            ⌁
-          </div>
-
-          <span>
-            ÚLTIMA LEITURA
-          </span>
-
-          <strong id="last-result">
-            Nenhuma
-          </strong>
-
-          <small>
-            Os dados aparecerão aqui
-          </small>
-
+          <div class="stat-icon">⌁</div>
+          <span>ÚLTIMA LEITURA</span>
+          <strong id="last-result">Nenhuma</strong>
+          <small>Os dados aparecerão aqui</small>
         </div>
 
-
-
         <div class="stat-card">
-
-          <div class="stat-icon">
-            ⚠
-          </div>
-
-          <span>
-            ALERTAS
-          </span>
-
-          <strong id="alert-count">
-            0
-          </strong>
-
-          <small>
-            Alertas registrados
-          </small>
-
+          <div class="stat-icon">⚠</div>
+          <span>ALERTAS</span>
+          <strong id="alert-count">0</strong>
+          <small>Alertas registrados</small>
         </div>
 
       </div>
 
-
-
-      <!-- FLUXO -->
 
       <div class="section-card">
 
         <div class="section-head">
-
           <div>
-
-            <h3>
-              Fluxo do sistema
-            </h3>
-
-            <p>
-              Como o CleanSurface AI funcionará
-            </p>
-
+            <h3>Fluxo do sistema</h3>
+            <p>Como o CleanSurface AI funciona</p>
           </div>
-
         </div>
-
 
         <div class="flow">
 
-
           <div class="flow-step">
-
-            <b>
-              01
-            </b>
-
-            <strong>
-              ESP32-S3-CAM
-            </strong>
-
-            <span>
-              Realiza a leitura
-            </span>
-
+            <b>01</b>
+            <strong>ESP32-S3-CAM</strong>
+            <span>Realiza a leitura</span>
           </div>
-
 
           <div class="flow-line"></div>
 
-
           <div class="flow-step">
-
-            <b>
-              02
-            </b>
-
-            <strong>
-              CleanSurface AI
-            </strong>
-
-            <span>
-              Recebe e interpreta
-            </span>
-
+            <b>02</b>
+            <strong>CleanSurface AI</strong>
+            <span>Recebe e interpreta</span>
           </div>
-
 
           <div class="flow-line"></div>
 
-
           <div class="flow-step">
-
-            <b>
-              03
-            </b>
-
-            <strong>
-              Notificação
-            </strong>
-
-            <span>
-              E-mail
-            </span>
-
+            <b>03</b>
+            <strong>E-mail</strong>
+            <span>Envia o resultado</span>
           </div>
 
         </div>
@@ -314,10 +177,7 @@
     </section>
 
 
-
-    <!-- ========================= -->
     <!-- MONITORAMENTO -->
-    <!-- ========================= -->
 
     <section id="monitoramento" class="page">
 
@@ -326,21 +186,13 @@
         <div class="section-head">
 
           <div>
-
-            <p class="eyebrow">
-              TEMPO REAL
-            </p>
-
-            <h3>
-              Monitoramento
-            </h3>
+            <p class="eyebrow">TEMPO REAL</p>
+            <h3>Monitoramento</h3>
 
             <p>
-              Resultado da análise realizada pelo ESP32-S3-CAM.
+              Acompanhe o resultado da análise realizada pelo dispositivo.
             </p>
-
           </div>
-
 
           <span class="badge waiting">
             AGUARDANDO DISPOSITIVO
@@ -349,23 +201,12 @@
         </div>
 
 
-
         <div class="reading">
 
-
           <div class="reading-circle">
-
-            <span id="reading-value">
-              --
-            </span>
-
-            <small>
-              %
-            </small>
-
+            <span id="reading-value">--</span>
+            <small>%</small>
           </div>
-
-
 
           <div>
 
@@ -390,10 +231,7 @@
     </section>
 
 
-
-    <!-- ========================= -->
     <!-- ALERTAS -->
-    <!-- ========================= -->
 
     <section id="alertas" class="page">
 
@@ -402,19 +240,13 @@
         <div class="section-head">
 
           <div>
+            <p class="eyebrow">NOTIFICAÇÕES</p>
 
-            <p class="eyebrow">
-              NOTIFICAÇÕES
-            </p>
-
-            <h3>
-              Alertas
-            </h3>
+            <h3>Alertas</h3>
 
             <p>
               Os alertas do dispositivo aparecerão nesta área.
             </p>
-
           </div>
 
         </div>
@@ -422,13 +254,9 @@
 
         <div class="empty">
 
-          <div>
-            ✓
-          </div>
+          <div>✓</div>
 
-          <strong>
-            Nenhum alerta
-          </strong>
+          <strong>Nenhum alerta</strong>
 
           <span>
             Quando o ESP32 enviar uma condição de alerta,
@@ -442,10 +270,7 @@
     </section>
 
 
-
-    <!-- ========================= -->
     <!-- HISTÓRICO -->
-    <!-- ========================= -->
 
     <section id="historico" class="page">
 
@@ -454,19 +279,13 @@
         <div class="section-head">
 
           <div>
+            <p class="eyebrow">REGISTROS</p>
 
-            <p class="eyebrow">
-              REGISTROS
-            </p>
-
-            <h3>
-              Histórico
-            </h3>
+            <h3>Histórico</h3>
 
             <p>
               Histórico das análises realizadas.
             </p>
-
           </div>
 
         </div>
@@ -474,22 +293,10 @@
 
         <div class="table-placeholder">
 
-          <div>
-            Data e hora
-          </div>
-
-          <div>
-            Resultado
-          </div>
-
-          <div>
-            Nível
-          </div>
-
-          <div>
-            Status
-          </div>
-
+          <div>Data e hora</div>
+          <div>Resultado</div>
+          <div>Nível</div>
+          <div>Status</div>
 
           <p>
             O histórico será preenchido automaticamente
@@ -503,77 +310,41 @@
     </section>
 
 
-
-    <!-- ========================= -->
     <!-- CONFIGURAÇÕES -->
-    <!-- ========================= -->
 
     <section id="configuracoes" class="page">
 
       <div class="section-card big">
 
-
         <div class="section-head">
 
           <div>
+            <p class="eyebrow">SISTEMA</p>
 
-            <p class="eyebrow">
-              NOTIFICAÇÕES
-            </p>
-
-            <h3>
-              Configurações
-            </h3>
+            <h3>Configurações</h3>
 
             <p>
-              Escolha onde deseja receber o resultado da análise.
+              Defina como deseja receber os avisos.
             </p>
-
           </div>
 
         </div>
 
 
-
         <div class="settings">
 
-
-          <!-- E-MAIL -->
-
           <label>
-
-            Como deseja receber o resultado?
-
-
-            <select id="canalNotificacao">
-
-              <option value="email">
-                ✉️ E-mail
-              </option>
-
-            </select>
-
-          </label>
-
-
-
-          <label id="campoEmail">
-
-            E-mail
+            E-mail para receber alertas
 
             <input
               type="email"
               id="email"
-              placeholder="seuemail@exemplo.com">
-
+              placeholder="seuemail@exemplo.com"
+            >
           </label>
 
 
-
-          <!-- NÍVEL DE ALERTA -->
-
           <label>
-
             Nível mínimo para alerta
 
             <input
@@ -581,30 +352,164 @@
               id="nivelAlerta"
               min="0"
               max="100"
-              value="70">
-
+              value="70"
+            >
           </label>
 
 
-
-          <!-- SALVAR -->
-
-          <button
-            class="primary"
-            onclick="saveSettings()">
-
+          <button class="primary" onclick="saveSettings()">
             💾 Salvar configurações
-
           </button>
 
-
-          <span
-            id="saved"
-            class="saved">
-          </span>
-
+          <span id="saved" class="saved"></span>
 
         </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- CRÉDITOS -->
+
+    <section id="creditos" class="page">
+
+      <div class="credits-header">
+
+        <div class="credits-logo">
+          <img
+            src="logo-escola.png"
+            alt="CEEP Ozório Gonçalves Nogueira"
+          >
+        </div>
+
+        <div>
+          <p class="eyebrow">PROJETO ACADÊMICO • 2026</p>
+
+          <h2>CleanSurface AI</h2>
+
+          <p>
+            Centro Estadual de Educação Profissional
+            Ozório Gonçalves Nogueira
+          </p>
+
+          <span>
+            Bandeirantes - Paraná
+          </span>
+        </div>
+
+      </div>
+
+
+      <div class="credits-grid">
+
+
+        <!-- MECATRÔNICA -->
+
+        <div class="credit-card">
+
+          <div class="credit-icon">🔧</div>
+
+          <div>
+            <p class="eyebrow">CURSO TÉCNICO</p>
+
+            <h3>Mecatrônica</h3>
+
+            <span class="credit-count">
+              8 integrantes
+            </span>
+          </div>
+
+
+          <div class="people-list">
+
+            <div>Luiz Fernando F.</div>
+            <div>Luiz Fernando A.</div>
+            <div>Christopher G.</div>
+            <div>Mirella F.</div>
+            <div>David J.</div>
+            <div>Beatriz S.</div>
+            <div>Hyanara P.</div>
+            <div>Yasmin L.</div>
+
+          </div>
+
+        </div>
+
+
+        <!-- ALIMENTOS -->
+
+        <div class="credit-card">
+
+          <div class="credit-icon">🍎</div>
+
+          <div>
+            <p class="eyebrow">CURSO TÉCNICO</p>
+
+            <h3>Alimentos</h3>
+
+            <span class="credit-count">
+              4 integrantes
+            </span>
+          </div>
+
+
+          <div class="people-list">
+
+            <div>Yasmin Loponi</div>
+            <div>Laura C.</div>
+            <div>Cibelly</div>
+            <div>Kailaine</div>
+
+          </div>
+
+        </div>
+
+
+        <!-- PROFESSORES -->
+
+        <div class="credit-card teachers">
+
+          <div class="credit-icon">👨‍🏫</div>
+
+          <div>
+            <p class="eyebrow">ORIENTAÇÃO</p>
+
+            <h3>Professores</h3>
+
+            <span class="credit-count">
+              4 professores
+            </span>
+          </div>
+
+
+          <div class="people-list">
+
+            <div>Renata Barauldi</div>
+            <div>Jessily S.</div>
+            <div>Rafael O.</div>
+            <div>Alexandre</div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="school-footer">
+
+        <strong>
+          CEEP Ozório Gonçalves Nogueira
+        </strong>
+
+        <span>
+          Educação profissional • Bandeirantes - PR
+        </span>
+
+        <small>
+          CleanSurface AI • Projeto acadêmico • 2026
+        </small>
 
       </div>
 
@@ -613,9 +518,7 @@
   </main>
 
 
-
   <script src="script.js"></script>
 
 </body>
 </html>
-
