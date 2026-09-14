@@ -488,87 +488,90 @@ async function verificarResultado(){
 // PROCESSAR RESULTADO
 // ============================================================
 
-function processarResultado(
-    dados
-) {
+async function finalizarSemResultado(){
 
-    const valor =
-        dados.valor ??
-        "--";
+  if(analiseFinalizada)return;
 
+  analiseFinalizada=true;
+  pollingAtivo=false;
 
-    const resultadoStatus =
-        dados.status ??
-        "Analisado";
+  clearTimeout(tempoLimiteAnalise);
 
+  const btn=document.getElementById("analisarBtn");
+  const status=document.getElementById("statusAnalise");
 
-    const detalhe =
-        dados.detalhe ??
-        "Resultado recebido pelo CleanSurface AI.";
+  btn.disabled=false;
 
+  status.textContent=
+    "⚠️ Superfície não visualizada.";
 
-    atualizarMonitoramento(
-        valor,
-        resultadoStatus,
-        detalhe
-    );
+  document.getElementById("device-status").textContent=
+    "Sem resultado";
 
+  document.getElementById("reading-value").textContent=
+    "--";
 
-    salvarHistorico({
+  document.getElementById("reading-status").textContent=
+    "SUPERFÍCIE NÃO VISUALIZADA";
 
-        id:
-            dados.analise_id ??
-            Date.now(),
+  document.getElementById("reading-detail").textContent=
+    "O ESP32-S3-CAM não enviou nenhum resultado da análise.";
 
-        data:
-            dados.criado_em ??
-            new Date().toISOString(),
+  const badge=document.getElementById("monitorBadge");
 
-        valor:
-            valor,
+  badge.textContent="SEM RESULTADO";
+  badge.className="badge bad";
 
-        status:
-            resultadoStatus,
+  const item={
+    data:new Date().toLocaleString("pt-BR"),
+    analise_id:analiseAtualId,
+    valor:"--",
+    status:"nao_visualizada",
+    detalhe:"Superfície não visualizada — nenhum resultado recebido do ESP32-S3-CAM."
+  };
 
+  salvarHistorico(item);
+  atualizarHistorico();
+  atualizarDashboard();
+  atualizarAlertas();
+
+  /*
+    Envia para a API.
+    A API usa o e-mail cadastrado na análise
+    e dispara a notificação por e-mail.
+  */
+
+  try{
+
+    const r=await fetch(API_URL+"/resultado",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        analise_id:analiseAtualId,
+        valor:null,
+        status:"nao_visualizada",
         detalhe:
-            detalhe
-
+          "Superfície não visualizada — nenhum resultado recebido do ESP32-S3-CAM."
+      })
     });
 
-
-    atualizarDashboard();
-
-
-    const status =
-        document.getElementById(
-            "statusAnalise"
-        );
-
-
-    const dispositivo =
-        document.getElementById(
-            "device-status"
-        );
-
-
-    if (status) {
-
-        status.textContent =
-            "✅ Análise concluída.";
-
+    if(!r.ok){
+      throw new Error("HTTP "+r.status);
     }
 
+    status.textContent=
+      "⚠️ Superfície não visualizada. Notificação enviada ao e-mail.";
 
-    if (dispositivo) {
+  }catch(e){
 
-        dispositivo.textContent =
-            "Online";
+    console.error("Erro ao enviar notificação:",e);
 
-    }
-
+    status.textContent=
+      "⚠️ Superfície não visualizada. Não foi possível confirmar o envio do e-mail.";
+  }
 }
-
-
 // ============================================================
 // MONITORAMENTO
 // ============================================================
