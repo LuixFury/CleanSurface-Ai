@@ -1,1783 +1,1826 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+// ============================================================
+// CleanSurface AI
+// API + ESP32-S3-CAM + Histórico + Personalização
+// ============================================================
 
-    <title>CleanSurface AI</title>
+const API_URL =
+    "https://cleansurface-api.luizinfernando19.workers.dev";
 
-    <link rel="stylesheet" href="style.css">
-</head>
+let analiseAtualId = null;
+let verificandoResultado = false;
 
-<body>
 
-    <!-- =========================================================
-         APLICAÇÃO
-    ========================================================== -->
+// ============================================================
+// PALETAS
+// ============================================================
 
-    <div class="app">
+const PALETAS = {
 
-        <!-- =====================================================
-             SIDEBAR
-        ====================================================== -->
+    original: {
+        primary: "#39e6a3",
+        secondary: "#55cba0",
+        background: "#07100f",
+        card: "#0b1917",
+        text: "#edf7f4"
+    },
 
-        <aside class="sidebar">
+    azul: {
+        primary: "#38bdf8",
+        secondary: "#60a5fa",
+        background: "#07111f",
+        card: "#0b1728",
+        text: "#edf7ff"
+    },
 
-            <div class="sidebar-top">
+    roxo: {
+        primary: "#a78bfa",
+        secondary: "#c4b5fd",
+        background: "#100b1c",
+        card: "#171025",
+        text: "#f5f3ff"
+    },
 
-                <div class="logo-area">
+    vermelho: {
+        primary: "#fb7185",
+        secondary: "#fda4af",
+        background: "#1a090c",
+        card: "#241013",
+        text: "#fff1f2"
+    },
 
-                    <div class="logo-icon">
-                        🧽
-                    </div>
+    laranja: {
+        primary: "#fb923c",
+        secondary: "#fdba74",
+        background: "#1b0e06",
+        card: "#26140a",
+        text: "#fff7ed"
+    }
 
-                    <div class="logo-text">
-                        <span class="logo-title">
-                            CleanSurface
-                        </span>
+};
 
-                        <span class="logo-ai">
-                            AI
-                        </span>
-                    </div>
 
-                </div>
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
 
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-                <div class="system-indicator">
+        configurarNavegacao();
 
-                    <span class="indicator-dot"></span>
+        carregarConfiguracoes();
 
-                    <span>
-                        Sistema online
-                    </span>
+        carregarHistorico();
 
-                </div>
+        carregarPaleta();
 
-            </div>
+        configurarSeletoresDeCor();
 
+        atualizarDashboard();
 
-            <!-- MENU -->
+        verificarAPI();
 
-            <nav class="sidebar-menu">
+    }
+);
 
-                <button
-                    class="menu-item active"
-                    data-page="dashboard"
-                    onclick="abrirPagina('dashboard', this)">
 
-                    <span class="menu-icon">
-                        🏠
-                    </span>
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
 
-                    <span class="menu-text">
-                        Dashboard
-                    </span>
+function configurarNavegacao() {
 
-                </button>
+    const botoes =
+        document.querySelectorAll(
+            ".nav-item"
+        );
 
+    botoes.forEach(
+        botao => {
 
-                <button
-                    class="menu-item"
-                    data-page="monitoramento"
-                    onclick="abrirPagina('monitoramento', this)">
+            botao.addEventListener(
+                "click",
+                () => {
 
-                    <span class="menu-icon">
-                        📷
-                    </span>
+                    const pagina =
+                        botao.dataset.page;
 
-                    <span class="menu-text">
-                        Monitoramento
-                    </span>
+                    if (pagina) {
+                        mostrarPagina(pagina);
+                    }
 
-                </button>
+                }
+            );
 
+        }
+    );
 
-                <button
-                    class="menu-item"
-                    data-page="alertas"
-                    onclick="abrirPagina('alertas', this)">
+}
 
-                    <span class="menu-icon">
-                        ⚠️
-                    </span>
 
-                    <span class="menu-text">
-                        Alertas
-                    </span>
+function mostrarPagina(nomePagina) {
 
-                    <span
-                        class="menu-badge"
-                        id="alert-count">
+    const paginas =
+        document.querySelectorAll(
+            ".page"
+        );
 
-                        0
+    const botoes =
+        document.querySelectorAll(
+            ".nav-item"
+        );
 
-                    </span>
 
-                </button>
+    paginas.forEach(
+        pagina =>
+            pagina.classList.remove(
+                "active-page"
+            )
+    );
 
 
-                <button
-                    class="menu-item"
-                    data-page="historico"
-                    onclick="abrirPagina('historico', this)">
+    botoes.forEach(
+        botao =>
+            botao.classList.remove(
+                "active"
+            )
+    );
 
-                    <span class="menu-icon">
-                        📋
-                    </span>
 
-                    <span class="menu-text">
-                        Histórico
-                    </span>
+    const paginaSelecionada =
+        document.getElementById(
+            nomePagina
+        );
 
-                </button>
 
+    if (paginaSelecionada) {
 
-                <button
-                    class="menu-item"
-                    data-page="configuracoes"
-                    onclick="abrirPagina('configuracoes', this)">
+        paginaSelecionada.classList.add(
+            "active-page"
+        );
 
-                    <span class="menu-icon">
-                        ⚙️
-                    </span>
+    }
 
-                    <span class="menu-text">
-                        Configurações
-                    </span>
 
-                </button>
+    const botaoSelecionado =
+        document.querySelector(
+            `.nav-item[data-page="${nomePagina}"]`
+        );
 
 
-                <button
-                    class="menu-item"
-                    data-page="creditos"
-                    onclick="abrirPagina('creditos', this)">
+    if (botaoSelecionado) {
 
-                    <span class="menu-icon">
-                        👥
-                    </span>
+        botaoSelecionado.classList.add(
+            "active"
+        );
 
-                    <span class="menu-text">
-                        Créditos
-                    </span>
+    }
 
-                </button>
 
-            </nav>
+    const titulo =
+        document.getElementById(
+            "page-title"
+        );
 
 
-            <!-- INFORMAÇÕES DA SIDEBAR -->
+    if (titulo) {
 
-            <div class="sidebar-bottom">
+        const titulos = {
 
-                <div class="connection-card">
+            dashboard:
+                "Dashboard",
 
-                    <div class="connection-header">
+            monitoramento:
+                "Monitoramento",
 
-                        <span class="connection-icon">
-                            📡
-                        </span>
+            alertas:
+                "Alertas",
 
-                        <span>
-                            Conexão
-                        </span>
+            historico:
+                "Histórico",
 
-                    </div>
+            configuracoes:
+                "Configurações"
 
+        };
 
-                    <div
-                        class="connection-status"
-                        id="sidebarConnection">
+        titulo.textContent =
+            titulos[nomePagina] ||
+            "CleanSurface AI";
+    }
 
-                        Verificando...
 
-                    </div>
+    if (
+        nomePagina ===
+        "historico"
+    ) {
 
-                </div>
+        carregarHistorico();
 
+    }
 
-                <div class="sidebar-version">
+}
 
-                    CleanSurface AI
 
-                    <span>
-                        v1.0
-                    </span>
+function showPage(nomePagina) {
 
-                </div>
+    mostrarPagina(nomePagina);
 
-            </div>
+}
 
-        </aside>
 
+// ============================================================
+// API
+// ============================================================
 
-        <!-- =====================================================
-             CONTEÚDO PRINCIPAL
-        ====================================================== -->
+async function verificarAPI() {
 
-        <main class="main-content">
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
 
-            <!-- =================================================
-                 CABEÇALHO
-            ================================================== -->
+    try {
 
-            <header class="topbar">
+        const resposta =
+            await fetch(
+                API_URL,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
 
-                <div class="topbar-left">
 
-                    <button
-                        class="mobile-menu-button"
-                        onclick="alternarMenu()">
+        if (!resposta.ok) {
+            throw new Error(
+                "API offline"
+            );
+        }
 
-                        ☰
 
-                    </button>
+        const dados =
+            await resposta.json();
 
 
-                    <div class="page-heading">
+        console.log(
+            "API:",
+            dados
+        );
 
-                        <span
-                            class="page-kicker"
-                            id="pageKicker">
 
-                            SISTEMA
+        if (dispositivo) {
 
-                        </span>
+            dispositivo.textContent =
+                "Online";
 
-                        <h1 id="pageTitle">
-                            Dashboard
-                        </h1>
+        }
 
-                    </div>
 
-                </div>
+    } catch (erro) {
 
+        console.error(
+            "API:",
+            erro
+        );
 
-                <div class="topbar-right">
 
-                    <div class="live-status">
+        if (dispositivo) {
 
-                        <span class="live-dot"></span>
+            dispositivo.textContent =
+                "Offline";
 
-                        <span>
-                            Sistema ativo
-                        </span>
+        }
 
-                    </div>
+    }
 
+}
 
-                    <div class="topbar-time">
 
-                        <span id="currentTime">
-                            --:--:--
-                        </span>
+// ============================================================
+// INICIAR ANÁLISE
+// ============================================================
 
-                    </div>
+async function iniciarAnalise() {
 
-                </div>
+    const botao =
+        document.getElementById(
+            "analisarBtn"
+        );
 
-            </header>
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-            <!-- =================================================
-                 ÁREA DAS PÁGINAS
-            ================================================== -->
 
-            <div class="pages">
+    if (verificandoResultado) {
+        return;
+    }
 
 
-                <!-- =================================================
-                     DASHBOARD
-                ================================================== -->
+    if (botao) {
 
-                <section
-                    id="dashboard"
-                    class="page active">
+        botao.disabled = true;
 
+        botao.innerHTML =
+            "⏳ SOLICITANDO ANÁLISE...";
 
-                    <!-- HERO -->
+    }
 
-                    <div class="dashboard-hero">
 
-                        <div class="hero-content">
+    if (status) {
 
-                            <div class="hero-label">
-                                INTELIGÊNCIA ARTIFICIAL
-                            </div>
+        status.textContent =
+            "Solicitando análise ao ESP32-S3-CAM...";
 
-                            <h2>
-                                Análise inteligente de superfícies
-                            </h2>
+    }
 
-                            <p>
-                                Utilize o CleanSurface AI para realizar
-                                análises através do ESP32-S3-CAM e
-                                inteligência artificial.
-                            </p>
 
+    if (dispositivo) {
 
-                            <button
-                                id="analisarBtn"
-                                class="primary-button analysis-button"
-                                onclick="iniciarAnalise()">
+        dispositivo.textContent =
+            "Solicitando...";
 
-                                <span class="button-icon">
-                                    🔍
-                                </span>
+    }
 
-                                <span>
-                                    INICIAR ANÁLISE
-                                </span>
 
-                            </button>
+    try {
 
+        const configuracoes =
+            obterConfiguracoes();
 
-                            <div
-                                id="statusAnalise"
-                                class="analysis-status">
 
-                                <span class="status-circle"></span>
+        const resposta =
+            await fetch(
+                `${API_URL}/iniciar-analise`,
+                {
 
-                                <span>
-                                    Aguardando comando.
-                                </span>
+                    method: "POST",
 
-                            </div>
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-                        </div>
+                    body: JSON.stringify({
 
+                        email:
+                            configuracoes.email ||
+                            ""
 
-                        <div class="hero-visual">
+                    }),
 
-                            <div class="camera-circle">
+                    cache: "no-store"
 
-                                <div class="camera-icon">
-                                    📷
-                                </div>
+                }
+            );
 
-                            </div>
 
+        if (!resposta.ok) {
 
-                            <div class="ai-ring ring-one"></div>
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
 
-                            <div class="ai-ring ring-two"></div>
+        }
 
-                            <div class="ai-ring ring-three"></div>
 
-                        </div>
+        const dados =
+            await resposta.json();
 
-                    </div>
 
+        console.log(
+            "Análise criada:",
+            dados
+        );
 
-                    <!-- CARDS PRINCIPAIS -->
 
-                    <div class="section-title">
+        if (!dados.sucesso) {
 
-                        <div>
+            throw new Error(
+                dados.mensagem ||
+                "Não foi possível iniciar a análise."
+            );
 
-                            <span class="section-kicker">
-                                VISÃO GERAL
-                            </span>
+        }
 
-                            <h2>
-                                Status do sistema
-                            </h2>
 
-                        </div>
+        analiseAtualId =
+            dados.analise_id;
 
-                    </div>
 
+        if (status) {
 
-                    <div class="dashboard-cards">
+            status.textContent =
+                "Análise solicitada. Aguardando ESP32-S3-CAM...";
 
+        }
 
-                        <!-- CARD SISTEMA -->
 
-                        <div class="stat-card">
+        if (dispositivo) {
 
-                            <div class="stat-card-header">
+            dispositivo.textContent =
+                "Aguardando ESP32";
 
-                                <div class="stat-icon green">
-                                    ✓
-                                </div>
+        }
 
-                                <span class="stat-label">
-                                    SISTEMA
-                                </span>
 
-                            </div>
+        aguardarResultado();
 
 
-                            <div class="stat-value green-text">
-                                ONLINE
-                            </div>
+    } catch (erro) {
 
+        console.error(
+            "Erro:",
+            erro
+        );
 
-                            <div class="stat-description">
 
-                                Sistema funcionando
-                                normalmente.
+        if (status) {
 
-                            </div>
+            status.textContent =
+                "❌ Não foi possível iniciar a análise.";
 
-                        </div>
+        }
 
 
-                        <!-- CARD ESP32 -->
+        if (dispositivo) {
 
-                        <div class="stat-card">
+            dispositivo.textContent =
+                "Offline";
 
-                            <div class="stat-card-header">
+        }
 
-                                <div class="stat-icon blue">
-                                    📷
-                                </div>
 
-                                <span class="stat-label">
-                                    DISPOSITIVO
-                                </span>
+    } finally {
 
-                            </div>
+        if (botao) {
 
+            botao.disabled = false;
 
-                            <div
-                                class="stat-value"
-                                id="device-status">
+            botao.innerHTML =
+                "🔍 INICIAR ANÁLISE";
 
-                                Aguardando
+        }
 
-                            </div>
+    }
 
+}
 
-                            <div class="stat-description">
 
-                                ESP32-S3-CAM
+// ============================================================
+// RESULTADO
+// ============================================================
 
-                            </div>
+async function aguardarResultado() {
 
-                        </div>
+    if (verificandoResultado) {
+        return;
+    }
 
 
-                        <!-- CARD RESULTADO -->
+    if (!analiseAtualId) {
+        return;
+    }
 
-                        <div class="stat-card">
 
-                            <div class="stat-card-header">
+    verificandoResultado = true;
 
-                                <div class="stat-icon purple">
-                                    🧠
-                                </div>
 
-                                <span class="stat-label">
-                                    ÚLTIMO RESULTADO
-                                </span>
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
-                            </div>
 
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-                            <div
-                                class="stat-value result-value"
-                                id="last-result">
 
-                                Nenhuma análise
+    let tentativas = 0;
 
-                            </div>
+    const limiteTentativas = 40;
 
 
-                            <div class="stat-description">
+    const intervalo =
+        setInterval(
+            async () => {
 
-                                Resultado mais recente.
+                tentativas++;
 
-                            </div>
 
-                        </div>
+                try {
 
+                    const resposta =
+                        await fetch(
+                            `${API_URL}/resultado?analise_id=${analiseAtualId}`,
+                            {
+                                method: "GET",
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                },
+                                cache:
+                                    "no-store"
+                            }
+                        );
 
-                        <!-- CARD ALERTAS -->
 
-                        <div class="stat-card">
+                    if (!resposta.ok) {
 
-                            <div class="stat-card-header">
+                        throw new Error(
+                            `HTTP ${resposta.status}`
+                        );
 
-                                <div class="stat-icon orange">
-                                    ⚠
-                                </div>
+                    }
 
-                                <span class="stat-label">
-                                    ALERTAS
-                                </span>
 
-                            </div>
+                    const dados =
+                        await resposta.json();
 
 
-                            <div
-                                class="stat-value"
-                                id="dashboardAlertCount">
+                    console.log(
+                        "Resultado:",
+                        dados
+                    );
 
-                                0
 
-                            </div>
+                    if (
+                        dados.disponivel !==
+                        true
+                    ) {
 
+                        if (status) {
 
-                            <div class="stat-description">
+                            status.textContent =
+                                "Aguardando análise do ESP32-S3-CAM...";
 
-                                Alertas registrados.
+                        }
 
-                            </div>
+                        return;
 
-                        </div>
+                    }
 
-                    </div>
 
+                    if (
+                        String(
+                            dados.analise_id
+                        ) !==
+                        String(
+                            analiseAtualId
+                        )
+                    ) {
 
-                    <!-- MONITORAMENTO RÁPIDO -->
+                        return;
 
-                    <div class="section-title">
+                    }
 
-                        <div>
 
-                            <span class="section-kicker">
-                                MONITORAMENTO
-                            </span>
+                    clearInterval(
+                        intervalo
+                    );
 
-                            <h2>
-                                Última análise
-                            </h2>
 
-                        </div>
+                    verificandoResultado =
+                        false;
 
 
-                        <button
-                            class="text-button"
-                            onclick="abrirPaginaPorNome('monitoramento')">
+                    processarResultado(
+                        dados
+                    );
 
-                            Ver monitoramento →
-                            
-                        </button>
 
-                    </div>
+                } catch (erro) {
 
+                    console.log(
+                        "Aguardando resultado..."
+                    );
 
-                    <div class="monitor-card">
+                }
 
-                        <div class="monitor-main">
 
-                            <div class="monitor-camera">
+                if (
+                    tentativas >=
+                    limiteTentativas
+                ) {
 
-                                <div class="camera-placeholder">
+                    clearInterval(
+                        intervalo
+                    );
 
-                                    <span>
-                                        📷
-                                    </span>
 
-                                    <small>
-                                        ESP32-S3-CAM
-                                    </small>
+                    verificandoResultado =
+                        false;
 
-                                </div>
 
-                            </div>
+                    if (status) {
 
+                        status.textContent =
+                            "⏳ O ESP32 ainda não enviou o resultado.";
 
-                            <div class="monitor-information">
+                    }
 
-                                <span class="info-label">
-                                    RESULTADO DA ANÁLISE
-                                </span>
 
+                    if (dispositivo) {
 
-                                <div
-                                    id="reading-value"
-                                    class="reading-value">
+                        dispositivo.textContent =
+                            "Aguardando";
 
-                                    ---
+                    }
 
-                                </div>
+                }
 
+            },
+            3000
+        );
 
-                                <div
-                                    id="reading-status"
-                                    class="reading-status">
+}
 
-                                    Aguardando análise
 
-                                </div>
+// ============================================================
+// PROCESSAR RESULTADO
+// ============================================================
 
+function processarResultado(
+    dados
+) {
 
-                                <p
-                                    id="reading-detail"
-                                    class="reading-detail">
+    const valor =
+        dados.valor ??
+        "--";
 
-                                    Nenhum resultado disponível.
 
-                                </p>
+    const resultadoStatus =
+        dados.status ??
+        "Analisado";
 
-                            </div>
 
-                        </div>
+    const detalhe =
+        dados.detalhe ??
+        "Resultado recebido pelo CleanSurface AI.";
 
 
-                        <div class="monitor-side">
+    atualizarMonitoramento(
+        valor,
+        resultadoStatus,
+        detalhe
+    );
 
-                            <div class="monitor-side-item">
 
-                                <span>
-                                    Dispositivo
-                                </span>
+    salvarHistorico({
 
-                                <strong>
-                                    ESP32-S3-CAM
-                                </strong>
+        id:
+            dados.analise_id ??
+            Date.now(),
 
-                            </div>
+        data:
+            dados.criado_em ??
+            new Date().toISOString(),
 
+        valor:
+            valor,
 
-                            <div class="monitor-side-item">
+        status:
+            resultadoStatus,
 
-                                <span>
-                                    IA
-                                </span>
+        detalhe:
+            detalhe
 
-                                <strong>
-                                    Edge Impulse
-                                </strong>
+    });
 
-                            </div>
 
+    atualizarDashboard();
 
-                            <div class="monitor-side-item">
 
-                                <span>
-                                    Conexão
-                                </span>
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
-                                <strong
-                                    id="monitorConnection">
 
-                                    Online
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-                                </strong>
 
-                            </div>
+    if (status) {
 
-                        </div>
+        status.textContent =
+            "✅ Análise concluída.";
 
-                    </div>
+    }
 
-                </section>
 
+    if (dispositivo) {
 
+        dispositivo.textContent =
+            "Online";
 
-                <!-- =================================================
-                     MONITORAMENTO
-                ================================================== -->
+    }
 
-                <section
-                    id="monitoramento"
-                    class="page">
+}
 
 
-                    <div class="page-introduction">
+// ============================================================
+// MONITORAMENTO
+// ============================================================
 
-                        <span class="section-kicker">
-                            ESP32-S3-CAM
-                        </span>
+function atualizarMonitoramento(
+    valor,
+    status,
+    detalhe
+) {
 
-                        <h2>
-                            Monitoramento
-                        </h2>
+    const valorElemento =
+        document.getElementById(
+            "reading-value"
+        );
 
-                        <p>
-                            Acompanhe os resultados enviados pelo
-                            dispositivo em tempo real.
-                        </p>
 
-                    </div>
+    const statusElemento =
+        document.getElementById(
+            "reading-status"
+        );
 
 
-                    <div class="monitor-grid">
+    const detalheElemento =
+        document.getElementById(
+            "reading-detail"
+        );
 
 
-                        <!-- RESULTADO -->
+    const ultimoResultado =
+        document.getElementById(
+            "last-result"
+        );
 
-                        <div class="large-result-card">
 
-                            <div class="result-card-top">
+    if (valorElemento) {
 
-                                <span class="info-label">
-                                    RESULTADO ATUAL
-                                </span>
+        valorElemento.textContent =
+            valor;
 
-                                <span
-                                    class="result-indicator"
-                                    id="resultIndicator">
+    }
 
-                                    ●
 
-                                </span>
+    if (statusElemento) {
 
-                            </div>
+        statusElemento.textContent =
+            formatarStatus(status);
 
+    }
 
-                            <div
-                                id="monitorReadingValue"
-                                class="large-result-value">
 
-                                ---
+    if (detalheElemento) {
 
-                            </div>
+        detalheElemento.textContent =
+            detalhe;
 
+    }
 
-                            <div
-                                id="monitorReadingStatus"
-                                class="large-result-status">
 
-                                Aguardando análise
+    if (ultimoResultado) {
 
-                            </div>
+        ultimoResultado.textContent =
+            formatarStatus(status);
 
+    }
 
-                            <p
-                                id="monitorReadingDetail"
-                                class="large-result-detail">
+}
 
-                                O sistema ainda não recebeu um
-                                resultado do ESP32-S3-CAM.
 
-                            </p>
+// ============================================================
+// STATUS
+// ============================================================
 
-                        </div>
+function formatarStatus(status) {
 
+    if (!status) {
+        return "Analisado";
+    }
 
-                        <!-- DISPOSITIVO -->
 
-                        <div class="device-card">
+    const texto =
+        String(status);
 
-                            <div class="device-card-header">
 
-                                <div class="device-icon">
-                                    📷
-                                </div>
+    const normalizado =
+        texto.toLowerCase();
 
-                                <div>
 
-                                    <span>
-                                        DISPOSITIVO
-                                    </span>
+    if (
+        normalizado ===
+            "aprovado" ||
+        normalizado ===
+            "ok" ||
+        normalizado ===
+            "limpo"
+    ) {
 
-                                    <h3>
-                                        ESP32-S3-CAM
-                                    </h3>
+        return "Aprovado";
 
-                                </div>
+    }
 
-                            </div>
 
+    if (
+        normalizado ===
+            "reprovado" ||
+        normalizado ===
+            "alerta" ||
+        normalizado ===
+            "sujo"
+    ) {
 
-                            <div class="device-status-line">
+        return "Alerta";
 
-                                <span class="device-dot"></span>
+    }
 
-                                <span id="monitorDeviceStatus">
-                                    Aguardando conexão
-                                </span>
 
-                            </div>
+    return texto;
 
+}
 
-                            <div class="device-information">
 
-                                <div>
+// ============================================================
+// HISTÓRICO
+// ============================================================
 
-                                    <span>
-                                        Câmera
-                                    </span>
+const CHAVE_HISTORICO =
+    "cleansurface_historico";
 
-                                    <strong>
-                                        Ativa
-                                    </strong>
 
-                                </div>
+function salvarHistorico(
+    resultado
+) {
 
+    let historico =
+        obterHistorico();
 
-                                <div>
 
-                                    <span>
-                                        Inteligência artificial
-                                    </span>
+    const existe =
+        historico.some(
+            item =>
+                String(item.id) ===
+                String(resultado.id)
+        );
 
-                                    <strong>
-                                        Edge Impulse
-                                    </strong>
 
-                                </div>
+    if (!existe) {
 
+        historico.unshift(
+            resultado
+        );
 
-                                <div>
+    }
 
-                                    <span>
-                                        Comunicação
-                                    </span>
 
-                                    <strong>
-                                        Wi-Fi
-                                    </strong>
+    historico =
+        historico.slice(
+            0,
+            100
+        );
 
-                                </div>
 
-                            </div>
+    localStorage.setItem(
+        CHAVE_HISTORICO,
+        JSON.stringify(
+            historico
+        )
+    );
 
-                        </div>
 
-                    </div>
+    carregarHistorico();
 
+}
 
-                    <!-- INFORMAÇÕES -->
 
-                    <div class="information-grid">
+function obterHistorico() {
 
+    try {
 
-                        <div class="information-card">
+        const salvo =
+            localStorage.getItem(
+                CHAVE_HISTORICO
+            );
 
-                            <div class="information-icon">
-                                🧠
-                            </div>
 
-                            <div>
+        if (!salvo) {
+            return [];
+        }
 
-                                <h3>
-                                    Inteligência Artificial
-                                </h3>
 
-                                <p>
-                                    O resultado da análise é processado
-                                    pelo modelo desenvolvido no
-                                    Edge Impulse.
-                                </p>
+        const dados =
+            JSON.parse(salvo);
 
-                            </div>
 
-                        </div>
+        return Array.isArray(dados)
+            ? dados
+            : [];
 
 
-                        <div class="information-card">
+    } catch (erro) {
 
-                            <div class="information-icon">
-                                ☁️
-                            </div>
+        return [];
 
-                            <div>
+    }
 
-                                <h3>
-                                    Comunicação em nuvem
-                                </h3>
+}
 
-                                <p>
-                                    O ESP32 pode enviar os resultados
-                                    diretamente para a API do
-                                    CleanSurface AI.
-                                </p>
 
-                            </div>
+function carregarHistorico() {
 
-                        </div>
+    const historico =
+        obterHistorico();
 
-                    </div>
 
-                </section>
+    const tabela =
+        document.querySelector(
+            ".table-placeholder"
+        );
 
 
+    if (!tabela) {
+        return;
+    }
 
-                <!-- =================================================
-                     ALERTAS
-                ================================================== -->
 
-                <section
-                    id="alertas"
-                    class="page">
+    tabela.innerHTML = "";
 
 
-                    <div class="page-introduction">
+    const cabecalhos = [
+        "DATA E HORA",
+        "RESULTADO",
+        "NÍVEL",
+        "STATUS"
+    ];
 
-                        <span class="section-kicker">
-                            MONITORAMENTO
-                        </span>
 
-                        <h2>
-                            Alertas
-                        </h2>
+    cabecalhos.forEach(
+        texto => {
 
-                        <p>
-                            Acompanhe situações que exigem atenção.
-                        </p>
+            const elemento =
+                document.createElement(
+                    "div"
+                );
 
-                    </div>
+            elemento.textContent =
+                texto;
 
+            tabela.appendChild(
+                elemento
+            );
 
-                    <div class="alert-summary">
+        }
+    );
 
-                        <div class="alert-summary-card">
 
-                            <span class="summary-icon">
-                                ⚠️
-                            </span>
+    if (
+        historico.length === 0
+    ) {
 
-                            <div>
+        const vazio =
+            document.createElement(
+                "p"
+            );
 
-                                <span>
-                                    TOTAL DE ALERTAS
-                                </span>
+        vazio.textContent =
+            "Nenhuma análise registrada ainda.";
 
-                                <strong id="totalAlertas">
-                                    0
-                                </strong>
+        tabela.appendChild(
+            vazio
+        );
 
-                            </div>
+        return;
 
-                        </div>
+    }
 
 
-                        <div class="alert-summary-card">
+    historico.forEach(
+        item => {
 
-                            <span class="summary-icon green">
-                                ✓
-                            </span>
+            const data =
+                document.createElement(
+                    "div"
+                );
 
-                            <div>
+            data.textContent =
+                formatarData(
+                    item.data
+                );
 
-                                <span>
-                                    SISTEMA
-                                </span>
 
-                                <strong class="green-text">
-                                    NORMAL
-                                </strong>
+            const resultado =
+                document.createElement(
+                    "div"
+                );
 
-                            </div>
+            resultado.textContent =
+                formatarStatus(
+                    item.status
+                );
 
-                        </div>
 
-                    </div>
+            const nivel =
+                document.createElement(
+                    "div"
+                );
 
+            nivel.textContent =
+                item.valor ??
+                "--";
 
-                    <div class="card alert-list-card">
 
-                        <div class="card-header">
+            const detalhe =
+                document.createElement(
+                    "div"
+                );
 
-                            <div>
+            detalhe.textContent =
+                item.detalhe ??
+                "Registrado";
 
-                                <span class="section-kicker">
-                                    REGISTROS
-                                </span>
 
-                                <h3>
-                                    Alertas recentes
-                                </h3>
+            tabela.appendChild(data);
+            tabela.appendChild(resultado);
+            tabela.appendChild(nivel);
+            tabela.appendChild(detalhe);
 
-                            </div>
+        }
+    );
 
-                        </div>
+}
 
 
-                        <div id="alertList">
+function formatarData(
+    data
+) {
 
-                            <div class="empty-state">
+    if (!data) {
+        return "--";
+    }
 
-                                <div class="empty-icon">
-                                    ✓
-                                </div>
 
-                                <h3>
-                                    Nenhum alerta
-                                </h3>
+    const dataObj =
+        new Date(data);
 
-                                <p>
-                                    Nenhum alerta foi registrado
-                                    até o momento.
-                                </p>
 
-                            </div>
+    if (
+        isNaN(
+            dataObj.getTime()
+        )
+    ) {
 
-                        </div>
+        return String(data);
 
-                    </div>
+    }
 
-                </section>
 
+    return dataObj.toLocaleString(
+        "pt-BR",
+        {
+            dateStyle: "short",
+            timeStyle: "short"
+        }
+    );
 
+}
 
-                <!-- =================================================
-                     HISTÓRICO
-                ================================================== -->
 
-                <section
-                    id="historico"
-                    class="page">
+// ============================================================
+// DASHBOARD
+// ============================================================
 
+function atualizarDashboard() {
 
-                    <div class="page-introduction">
+    const historico =
+        obterHistorico();
 
-                        <span class="section-kicker">
-                            REGISTROS
-                        </span>
 
-                        <h2>
-                            Histórico
-                        </h2>
+    const contador =
+        document.getElementById(
+            "alert-count"
+        );
 
-                        <p>
-                            Consulte as análises realizadas anteriormente.
-                        </p>
 
-                    </div>
+    if (contador) {
 
+        const alertas =
+            historico.filter(
+                item => {
 
-                    <div class="history-toolbar">
+                    const status =
+                        String(
+                            item.status ??
+                            ""
+                        ).toLowerCase();
 
-                        <div>
 
-                            <span class="history-count">
-                                Análises armazenadas:
-                            </span>
+                    return (
+                        status.includes(
+                            "alerta"
+                        ) ||
+                        status.includes(
+                            "reprovado"
+                        ) ||
+                        status.includes(
+                            "sujo"
+                        )
+                    );
 
-                            <strong id="historyCount">
-                                0
-                            </strong>
+                }
+            );
 
-                        </div>
 
+        contador.textContent =
+            alertas.length;
 
-                        <button
-                            class="danger-button"
-                            onclick="limparHistorico()">
+    }
 
-                            🗑 Limpar histórico
 
-                        </button>
+    if (
+        historico.length >
+        0
+    ) {
 
-                    </div>
+        const ultimo =
+            historico[0];
 
 
-                    <div class="card history-card">
+        const elemento =
+            document.getElementById(
+                "last-result"
+            );
 
-                        <div
-                            id="historyList"
-                            class="history-list">
 
-                            <div class="empty-state">
+        if (elemento) {
 
-                                <div class="empty-icon">
-                                    📋
-                                </div>
+            elemento.textContent =
+                formatarStatus(
+                    ultimo.status
+                );
 
-                                <h3>
-                                    Nenhuma análise registrada
-                                </h3>
+        }
 
-                                <p>
-                                    Quando uma análise for concluída,
-                                    ela aparecerá aqui.
-                                </p>
+    }
 
-                            </div>
+}
 
-                        </div>
 
-                    </div>
+// ============================================================
+// CONFIGURAÇÕES
+// ============================================================
 
-                </section>
+function saveSettings() {
 
+    const email =
+        document.getElementById(
+            "email"
+        );
 
 
-                <!-- =================================================
-                     CONFIGURAÇÕES
-                ================================================== -->
+    const nivel =
+        document.getElementById(
+            "nivelAlerta"
+        );
 
-                <section
-                    id="configuracoes"
-                    class="page">
 
+    const configuracoes = {
 
-                    <div class="page-introduction">
+        email:
+            email
+                ? email.value
+                : "",
 
-                        <span class="section-kicker">
-                            SISTEMA
-                        </span>
+        nivelAlerta:
+            nivel
+                ? nivel.value
+                : 70
 
-                        <h2>
-                            Configurações
-                        </h2>
+    };
 
-                        <p>
-                            Personalize o funcionamento e a aparência
-                            do CleanSurface AI.
-                        </p>
 
-                    </div>
+    localStorage.setItem(
+        "cleansurface_config",
+        JSON.stringify(
+            configuracoes
+        )
+    );
 
 
-                    <!-- E-MAIL -->
+    const salvo =
+        document.getElementById(
+            "saved"
+        );
 
-                    <div class="settings-section">
 
-                        <div class="settings-heading">
+    if (salvo) {
 
-                            <div class="settings-icon">
-                                ✉️
-                            </div>
+        salvo.textContent =
+            "✓ Configurações salvas";
 
-                            <div>
+        setTimeout(
+            () => {
+                salvo.textContent =
+                    "";
+            },
+            3000
+        );
 
-                                <h3>
-                                    Notificações
-                                </h3>
+    }
 
-                                <p>
-                                    Configure o e-mail para receber
-                                    os resultados das análises.
-                                </p>
+}
 
-                            </div>
 
-                        </div>
+function carregarConfiguracoes() {
 
+    try {
 
-                        <div class="settings-card">
+        const salvo =
+            localStorage.getItem(
+                "cleansurface_config"
+            );
 
-                            <label for="email">
-                                E-mail
-                            </label>
 
-                            <input
-                                type="email"
-                                id="email"
-                                placeholder="seuemail@email.com">
+        if (!salvo) {
+            return;
+        }
 
 
-                            <div class="input-help">
+        const configuracoes =
+            JSON.parse(
+                salvo
+            );
 
-                                O resultado poderá ser enviado
-                                para este endereço.
 
-                            </div>
+        const email =
+            document.getElementById(
+                "email"
+            );
 
 
-                            <button
-                                class="primary-button"
-                                onclick="salvarEmail()">
+        const nivel =
+            document.getElementById(
+                "nivelAlerta"
+            );
 
-                                Salvar configuração
 
-                            </button>
+        if (email) {
 
+            email.value =
+                configuracoes.email ||
+                "";
 
-                            <div
-                                id="saved"
-                                class="saved-message">
+        }
 
-                            </div>
 
-                        </div>
+        if (nivel) {
 
-                    </div>
+            nivel.value =
+                configuracoes.nivelAlerta ??
+                70;
 
+        }
 
+    } catch (erro) {
 
-                    <!-- NÍVEL DE ALERTA -->
+        console.error(
+            erro
+        );
 
-                    <div class="settings-section">
+    }
 
-                        <div class="settings-heading">
+}
 
-                            <div class="settings-icon">
-                                ⚠️
-                            </div>
 
-                            <div>
+function obterConfiguracoes() {
 
-                                <h3>
-                                    Alertas
-                                </h3>
+    try {
 
-                                <p>
-                                    Defina como o sistema deverá
-                                    tratar resultados de análise.
-                                </p>
+        const salvo =
+            localStorage.getItem(
+                "cleansurface_config"
+            );
 
-                            </div>
 
-                        </div>
+        if (!salvo) {
 
+            return {
+                email: "",
+                nivelAlerta: 70
+            };
 
-                        <div class="settings-card">
+        }
 
-                            <label for="nivelAlerta">
-                                Nível de alerta
-                            </label>
 
-                            <select id="nivelAlerta">
+        return JSON.parse(
+            salvo
+        );
 
-                                <option value="todos">
-                                    Todos os resultados
-                                </option>
+    } catch (erro) {
 
-                                <option value="atencao">
-                                    Somente resultados de atenção
-                                </option>
+        return {
+            email: "",
+            nivelAlerta: 70
+        };
 
-                                <option value="critico">
-                                    Somente resultados críticos
-                                </option>
+    }
 
-                            </select>
+}
 
 
-                            <button
-                                class="primary-button"
-                                onclick="salvarNivelAlerta()">
+// ============================================================
+// PERSONALIZAÇÃO
+// ============================================================
 
-                                Salvar nível
+function aplicarPaleta(
+    paleta
+) {
 
-                            </button>
+    document.documentElement.style.setProperty(
+        "--primary",
+        paleta.primary
+    );
 
-                        </div>
 
-                    </div>
+    document.documentElement.style.setProperty(
+        "--secondary",
+        paleta.secondary
+    );
 
 
+    document.documentElement.style.setProperty(
+        "--background",
+        paleta.background
+    );
 
-                    <!-- CORES -->
 
-                    <div class="settings-section">
+    document.documentElement.style.setProperty(
+        "--card",
+        paleta.card
+    );
 
-                        <div class="settings-heading">
 
-                            <div class="settings-icon">
-                                🎨
-                            </div>
+    document.documentElement.style.setProperty(
+        "--text",
+        paleta.text
+    );
 
-                            <div>
 
-                                <h3>
-                                    Personalização
-                                </h3>
+    preencherCores(
+        paleta
+    );
 
-                                <p>
-                                    Escolha as cores utilizadas
-                                    na interface do sistema.
-                                </p>
 
-                            </div>
+    localStorage.setItem(
+        "cleansurface_paleta",
+        JSON.stringify(
+            paleta
+        )
+    );
 
-                        </div>
+}
 
 
-                        <div class="settings-card palette-card">
+function aplicarPreset(
+    nome
+) {
 
+    const paleta =
+        PALETAS[nome];
 
-                            <!-- COR PRINCIPAL -->
 
-                            <div class="color-setting">
+    if (!paleta) {
+        return;
+    }
 
-                                <div class="color-setting-info">
 
-                                    <strong>
-                                        Cor principal
-                                    </strong>
+    aplicarPaleta(
+        paleta
+    );
 
-                                    <span>
-                                        Botões e elementos de destaque
-                                    </span>
 
-                                </div>
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
 
 
-                                <div class="color-controls">
+    if (mensagem) {
 
-                                    <input
-                                        type="color"
-                                        id="corPrincipal"
-                                        value="#39e6a3"
-                                        onchange="sincronizarCor('principal')">
+        mensagem.textContent =
+            "✓ Paleta aplicada";
 
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            2500
+        );
 
-                                    <input
-                                        type="text"
-                                        id="hexPrincipal"
-                                        value="#39e6a3"
-                                        maxlength="7"
-                                        oninput="alterarHex('principal')">
+    }
 
-                                </div>
+}
 
-                            </div>
 
+function preencherCores(
+    paleta
+) {
 
+    const mapa = {
 
-                            <!-- COR SECUNDÁRIA -->
+        corPrincipal:
+            paleta.primary,
 
-                            <div class="color-setting">
+        corSecundaria:
+            paleta.secondary,
 
-                                <div class="color-setting-info">
+        corFundo:
+            paleta.background,
 
-                                    <strong>
-                                        Cor secundária
-                                    </strong>
+        corCartao:
+            paleta.card,
 
-                                    <span>
-                                        Detalhes e elementos auxiliares
-                                    </span>
+        corTexto:
+            paleta.text
 
-                                </div>
+    };
 
 
-                                <div class="color-controls">
+    Object.entries(
+        mapa
+    ).forEach(
+        ([id, valor]) => {
 
-                                    <input
-                                        type="color"
-                                        id="corSecundaria"
-                                        value="#55cba0"
-                                        onchange="sincronizarCor('secundaria')">
+            const elemento =
+                document.getElementById(
+                    id
+                );
 
 
-                                    <input
-                                        type="text"
-                                        id="hexSecundaria"
-                                        value="#55cba0"
-                                        maxlength="7"
-                                        oninput="alterarHex('secundaria')">
+            if (elemento) {
 
-                                </div>
+                elemento.value =
+                    valor;
 
-                            </div>
+            }
 
+        }
+    );
 
 
-                            <!-- COR DE FUNDO -->
+    const hex = {
 
-                            <div class="color-setting">
+        hexPrincipal:
+            paleta.primary,
 
-                                <div class="color-setting-info">
+        hexSecundaria:
+            paleta.secondary,
 
-                                    <strong>
-                                        Cor de fundo
-                                    </strong>
+        hexFundo:
+            paleta.background,
 
-                                    <span>
-                                        Fundo principal da aplicação
-                                    </span>
+        hexCartao:
+            paleta.card,
 
-                                </div>
+        hexTexto:
+            paleta.text
 
+    };
 
-                                <div class="color-controls">
 
-                                    <input
-                                        type="color"
-                                        id="corFundo"
-                                        value="#07100f"
-                                        onchange="sincronizarCor('fundo')">
+    Object.entries(
+        hex
+    ).forEach(
+        ([id, valor]) => {
 
+            const elemento =
+                document.getElementById(
+                    id
+                );
 
-                                    <input
-                                        type="text"
-                                        id="hexFundo"
-                                        value="#07100f"
-                                        maxlength="7"
-                                        oninput="alterarHex('fundo')">
 
-                                </div>
+            if (elemento) {
 
-                            </div>
+                elemento.value =
+                    valor.toUpperCase();
 
+            }
 
+        }
+    );
 
-                            <!-- COR DOS CARDS -->
+}
 
-                            <div class="color-setting">
 
-                                <div class="color-setting-info">
+function aplicarCoresPersonalizadas() {
 
-                                    <strong>
-                                        Cor dos cartões
-                                    </strong>
+    const paleta = {
 
-                                    <span>
-                                        Painéis e cartões do sistema
-                                    </span>
+        primary:
+            obterCor(
+                "hexPrincipal",
+                "#39e6a3"
+            ),
 
-                                </div>
+        secondary:
+            obterCor(
+                "hexSecundaria",
+                "#55cba0"
+            ),
 
+        background:
+            obterCor(
+                "hexFundo",
+                "#07100f"
+            ),
 
-                                <div class="color-controls">
+        card:
+            obterCor(
+                "hexCartao",
+                "#0b1917"
+            ),
 
-                                    <input
-                                        type="color"
-                                        id="corCartao"
-                                        value="#0b1917"
-                                        onchange="sincronizarCor('cartao')">
+        text:
+            obterCor(
+                "hexTexto",
+                "#edf7f4"
+            )
 
+    };
 
-                                    <input
-                                        type="text"
-                                        id="hexCartao"
-                                        value="#0b1917"
-                                        maxlength="7"
-                                        oninput="alterarHex('cartao')">
 
-                                </div>
+    aplicarPaleta(
+        paleta
+    );
 
-                            </div>
 
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
 
 
-                            <!-- COR DO TEXTO -->
+    if (mensagem) {
 
-                            <div class="color-setting">
+        mensagem.textContent =
+            "✓ Paleta personalizada aplicada";
 
-                                <div class="color-setting-info">
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            3000
+        );
 
-                                    <strong>
-                                        Cor do texto
-                                    </strong>
+    }
 
-                                    <span>
-                                        Textos principais da interface
-                                    </span>
+}
 
-                                </div>
 
+function obterCor(
+    id,
+    padrao
+) {
 
-                                <div class="color-controls">
+    const elemento =
+        document.getElementById(
+            id
+        );
 
-                                    <input
-                                        type="color"
-                                        id="corTexto"
-                                        value="#edf7f4"
-                                        onchange="sincronizarCor('texto')">
 
+    if (!elemento) {
+        return padrao;
+    }
 
-                                    <input
-                                        type="text"
-                                        id="hexTexto"
-                                        value="#edf7f4"
-                                        maxlength="7"
-                                        oninput="alterarHex('texto')">
 
-                                </div>
+    let valor =
+        elemento.value.trim();
 
-                            </div>
 
+    if (
+        !/^#[0-9A-Fa-f]{6}$/.test(
+            valor
+        )
+    ) {
 
-                            <!-- PRESETS -->
+        valor =
+            padrao;
 
-                            <div class="palette-presets">
+        elemento.value =
+            padrao.toUpperCase();
 
-                                <div class="preset-title">
-                                    Temas rápidos
-                                </div>
+    }
 
 
-                                <div class="preset-buttons">
+    return valor;
 
-                                    <button
-                                        onclick="aplicarPreset('verde')">
+}
 
-                                        Verde Clean
 
-                                    </button>
+// ============================================================
+// SELETORES DE COR
+// ============================================================
 
+function configurarSeletoresDeCor() {
 
-                                    <button
-                                        onclick="aplicarPreset('azul')">
+    const pares = [
 
-                                        Azul Tech
+        [
+            "corPrincipal",
+            "hexPrincipal"
+        ],
 
-                                    </button>
+        [
+            "corSecundaria",
+            "hexSecundaria"
+        ],
 
+        [
+            "corFundo",
+            "hexFundo"
+        ],
 
-                                    <button
-                                        onclick="aplicarPreset('roxo')">
+        [
+            "corCartao",
+            "hexCartao"
+        ],
 
-                                        Roxo AI
+        [
+            "corTexto",
+            "hexTexto"
+        ]
 
-                                    </button>
+    ];
 
 
-                                    <button
-                                        onclick="aplicarPreset('vermelho')">
+    pares.forEach(
+        ([colorId, hexId]) => {
 
-                                        Vermelho
+            const color =
+                document.getElementById(
+                    colorId
+                );
 
-                                    </button>
+            const hex =
+                document.getElementById(
+                    hexId
+                );
 
-                                </div>
 
-                            </div>
+            if (!color || !hex) {
+                return;
+            }
 
 
-                            <div class="palette-actions">
+            color.addEventListener(
+                "input",
+                () => {
 
-                                <button
-                                    class="primary-button"
-                                    onclick="aplicarCoresPersonalizadas()">
+                    hex.value =
+                        color.value.toUpperCase();
 
-                                    Aplicar cores
+                }
+            );
 
-                                </button>
 
+            hex.addEventListener(
+                "input",
+                () => {
 
-                                <button
-                                    class="secondary-button"
-                                    onclick="restaurarPaleta()">
+                    const valor =
+                        hex.value.trim();
 
-                                    Restaurar padrão
 
-                                </button>
+                    if (
+                        /^#[0-9A-Fa-f]{6}$/.test(
+                            valor
+                        )
+                    ) {
 
-                            </div>
+                        color.value =
+                            valor;
 
+                    }
 
-                            <div
-                                id="paletteSaved"
-                                class="saved-message">
+                }
+            );
 
-                            </div>
+        }
+    );
 
-                        </div>
+}
 
-                    </div>
 
-                </section>
+function carregarPaleta() {
 
+    try {
 
+        const salva =
+            localStorage.getItem(
+                "cleansurface_paleta"
+            );
 
-                <!-- =================================================
-                     CRÉDITOS
-                ================================================== -->
 
-                <section
-                    id="creditos"
-                    class="page">
+        if (!salva) {
 
+            preencherCores(
+                PALETAS.original
+            );
 
-                    <div class="page-introduction">
+            return;
 
-                        <span class="section-kicker">
-                            PROJETO
-                        </span>
+        }
 
-                        <h2>
-                            Créditos
-                        </h2>
 
-                        <p>
-                            Informações sobre o desenvolvimento
-                            do CleanSurface AI.
-                        </p>
+        const paleta =
+            JSON.parse(
+                salva
+            );
 
-                    </div>
 
+        aplicarPaleta(
+            paleta
+        );
 
-                    <div class="credits-hero">
 
-                        <div class="credits-logo">
-                            🧽
-                        </div>
+    } catch (erro) {
 
+        aplicarPaleta(
+            PALETAS.original
+        );
 
-                        <div>
+    }
 
-                            <span class="section-kicker">
-                                CLEAN SURFACE
-                            </span>
+}
 
-                            <h2>
-                                CleanSurface AI
-                            </h2>
 
-                            <p>
-                                Sistema inteligente desenvolvido para
-                                análise de superfícies utilizando
-                                visão computacional e inteligência
-                                artificial.
-                            </p>
+// ============================================================
+// FUNÇÕES GLOBAIS
+// ============================================================
 
-                        </div>
+window.iniciarAnalise =
+    iniciarAnalise;
 
-                    </div>
+window.saveSettings =
+    saveSettings;
 
+window.showPage =
+    showPage;
 
-                    <div class="credits-grid">
+window.aplicarPreset =
+    aplicarPreset;
 
+window.aplicarCoresPersonalizadas =
+    aplicarCoresPersonalizadas;
 
-                        <div class="credit-card">
 
-                            <div class="credit-icon">
-                                💻
-                            </div>
+// ============================================================
+// RESTAURAR PALETA
+// ============================================================
 
-                            <h3>
-                                Desenvolvimento
-                            </h3>
+function restaurarPaleta() {
 
-                            <p>
-                                Projeto CleanSurface AI
-                            </p>
+    aplicarPaleta(
+        PALETAS.original
+    );
 
-                        </div>
 
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
 
-                        <div class="credit-card">
 
-                            <div class="credit-icon">
-                                📷
-                            </div>
+    if (mensagem) {
 
-                            <h3>
-                                Hardware
-                            </h3>
+        mensagem.textContent =
+            "✓ Paleta original restaurada";
 
-                            <p>
-                                ESP32-S3-CAM
-                            </p>
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            3000
+        );
 
-                        </div>
+    }
 
+}
 
-                        <div class="credit-card">
 
-                            <div class="credit-icon">
-                                🧠
-                            </div>
-
-                            <h3>
-                                Inteligência Artificial
-                            </h3>
-
-                            <p>
-                                Edge Impulse
-                            </p>
-
-                        </div>
-
-
-                        <div class="credit-card">
-
-                            <div class="credit-icon">
-                                ☁️
-                            </div>
-
-                            <h3>
-                                Infraestrutura
-                            </h3>
-
-                            <p>
-                                Cloudflare Workers e D1
-                            </p>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="credits-footer">
-
-                        <strong>
-                            CleanSurface AI
-                        </strong>
-
-                        <span>
-                            Tecnologia • Inteligência • Inovação
-                        </span>
-
-                    </div>
-
-                </section>
-
-            </div>
-
-        </main>
-
-    </div>
-
-
-    <!-- =========================================================
-         MODAL DE ANÁLISE
-    ========================================================== -->
-
-    <div
-        id="analysisModal"
-        class="modal">
-
-        <div class="modal-content">
-
-            <button
-                class="modal-close"
-                onclick="fecharModal()">
-
-                ×
-
-            </button>
-
-
-            <div class="modal-icon">
-                🔍
-            </div>
-
-
-            <h2>
-                Análise iniciada
-            </h2>
-
-
-            <p id="modalMessage">
-
-                Aguardando o ESP32-S3-CAM...
-
-            </p>
-
-
-            <div class="loading-animation">
-
-                <span></span>
-                <span></span>
-                <span></span>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-
-    <!-- =========================================================
-         TOAST
-    ========================================================== -->
-
-    <div
-        id="toast"
-        class="toast">
-
-        <span id="toastIcon">
-            ✓
-        </span>
-
-        <span id="toastMessage">
-            Operação concluída.
-        </span>
-
-    </div>
-
-
-    <!-- =========================================================
-         JAVASCRIPT PRINCIPAL
-    ========================================================== -->
-
-    <script src="script.js"></script>
-
-</body>
-</html>
+window.restaurarPaleta =
+    restaurarPaleta;
