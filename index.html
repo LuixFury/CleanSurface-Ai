@@ -894,6 +894,7 @@ const API_URL="https://cleansurface-api.luizinfernando19.workers.dev";
 
 let analiseAtualId=null;
 let pollingAtivo=false;
+let tempoLimiteAnalise=null;
 
 const PALLETES={
   verde:{name:"Verde",primary:"#39e6a3",secondary:"#55cba0",background:"#07100f",sidebar:"#091615",card:"#0b1917",text:"#edf7f4",muted:"#78918c",border:"#1a3732",input:"#081311",dark:"#062019"},
@@ -1126,6 +1127,7 @@ async function iniciarAnalise(){
     document.getElementById("device-status").textContent="Aguardando";
 
     showPage("monitoramento");
+    tempoLimiteAnalise=Date.now()+30000;
     iniciarPolling();
 
   }catch(e){
@@ -1167,7 +1169,70 @@ async function verificarResultado(){
     console.log("Aguardando ESP32...",e);
   }
 
+  if(tempoLimiteAnalise && Date.now() >= tempoLimiteAnalise){
+    await finalizarSemResultado();
+    pollingAtivo=false;
+    return;
+  }
+
   setTimeout(verificarResultado,3000);
+}
+
+async function finalizarSemResultado(){
+  const btn=document.getElementById("analisarBtn");
+  const statusEl=document.getElementById("statusAnalise");
+  const detalhe="Superfície não visualizada.";
+
+  statusEl.textContent="⚠️ Superfície não visualizada.";
+  document.getElementById("device-status").textContent="Sem resultado";
+  document.getElementById("reading-value").textContent="--";
+  document.getElementById("reading-status").textContent="NÃO VISUALIZADA";
+  document.getElementById("reading-detail").textContent=detalhe;
+  document.getElementById("last-result").textContent="--";
+
+  const badge=document.getElementById("monitorBadge");
+  badge.textContent="SUPERFÍCIE NÃO VISUALIZADA";
+  badge.className="badge warning";
+
+  try{
+    const r=await fetch(API_URL+"/resultado",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        analise_id:analiseAtualId,
+        valor:null,
+        status:"nao_visualizada",
+        detalhe:detalhe
+      })
+    });
+
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const data=await r.json();
+
+    if(data.email_enviado===true){
+      statusEl.textContent="⚠️ Superfície não visualizada. E-mail enviado.";
+    }else{
+      statusEl.textContent="⚠️ Superfície não visualizada.";
+    }
+
+    salvarHistorico({
+      data:new Date().toLocaleString("pt-BR"),
+      analise_id:analiseAtualId,
+      valor:"--",
+      status:"nao_visualizada",
+      detalhe:detalhe
+    });
+
+    atualizarHistorico();
+    atualizarDashboard();
+    atualizarAlertas();
+  }catch(e){
+    console.error(e);
+    statusEl.textContent="⚠️ Superfície não visualizada, mas não foi possível enviar o e-mail.";
+  }finally{
+    btn.disabled=false;
+    tempoLimiteAnalise=null;
+  }
 }
 
 function processarResultado(data){
