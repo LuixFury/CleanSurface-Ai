@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,10 +10,6 @@
 </head>
 
 <body>
-
-  <!-- =========================
-       SIDEBAR
-  ========================== -->
 
   <aside class="sidebar">
 
@@ -27,83 +22,37 @@
       </div>
     </div>
 
-
-    <!-- MENU -->
-
     <nav>
 
-      <button
-        class="nav-item active"
-        data-page="dashboard"
-      >
-        ⌂
-        <span>Dashboard</span>
+      <button class="nav-item active" data-page="dashboard">
+        ⌂ <span>Dashboard</span>
       </button>
 
-
-      <button
-        class="nav-item"
-        data-page="monitoramento"
-      >
-        ◉
-        <span>Monitoramento</span>
+      <button class="nav-item" data-page="monitoramento">
+        ◉ <span>Monitoramento</span>
       </button>
 
-
-      <button
-        class="nav-item"
-        data-page="alertas"
-      >
-        ⚠
-        <span>Alertas</span>
+      <button class="nav-item" data-page="alertas">
+        ⚠ <span>Alertas</span>
       </button>
 
-
-      <button
-        class="nav-item"
-        data-page="historico"
-      >
-        ◷
-        <span>Histórico</span>
+      <button class="nav-item" data-page="historico">
+        ◷ <span>Histórico</span>
       </button>
 
-
-      <button
-        class="nav-item"
-        data-page="configuracoes"
-      >
-        ⚙
-        <span>Configurações</span>
-      </button>
-
-
-      <button
-        class="nav-item"
-        data-page="creditos"
-      >
-        ★
-        <span>Equipe / Créditos</span>
+      <button class="nav-item" data-page="configuracoes">
+        ⚙ <span>Configurações</span>
       </button>
 
     </nav>
-
-
-    <!-- STATUS -->
 
     <div class="connection-card">
 
       <div class="status-dot"></div>
 
       <div>
-
-        <small>
-          STATUS DO SISTEMA
-        </small>
-
-        <strong>
-          Pronto para conectar
-        </strong>
-
+        <small>STATUS DO SISTEMA</small>
+        <strong>Pronto para conectar</strong>
       </div>
 
     </div>
@@ -111,19 +60,11 @@
   </aside>
 
 
-  <!-- =========================
-       CONTEÚDO PRINCIPAL
-  ========================== -->
-
   <main class="main">
-
-
-    <!-- CABEÇALHO -->
 
     <header class="topbar">
 
       <div>
-
         <p class="eyebrow">
           MONITORAMENTO INTELIGENTE
         </p>
@@ -131,17 +72,13 @@
         <h1 id="page-title">
           Dashboard
         </h1>
-
       </div>
-
 
       <div class="top-actions">
 
         <div class="user-chip">
-          
-          <span>
-            CleanSurface AI
-          </span>
+          CA
+          <span>CleanSurface AI</span>
         </div>
 
       </div>
@@ -149,18 +86,9 @@
     </header>
 
 
+    <!-- DASHBOARD -->
 
-    <!-- ==================================================
-         DASHBOARD
-    =================================================== -->
-
-    <section
-      id="dashboard"
-      class="page active-page"
-    >
-
-
-      <!-- HERO -->
+    <section id="dashboard" class="page active-page">
 
       <div class="hero">
 
@@ -170,58 +98,35 @@
             CLEAN SURFACE INTELLIGENCE
           </p>
 
-
           <h2>
-
             Monitore suas superfícies
-
             <br>
-
-            <em>
-              de forma inteligente.
-            </em>
-
+            <em>de forma inteligente.</em>
           </h2>
 
-
           <p class="hero-text">
-
             O CleanSurface AI utiliza inteligência artificial
-            para analisar superfícies através do
-            ESP32-S3-CAM e apresentar os resultados
-            de forma rápida e clara.
-
+            para analisar superfícies através do ESP32-S3-CAM
+            e apresentar os resultados de forma rápida e clara.
           </p>
-
-
-          <!-- BOTÃO PRINCIPAL -->
 
           <button
             id="analisarBtn"
             class="primary"
             onclick="iniciarAnalise()"
           >
-
             🔍 INICIAR ANÁLISE
-
           </button>
-
-
-          <!-- STATUS DA ANÁLISE -->
 
           <p
             id="statusAnalise"
             class="analysis-status"
           >
-
             Pronto para iniciar uma análise.
-
           </p>
 
         </div>
 
-
-        <!-- ELEMENTO VISUAL -->
 
         <div class="hero-orb">
 
@@ -236,13 +141,7 @@
       </div>
 
 
-
-      <!-- CARDS DO DASHBOARD -->
-
       <div class="cards">
-
-
-        <!-- DISPOSITIVO -->
 
         <div class="stat-card">
 
@@ -250,9 +149,7 @@
             ◉
           </div>
 
-          <span>
-            DISPOSITIVO
-          </span>
+          <span>DISPOSITIVO</span>
 
           <strong id="device-status">
             Aguardando
@@ -265,18 +162,13 @@
         </div>
 
 
-
-        <!-- ÚLTIMO RESULTADO -->
-
         <div class="stat-card">
 
           <div class="stat-icon">
             ⌁
           </div>
 
-          <span>
-            ÚLTIMA LEITURA
-          </span>
+          <span>ÚLTIMA LEITURA</span>
 
           <strong id="last-result">
             Nenhuma
@@ -289,18 +181,13 @@
         </div>
 
 
-
-        <!-- ALERTAS -->
-
         <div class="stat-card">
 
           <div class="stat-icon">
             ⚠
           </div>
 
-          <span>
-            ALERTAS
-          </span>
+          <span>ALERTAS</span>
 
           <strong id="alert-count">
             0
@@ -314,9 +201,6 @@
 
       </div>
 
-
-
-      <!-- FLUXO DO SISTEMA -->
 
       <div class="section-card">
 
@@ -339,81 +223,34 @@
 
         <div class="flow">
 
-
           <div class="flow-step">
-
-            <b>
-              01
-            </b>
-
-            <strong>
-              ESP32-S3-CAM
-            </strong>
-
-            <span>
-              Captura a superfície
-            </span>
-
+            <b>01</b>
+            <strong>ESP32-S3-CAM</strong>
+            <span>Captura a superfície</span>
           </div>
-
 
           <div class="flow-line"></div>
 
-
           <div class="flow-step">
-
-            <b>
-              02
-            </b>
-
-            <strong>
-              Inteligência Artificial
-            </strong>
-
-            <span>
-              Analisa a imagem
-            </span>
-
+            <b>02</b>
+            <strong>Inteligência Artificial</strong>
+            <span>Analisa a imagem</span>
           </div>
-
 
           <div class="flow-line"></div>
 
-
           <div class="flow-step">
-
-            <b>
-              03
-            </b>
-
-            <strong>
-              CleanSurface AI
-            </strong>
-
-            <span>
-              Apresenta o resultado
-            </span>
-
+            <b>03</b>
+            <strong>CleanSurface AI</strong>
+            <span>Apresenta o resultado</span>
           </div>
-
 
           <div class="flow-line"></div>
 
-
           <div class="flow-step">
-
-            <b>
-              04
-            </b>
-
-            <strong>
-              E-mail
-            </strong>
-
-            <span>
-              Envia a notificação
-            </span>
-
+            <b>04</b>
+            <strong>E-mail</strong>
+            <span>Envia a notificação</span>
           </div>
 
         </div>
@@ -423,18 +260,11 @@
     </section>
 
 
+    <!-- MONITORAMENTO -->
 
-    <!-- ==================================================
-         MONITORAMENTO
-    =================================================== -->
-
-    <section
-      id="monitoramento"
-      class="page"
-    >
+    <section id="monitoramento" class="page">
 
       <div class="section-card big">
-
 
         <div class="section-head">
 
@@ -455,13 +285,11 @@
 
           </div>
 
-
           <span class="badge waiting">
             AGUARDANDO DISPOSITIVO
           </span>
 
         </div>
-
 
 
         <div class="reading">
@@ -502,18 +330,11 @@
     </section>
 
 
+    <!-- ALERTAS -->
 
-    <!-- ==================================================
-         ALERTAS
-    =================================================== -->
-
-    <section
-      id="alertas"
-      class="page"
-    >
+    <section id="alertas" class="page">
 
       <div class="section-card big">
-
 
         <div class="section-head">
 
@@ -528,13 +349,12 @@
             </h3>
 
             <p>
-              Acompanhe as condições que exigem atenção.
+              Os alertas do dispositivo aparecerão nesta área.
             </p>
 
           </div>
 
         </div>
-
 
 
         <div class="empty">
@@ -548,8 +368,8 @@
           </strong>
 
           <span>
-            Quando uma análise gerar uma condição
-            de alerta, ela aparecerá nesta área.
+            Quando o ESP32 enviar uma condição de alerta,
+            ela aparecerá aqui.
           </span>
 
         </div>
@@ -559,18 +379,11 @@
     </section>
 
 
+    <!-- HISTÓRICO -->
 
-    <!-- ==================================================
-         HISTÓRICO
-    =================================================== -->
-
-    <section
-      id="historico"
-      class="page"
-    >
+    <section id="historico" class="page">
 
       <div class="section-card big">
-
 
         <div class="section-head">
 
@@ -585,7 +398,7 @@
             </h3>
 
             <p>
-              Consulte as análises realizadas pelo sistema.
+              Histórico das análises realizadas.
             </p>
 
           </div>
@@ -593,25 +406,12 @@
         </div>
 
 
-
         <div class="table-placeholder">
 
-          <div>
-            DATA E HORA
-          </div>
-
-          <div>
-            RESULTADO
-          </div>
-
-          <div>
-            NÍVEL
-          </div>
-
-          <div>
-            STATUS
-          </div>
-
+          <div>Data e hora</div>
+          <div>Resultado</div>
+          <div>Nível</div>
+          <div>Status</div>
 
           <p>
             Nenhuma análise registrada ainda.
@@ -624,18 +424,11 @@
     </section>
 
 
+    <!-- CONFIGURAÇÕES -->
 
-    <!-- ==================================================
-         CONFIGURAÇÕES
-    =================================================== -->
-
-    <section
-      id="configuracoes"
-      class="page"
-    >
+    <section id="configuracoes" class="page">
 
       <div class="section-card big">
-
 
         <div class="section-head">
 
@@ -650,7 +443,7 @@
             </h3>
 
             <p>
-              Configure o recebimento das notificações.
+              Personalize o funcionamento e a aparência do sistema.
             </p>
 
           </div>
@@ -658,15 +451,10 @@
         </div>
 
 
-
         <div class="settings">
 
-
-          <!-- E-MAIL -->
-
           <label>
-
-            E-mail para receber os resultados
+            E-mail para receber alertas
 
             <input
               type="email"
@@ -677,11 +465,7 @@
           </label>
 
 
-
-          <!-- NÍVEL DE ALERTA -->
-
           <label>
-
             Nível mínimo para alerta
 
             <input
@@ -695,16 +479,11 @@
           </label>
 
 
-
-          <!-- SALVAR -->
-
           <button
             class="primary"
             onclick="saveSettings()"
           >
-
             💾 Salvar configurações
-
           </button>
 
 
@@ -713,250 +492,271 @@
             class="saved"
           ></span>
 
+
+          <!-- PERSONALIZAÇÃO -->
+
+          <div class="appearance-box">
+
+            <div class="appearance-title">
+
+              <div>
+
+                <p class="eyebrow">
+                  APARÊNCIA
+                </p>
+
+                <h3>
+                  🎨 Personalizar cores
+                </h3>
+
+                <p>
+                  Escolha uma paleta pronta ou crie sua própria combinação.
+                </p>
+
+              </div>
+
+            </div>
+
+
+            <!-- PALETAS PRONTAS -->
+
+            <div class="palette-presets">
+
+              <button
+                class="palette-card"
+                onclick="aplicarPreset('original')"
+              >
+                <span class="palette-colors">
+                  <i style="background:#39e6a3"></i>
+                  <i style="background:#07100f"></i>
+                  <i style="background:#0b1917"></i>
+                </span>
+                <strong>Original</strong>
+              </button>
+
+
+              <button
+                class="palette-card"
+                onclick="aplicarPreset('azul')"
+              >
+                <span class="palette-colors">
+                  <i style="background:#38bdf8"></i>
+                  <i style="background:#07111f"></i>
+                  <i style="background:#0b1728"></i>
+                </span>
+                <strong>Ocean Blue</strong>
+              </button>
+
+
+              <button
+                class="palette-card"
+                onclick="aplicarPreset('roxo')"
+              >
+                <span class="palette-colors">
+                  <i style="background:#a78bfa"></i>
+                  <i style="background:#100b1c"></i>
+                  <i style="background:#171025"></i>
+                </span>
+                <strong>Purple</strong>
+              </button>
+
+
+              <button
+                class="palette-card"
+                onclick="aplicarPreset('vermelho')"
+              >
+                <span class="palette-colors">
+                  <i style="background:#fb7185"></i>
+                  <i style="background:#1a090c"></i>
+                  <i style="background:#241013"></i>
+                </span>
+                <strong>Red</strong>
+              </button>
+
+
+              <button
+                class="palette-card"
+                onclick="aplicarPreset('laranja')"
+              >
+                <span class="palette-colors">
+                  <i style="background:#fb923c"></i>
+                  <i style="background:#1b0e06"></i>
+                  <i style="background:#26140a"></i>
+                </span>
+                <strong>Orange</strong>
+              </button>
+
+            </div>
+
+
+            <!-- CORES PERSONALIZADAS -->
+
+            <div class="custom-colors">
+
+              <div class="color-control">
+
+                <label>
+                  Cor principal
+
+                  <div class="color-input">
+
+                    <input
+                      type="color"
+                      id="corPrincipal"
+                      value="#39e6a3"
+                    >
+
+                    <input
+                      type="text"
+                      id="hexPrincipal"
+                      value="#39E6A3"
+                      maxlength="7"
+                    >
+
+                  </div>
+
+                </label>
+
+              </div>
+
+
+              <div class="color-control">
+
+                <label>
+                  Cor secundária
+
+                  <div class="color-input">
+
+                    <input
+                      type="color"
+                      id="corSecundaria"
+                      value="#55cba0"
+                    >
+
+                    <input
+                      type="text"
+                      id="hexSecundaria"
+                      value="#55CBA0"
+                      maxlength="7"
+                    >
+
+                  </div>
+
+                </label>
+
+              </div>
+
+
+              <div class="color-control">
+
+                <label>
+                  Fundo
+
+                  <div class="color-input">
+
+                    <input
+                      type="color"
+                      id="corFundo"
+                      value="#07100f"
+                    >
+
+                    <input
+                      type="text"
+                      id="hexFundo"
+                      value="#07100F"
+                      maxlength="7"
+                    >
+
+                  </div>
+
+                </label>
+
+              </div>
+
+
+              <div class="color-control">
+
+                <label>
+                  Cartões
+
+                  <div class="color-input">
+
+                    <input
+                      type="color"
+                      id="corCartao"
+                      value="#0b1917"
+                    >
+
+                    <input
+                      type="text"
+                      id="hexCartao"
+                      value="#0B1917"
+                      maxlength="7"
+                    >
+
+                  </div>
+
+                </label>
+
+              </div>
+
+
+              <div class="color-control">
+
+                <label>
+                  Texto
+
+                  <div class="color-input">
+
+                    <input
+                      type="color"
+                      id="corTexto"
+                      value="#edf7f4"
+                    >
+
+                    <input
+                      type="text"
+                      id="hexTexto"
+                      value="#EDF7F4"
+                      maxlength="7"
+                    >
+
+                  </div>
+
+                </label>
+
+              </div>
+
+            </div>
+
+
+            <div class="appearance-buttons">
+
+              <button
+                class="primary"
+                onclick="aplicarCoresPersonalizadas()"
+              >
+                🎨 Aplicar paleta
+              </button>
+
+              <button
+                class="secondary-button"
+                onclick="restaurarPaleta()"
+              >
+                ↺ Restaurar padrão
+              </button>
+
+            </div>
+
+
+            <span
+              id="paletteSaved"
+              class="saved"
+            ></span>
+
+          </div>
+
         </div>
-
-      </div>
-
-    </section>
-
-
-
-    <!-- ==================================================
-         EQUIPE / CRÉDITOS
-    =================================================== -->
-
-    <section
-      id="creditos"
-      class="page"
-    >
-
-
-      <!-- CABEÇALHO DA EQUIPE -->
-
-      <div class="credits-header">
-
-        <div>
-
-          <p class="eyebrow">
-            PROJETO ACADÊMICO • 2026
-          </p>
-
-          <h2>
-            CleanSurface AI
-          </h2>
-
-          <p>
-            Centro Estadual de Educação Profissional
-            Ozório Gonçalves Nogueira
-          </p>
-
-          <span>
-            Bandeirantes - Paraná
-          </span>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- CARDS DA EQUIPE -->
-
-      <div class="credits-grid">
-
-
-        <!-- =====================
-             MECATRÔNICA
-        ====================== -->
-
-        <div class="credit-card">
-
-
-          <div class="credit-icon">
-            🔧
-          </div>
-
-
-          <div>
-
-            <p class="eyebrow">
-              CURSO TÉCNICO
-            </p>
-
-            <h3>
-              Mecatrônica
-            </h3>
-
-            <span class="credit-count">
-              8 integrantes
-            </span>
-
-          </div>
-
-
-          <div class="people-list">
-
-            <div>
-              Luiz Fernando F.
-            </div>
-
-            <div>
-              Luiz Fernando A.
-            </div>
-
-            <div>
-              Christopher G.
-            </div>
-
-            <div>
-              Mirella F.
-            </div>
-
-            <div>
-              David J.
-            </div>
-
-            <div>
-              Beatriz S.
-            </div>
-
-            <div>
-              Hyanara P.
-            </div>
-
-            <div>
-              Yasmin L.
-            </div>
-
-          </div>
-
-        </div>
-
-
-
-        <!-- =====================
-             ALIMENTOS
-        ====================== -->
-
-        <div class="credit-card">
-
-
-          <div class="credit-icon">
-            🍎
-          </div>
-
-
-          <div>
-
-            <p class="eyebrow">
-              CURSO TÉCNICO
-            </p>
-
-            <h3>
-              Alimentos
-            </h3>
-
-            <span class="credit-count">
-              4 integrantes
-            </span>
-
-          </div>
-
-
-          <div class="people-list">
-
-            <div>
-              Yasmin Loponi
-            </div>
-
-            <div>
-              Laura C.
-            </div>
-
-            <div>
-              Cibelly
-            </div>
-
-            <div>
-              Kailaine
-            </div>
-
-          </div>
-
-        </div>
-
-
-
-        <!-- =====================
-             PROFESSORES
-        ====================== -->
-
-        <div class="credit-card teachers">
-
-
-          <div class="credit-icon">
-            👨‍🏫
-          </div>
-
-
-          <div>
-
-            <p class="eyebrow">
-              ORIENTAÇÃO
-            </p>
-
-            <h3>
-              Professores
-            </h3>
-
-            <span class="credit-count">
-              4 professores
-            </span>
-
-          </div>
-
-
-          <div class="people-list">
-
-            <div>
-              Renata Barauldi
-            </div>
-
-            <div>
-              Jessily S.
-            </div>
-
-            <div>
-              Rafael O.
-            </div>
-
-            <div>
-              Alexandre
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- RODAPÉ DA ESCOLA -->
-
-      <div class="school-footer">
-
-        <strong>
-          CEEP Ozório Gonçalves Nogueira
-        </strong>
-
-        <span>
-          Educação profissional • Bandeirantes - PR
-        </span>
-
-        <small>
-          CleanSurface AI • Projeto acadêmico • 2026
-        </small>
 
       </div>
 
@@ -965,11 +765,7 @@
   </main>
 
 
-
-  <!-- JAVASCRIPT -->
-
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=5"></script>
 
 </body>
-
 </html>
