@@ -1,1826 +1,784 @@
-// ============================================================
-// CleanSurface AI
-// API + ESP32-S3-CAM + Histórico + Personalização
-// ============================================================
+const API = "https://cleansurface-api.luizinfernando19.workers.dev";
 
-const API_URL =
-    "https://cleansurface-api.luizinfernando19.workers.dev";
+const HTML = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CleanSurface AI</title>
 
-let analiseAtualId = null;
-let verificandoResultado = false;
+<style>
+:root{
+  --primary:#39e6a3;
+  --secondary:#55cba0;
+  --bg:#07100f;
+  --side:#091615;
+  --card:#0b1917;
+  --text:#edf7f4;
+  --muted:#8fa9a3;
+  --danger:#ff5c67;
+  --warning:#ffd166;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.app{
+  display:flex;
+  min-height:100vh;
+}
+
+.sidebar{
+  width:230px;
+  background:var(--side);
+  padding:25px 15px;
+  border-right:1px solid #17302b;
+}
+
+.logo{
+  text-align:center;
+  font-size:22px;
+  font-weight:bold;
+  color:var(--primary);
+  margin-bottom:30px;
+}
+
+.menu button{
+  width:100%;
+  padding:13px;
+  margin:5px 0;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:var(--muted);
+  text-align:left;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.menu button:hover,
+.menu button.active{
+  background:var(--primary);
+  color:#06100d;
+}
+
+.main{
+  flex:1;
+  padding:30px;
+}
+
+.page{display:none}
+.page.active{display:block}
+
+h1{
+  margin-top:0;
+  font-size:30px;
+}
+
+h2{
+  margin-top:0;
+}
+
+.subtitle{
+  color:var(--muted);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+  margin-top:25px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid #17302b;
+  border-radius:15px;
+  padding:22px;
+}
+
+.big{
+  font-size:30px;
+  font-weight:bold;
+  color:var(--primary);
+}
+
+button.primary{
+  border:0;
+  border-radius:12px;
+  padding:15px 25px;
+  background:var(--primary);
+  color:#06100d;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:16px;
+}
+
+button.primary:hover{
+  filter:brightness(1.1);
+}
+
+.status{
+  margin-top:15px;
+  padding:14px;
+  border-radius:10px;
+  background:#10231f;
+  color:var(--secondary);
+}
+
+input,select{
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  margin-bottom:15px;
+  border-radius:8px;
+  border:1px solid #24453d;
+  background:#07110f;
+  color:white;
+}
+
+.color{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.color input[type=color]{
+  width:55px;
+  height:40px;
+  padding:2px;
+}
+
+.history-item{
+  padding:15px;
+  border-bottom:1px solid #17302b;
+}
+
+.ok{color:var(--primary)}
+.error{color:var(--danger)}
+.warning{color:var(--warning)}
+
+.credit{
+  text-align:center;
+  padding:20px;
+}
+
+@media(max-width:700px){
+  .app{display:block}
+  .sidebar{
+    width:100%;
+    border-right:0;
+    border-bottom:1px solid #17302b;
+  }
+  .menu{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  .main{padding:18px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<aside class="sidebar">
+
+<div class="logo">CleanSurface AI</div>
+
+<div class="menu">
+
+<button class="active" onclick="showPage('dashboard',this)">
+🏠 Dashboard
+</button>
+
+<button onclick="showPage('monitoramento',this)">
+📷 Monitoramento
+</button>
+
+<button onclick="showPage('alertas',this)">
+⚠️ Alertas
+</button>
+
+<button onclick="showPage('historico',this)">
+📋 Histórico
+</button>
+
+<button onclick="showPage('configuracoes',this)">
+⚙️ Configurações
+</button>
+
+<button onclick="showPage('creditos',this)">
+👥 Créditos
+</button>
+
+</div>
+
+</aside>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+
+<section id="dashboard" class="page active">
+
+<h1>Dashboard</h1>
+
+<p class="subtitle">
+Sistema inteligente de análise de superfícies
+</p>
+
+<div class="grid">
+
+<div class="card">
+<h3>Status do sistema</h3>
+<div class="big">ONLINE</div>
+</div>
+
+<div class="card">
+<h3>ESP32-S3-CAM</h3>
+<div id="deviceStatus">Aguardando</div>
+</div>
+
+<div class="card">
+<h3>Último resultado</h3>
+<div id="lastResult">Nenhuma análise</div>
+</div>
+
+</div>
+
+<div class="card" style="margin-top:20px">
+
+<h2>Nova análise</h2>
+
+<p>
+Clique abaixo para solicitar uma análise ao ESP32-S3-CAM.
+</p>
+
+<button class="primary" onclick="startAnalysis()">
+🔍 INICIAR ANÁLISE
+</button>
+
+<div id="status" class="status">
+Aguardando comando.
+</div>
+
+</div>
+
+</section>
 
 
-// ============================================================
-// PALETAS
-// ============================================================
+<!-- MONITORAMENTO -->
 
-const PALETAS = {
+<section id="monitoramento" class="page">
 
-    original: {
-        primary: "#39e6a3",
-        secondary: "#55cba0",
-        background: "#07100f",
-        card: "#0b1917",
-        text: "#edf7f4"
-    },
+<h1>Monitoramento</h1>
 
-    azul: {
-        primary: "#38bdf8",
-        secondary: "#60a5fa",
-        background: "#07111f",
-        card: "#0b1728",
-        text: "#edf7ff"
-    },
+<div class="grid">
 
-    roxo: {
-        primary: "#a78bfa",
-        secondary: "#c4b5fd",
-        background: "#100b1c",
-        card: "#171025",
-        text: "#f5f3ff"
-    },
+<div class="card">
+<h3>Resultado</h3>
+<div id="monitorResult" class="big">---</div>
+</div>
 
-    vermelho: {
-        primary: "#fb7185",
-        secondary: "#fda4af",
-        background: "#1a090c",
-        card: "#241013",
-        text: "#fff1f2"
-    },
+<div class="card">
+<h3>Status</h3>
+<div id="monitorStatus">Aguardando análise</div>
+</div>
 
-    laranja: {
-        primary: "#fb923c",
-        secondary: "#fdba74",
-        background: "#1b0e06",
-        card: "#26140a",
-        text: "#fff7ed"
-    }
+<div class="card">
+<h3>Detalhes</h3>
+<div id="monitorDetail">---</div>
+</div>
 
-};
+</div>
+
+</section>
 
 
-// ============================================================
-// INICIALIZAÇÃO
-// ============================================================
+<!-- ALERTAS -->
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+<section id="alertas" class="page">
 
-        configurarNavegacao();
+<h1>Alertas</h1>
 
-        carregarConfiguracoes();
+<div class="card">
 
-        carregarHistorico();
+<h2>Configuração de alerta</h2>
 
-        carregarPaleta();
+<p>
+As análises recebidas podem gerar alertas conforme o resultado.
+</p>
 
-        configurarSeletoresDeCor();
+<div id="alertMessage">
+Nenhum alerta no momento.
+</div>
 
-        atualizarDashboard();
+</div>
 
-        verificarAPI();
+</section>
 
-    }
+
+<!-- HISTÓRICO -->
+
+<section id="historico" class="page">
+
+<h1>Histórico</h1>
+
+<div class="card">
+
+<div id="history">
+Nenhuma análise registrada.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- CONFIGURAÇÕES -->
+
+<section id="configuracoes" class="page">
+
+<h1>Configurações</h1>
+
+<div class="card">
+
+<h2>E-mail</h2>
+
+<p class="subtitle">
+E-mail para receber o resultado da análise.
+</p>
+
+<input id="email" type="email" placeholder="seuemail@email.com">
+
+<button class="primary" onclick="saveEmail()">
+Salvar e-mail
+</button>
+
+<p id="saved"></p>
+
+</div>
+
+<div class="card" style="margin-top:20px">
+
+<h2>🎨 Cores do sistema</h2>
+
+<label>Cor principal</label>
+
+<div class="color">
+<input id="primaryColor" type="color" value="#39e6a3">
+<input id="primaryText" value="#39e6a3">
+</div>
+
+<br>
+
+<label>Cor secundária</label>
+
+<div class="color">
+<input id="secondaryColor" type="color" value="#55cba0">
+<input id="secondaryText" value="#55cba0">
+</div>
+
+<br>
+
+<button class="primary" onclick="applyColors()">
+Aplicar cores
+</button>
+
+<button onclick="resetColors()">
+Restaurar padrão
+</button>
+
+</div>
+
+</section>
+
+
+<!-- CRÉDITOS -->
+
+<section id="creditos" class="page">
+
+<h1>Créditos</h1>
+
+<div class="card credit">
+
+<h2>CleanSurface AI</h2>
+
+<p>
+Projeto desenvolvido para análise inteligente de superfícies
+utilizando visão computacional e inteligência artificial.
+</p>
+
+<br>
+
+<h3>Desenvolvimento</h3>
+
+<p>Equipe CleanSurface AI</p>
+
+<h3>Tecnologias</h3>
+
+<p>
+ESP32-S3-CAM<br>
+Edge Impulse<br>
+Cloudflare Workers<br>
+Cloudflare D1
+</p>
+
+</div>
+
+</section>
+
+</main>
+</div>
+
+
+<script>
+
+const API_URL = "${API}";
+
+let currentAnalysis = null;
+
+function showPage(id,button){
+
+document.querySelectorAll(".page")
+.forEach(p=>p.classList.remove("active"));
+
+document.getElementById(id)
+.classList.add("active");
+
+document.querySelectorAll(".menu button")
+.forEach(b=>b.classList.remove("active"));
+
+button.classList.add("active");
+
+}
+
+
+async function startAnalysis(){
+
+const status=document.getElementById("status");
+
+status.innerText="Solicitando análise ao ESP32...";
+
+const email=document.getElementById("email").value;
+
+try{
+
+const response=await fetch(
+API_URL+"/iniciar-analise",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+email:email
+})
+}
 );
 
+const data=await response.json();
 
-// ============================================================
-// NAVEGAÇÃO
-// ============================================================
+if(!response.ok){
+throw new Error(data.mensagem || "Erro na API");
+}
 
-function configurarNavegacao() {
+currentAnalysis=data.analise_id;
 
-    const botoes =
-        document.querySelectorAll(
-            ".nav-item"
-        );
+status.innerText=
+"Análise #"+currentAnalysis+
+" aguardando o ESP32-S3-CAM.";
 
-    botoes.forEach(
-        botao => {
+document.getElementById("deviceStatus")
+.innerText="Aguardando ESP32";
 
-            botao.addEventListener(
-                "click",
-                () => {
+pollResult();
 
-                    const pagina =
-                        botao.dataset.page;
+}catch(error){
 
-                    if (pagina) {
-                        mostrarPagina(pagina);
-                    }
+status.innerText="Erro: "+error.message;
 
-                }
-            );
-
-        }
-    );
+}
 
 }
 
 
-function mostrarPagina(nomePagina) {
+async function pollResult(){
 
-    const paginas =
-        document.querySelectorAll(
-            ".page"
-        );
+if(!currentAnalysis)return;
 
-    const botoes =
-        document.querySelectorAll(
-            ".nav-item"
-        );
+try{
 
+const response=await fetch(
+API_URL+
+"/resultado?analise_id="+
+currentAnalysis
+);
 
-    paginas.forEach(
-        pagina =>
-            pagina.classList.remove(
-                "active-page"
-            )
-    );
+const data=await response.json();
 
+if(data.disponivel===true){
 
-    botoes.forEach(
-        botao =>
-            botao.classList.remove(
-                "active"
-            )
-    );
+showResult(data);
 
+return;
 
-    const paginaSelecionada =
-        document.getElementById(
-            nomePagina
-        );
+}
 
+}catch(error){
 
-    if (paginaSelecionada) {
+console.log(error);
 
-        paginaSelecionada.classList.add(
-            "active-page"
-        );
+}
 
-    }
-
-
-    const botaoSelecionado =
-        document.querySelector(
-            `.nav-item[data-page="${nomePagina}"]`
-        );
-
-
-    if (botaoSelecionado) {
-
-        botaoSelecionado.classList.add(
-            "active"
-        );
-
-    }
-
-
-    const titulo =
-        document.getElementById(
-            "page-title"
-        );
-
-
-    if (titulo) {
-
-        const titulos = {
-
-            dashboard:
-                "Dashboard",
-
-            monitoramento:
-                "Monitoramento",
-
-            alertas:
-                "Alertas",
-
-            historico:
-                "Histórico",
-
-            configuracoes:
-                "Configurações"
-
-        };
-
-        titulo.textContent =
-            titulos[nomePagina] ||
-            "CleanSurface AI";
-    }
-
-
-    if (
-        nomePagina ===
-        "historico"
-    ) {
-
-        carregarHistorico();
-
-    }
+setTimeout(pollResult,3000);
 
 }
 
 
-function showPage(nomePagina) {
+function showResult(data){
 
-    mostrarPagina(nomePagina);
+let valor=data.valor || "Resultado recebido";
 
-}
+document.getElementById("status")
+.innerText="Análise concluída.";
 
+document.getElementById("deviceStatus")
+.innerText="ESP32 conectado";
 
-// ============================================================
-// API
-// ============================================================
+document.getElementById("lastResult")
+.innerText=valor;
 
-async function verificarAPI() {
+document.getElementById("monitorResult")
+.innerText=valor;
 
-    const dispositivo =
-        document.getElementById(
-            "device-status"
-        );
+document.getElementById("monitorStatus")
+.innerText=data.status || "Concluído";
 
+document.getElementById("monitorDetail")
+.innerText=data.detalhe || "---";
 
-    try {
-
-        const resposta =
-            await fetch(
-                API_URL,
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
-
-
-        if (!resposta.ok) {
-            throw new Error(
-                "API offline"
-            );
-        }
-
-
-        const dados =
-            await resposta.json();
-
-
-        console.log(
-            "API:",
-            dados
-        );
-
-
-        if (dispositivo) {
-
-            dispositivo.textContent =
-                "Online";
-
-        }
-
-
-    } catch (erro) {
-
-        console.error(
-            "API:",
-            erro
-        );
-
-
-        if (dispositivo) {
-
-            dispositivo.textContent =
-                "Offline";
-
-        }
-
-    }
+saveHistory(data);
 
 }
 
 
-// ============================================================
-// INICIAR ANÁLISE
-// ============================================================
+function saveHistory(data){
 
-async function iniciarAnalise() {
+let history=
+JSON.parse(localStorage.getItem("cleansurface_history") || "[]");
 
-    const botao =
-        document.getElementById(
-            "analisarBtn"
-        );
+history.unshift({
+data:new Date().toLocaleString("pt-BR"),
+valor:data.valor || "---",
+status:data.status || "---",
+detalhe:data.detalhe || "---"
+});
 
-    const status =
-        document.getElementById(
-            "statusAnalise"
-        );
+history=history.slice(0,30);
 
-    const dispositivo =
-        document.getElementById(
-            "device-status"
-        );
+localStorage.setItem(
+"cleansurface_history",
+JSON.stringify(history)
+);
 
-
-    if (verificandoResultado) {
-        return;
-    }
-
-
-    if (botao) {
-
-        botao.disabled = true;
-
-        botao.innerHTML =
-            "⏳ SOLICITANDO ANÁLISE...";
-
-    }
-
-
-    if (status) {
-
-        status.textContent =
-            "Solicitando análise ao ESP32-S3-CAM...";
-
-    }
-
-
-    if (dispositivo) {
-
-        dispositivo.textContent =
-            "Solicitando...";
-
-    }
-
-
-    try {
-
-        const configuracoes =
-            obterConfiguracoes();
-
-
-        const resposta =
-            await fetch(
-                `${API_URL}/iniciar-analise`,
-                {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        email:
-                            configuracoes.email ||
-                            ""
-
-                    }),
-
-                    cache: "no-store"
-
-                }
-            );
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                `Erro HTTP ${resposta.status}`
-            );
-
-        }
-
-
-        const dados =
-            await resposta.json();
-
-
-        console.log(
-            "Análise criada:",
-            dados
-        );
-
-
-        if (!dados.sucesso) {
-
-            throw new Error(
-                dados.mensagem ||
-                "Não foi possível iniciar a análise."
-            );
-
-        }
-
-
-        analiseAtualId =
-            dados.analise_id;
-
-
-        if (status) {
-
-            status.textContent =
-                "Análise solicitada. Aguardando ESP32-S3-CAM...";
-
-        }
-
-
-        if (dispositivo) {
-
-            dispositivo.textContent =
-                "Aguardando ESP32";
-
-        }
-
-
-        aguardarResultado();
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro:",
-            erro
-        );
-
-
-        if (status) {
-
-            status.textContent =
-                "❌ Não foi possível iniciar a análise.";
-
-        }
-
-
-        if (dispositivo) {
-
-            dispositivo.textContent =
-                "Offline";
-
-        }
-
-
-    } finally {
-
-        if (botao) {
-
-            botao.disabled = false;
-
-            botao.innerHTML =
-                "🔍 INICIAR ANÁLISE";
-
-        }
-
-    }
+loadHistory();
 
 }
 
 
-// ============================================================
-// RESULTADO
-// ============================================================
+function loadHistory(){
 
-async function aguardarResultado() {
+let history=
+JSON.parse(localStorage.getItem("cleansurface_history") || "[]");
 
-    if (verificandoResultado) {
-        return;
-    }
+const box=document.getElementById("history");
 
+if(history.length===0){
 
-    if (!analiseAtualId) {
-        return;
-    }
+box.innerText="Nenhuma análise registrada.";
 
+return;
 
-    verificandoResultado = true;
+}
 
+box.innerHTML=history.map(item=>`
 
-    const status =
-        document.getElementById(
-            "statusAnalise"
-        );
+<div class="history-item">
 
+<strong>${item.valor}</strong>
 
-    const dispositivo =
-        document.getElementById(
-            "device-status"
-        );
+<br>
 
+${item.status}
 
-    let tentativas = 0;
+<br>
 
-    const limiteTentativas = 40;
+<small>${item.data}</small>
 
+<br>
 
-    const intervalo =
-        setInterval(
-            async () => {
+${item.detalhe}
 
-                tentativas++;
+</div>
 
-
-                try {
-
-                    const resposta =
-                        await fetch(
-                            `${API_URL}/resultado?analise_id=${analiseAtualId}`,
-                            {
-                                method: "GET",
-                                headers: {
-                                    "Accept":
-                                        "application/json"
-                                },
-                                cache:
-                                    "no-store"
-                            }
-                        );
-
-
-                    if (!resposta.ok) {
-
-                        throw new Error(
-                            `HTTP ${resposta.status}`
-                        );
-
-                    }
-
-
-                    const dados =
-                        await resposta.json();
-
-
-                    console.log(
-                        "Resultado:",
-                        dados
-                    );
-
-
-                    if (
-                        dados.disponivel !==
-                        true
-                    ) {
-
-                        if (status) {
-
-                            status.textContent =
-                                "Aguardando análise do ESP32-S3-CAM...";
-
-                        }
-
-                        return;
-
-                    }
-
-
-                    if (
-                        String(
-                            dados.analise_id
-                        ) !==
-                        String(
-                            analiseAtualId
-                        )
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    clearInterval(
-                        intervalo
-                    );
-
-
-                    verificandoResultado =
-                        false;
-
-
-                    processarResultado(
-                        dados
-                    );
-
-
-                } catch (erro) {
-
-                    console.log(
-                        "Aguardando resultado..."
-                    );
-
-                }
-
-
-                if (
-                    tentativas >=
-                    limiteTentativas
-                ) {
-
-                    clearInterval(
-                        intervalo
-                    );
-
-
-                    verificandoResultado =
-                        false;
-
-
-                    if (status) {
-
-                        status.textContent =
-                            "⏳ O ESP32 ainda não enviou o resultado.";
-
-                    }
-
-
-                    if (dispositivo) {
-
-                        dispositivo.textContent =
-                            "Aguardando";
-
-                    }
-
-                }
-
-            },
-            3000
-        );
+`).join("");
 
 }
 
 
-// ============================================================
-// PROCESSAR RESULTADO
-// ============================================================
+function saveEmail(){
 
-function processarResultado(
-    dados
-) {
+const email=
+document.getElementById("email").value;
 
-    const valor =
-        dados.valor ??
-        "--";
+localStorage.setItem(
+"cleansurface_email",
+email
+);
 
+document.getElementById("saved")
+.innerText="E-mail salvo.";
 
-    const resultadoStatus =
-        dados.status ??
-        "Analisado";
+}
 
 
-    const detalhe =
-        dados.detalhe ??
-        "Resultado recebido pelo CleanSurface AI.";
+function applyColors(){
+
+const primary=
+document.getElementById("primaryColor").value;
+
+const secondary=
+document.getElementById("secondaryColor").value;
+
+document.documentElement.style
+.setProperty("--primary",primary);
+
+document.documentElement.style
+.setProperty("--secondary",secondary);
+
+localStorage.setItem(
+"primaryColor",
+primary
+);
+
+localStorage.setItem(
+"secondaryColor",
+secondary
+);
+
+document.getElementById("primaryText")
+.value=primary;
+
+document.getElementById("secondaryText")
+.value=secondary;
+
+}
 
 
-    atualizarMonitoramento(
-        valor,
-        resultadoStatus,
-        detalhe
-    );
+function resetColors(){
+
+const primary="#39e6a3";
+const secondary="#55cba0";
+
+document.documentElement.style
+.setProperty("--primary",primary);
+
+document.documentElement.style
+.setProperty("--secondary",secondary);
+
+document.getElementById("primaryColor")
+.value=primary;
+
+document.getElementById("secondaryColor")
+.value=secondary;
+
+localStorage.removeItem("primaryColor");
+localStorage.removeItem("secondaryColor");
+
+}
 
 
-    salvarHistorico({
+function loadSettings(){
 
-        id:
-            dados.analise_id ??
-            Date.now(),
+const email=
+localStorage.getItem("cleansurface_email");
 
-        data:
-            dados.criado_em ??
-            new Date().toISOString(),
+if(email){
 
-        valor:
-            valor,
+document.getElementById("email")
+.value=email;
 
-        status:
-            resultadoStatus,
+}
 
-        detalhe:
-            detalhe
+const primary=
+localStorage.getItem("primaryColor");
 
+const secondary=
+localStorage.getItem("secondaryColor");
+
+if(primary){
+
+document.documentElement.style
+.setProperty("--primary",primary);
+
+document.getElementById("primaryColor")
+.value=primary;
+
+document.getElementById("primaryText")
+.value=primary;
+
+}
+
+if(secondary){
+
+document.documentElement.style
+.setProperty("--secondary",secondary);
+
+document.getElementById("secondaryColor")
+.value=secondary;
+
+document.getElementById("secondaryText")
+.value=secondary;
+
+}
+
+loadHistory();
+
+}
+
+loadSettings();
+
+</script>
+
+</body>
+</html>`;
+
+
+export default {
+  async fetch(request) {
+
+    const url = new URL(request.url);
+
+    if (url.pathname === "/") {
+      return new Response(HTML, {
+        headers: {
+          "content-type": "text/html; charset=UTF-8"
+        }
+      });
+    }
+
+    return new Response("CleanSurface AI", {
+      status: 404
     });
 
-
-    atualizarDashboard();
-
-
-    const status =
-        document.getElementById(
-            "statusAnalise"
-        );
-
-
-    const dispositivo =
-        document.getElementById(
-            "device-status"
-        );
-
-
-    if (status) {
-
-        status.textContent =
-            "✅ Análise concluída.";
-
-    }
-
-
-    if (dispositivo) {
-
-        dispositivo.textContent =
-            "Online";
-
-    }
-
-}
-
-
-// ============================================================
-// MONITORAMENTO
-// ============================================================
-
-function atualizarMonitoramento(
-    valor,
-    status,
-    detalhe
-) {
-
-    const valorElemento =
-        document.getElementById(
-            "reading-value"
-        );
-
-
-    const statusElemento =
-        document.getElementById(
-            "reading-status"
-        );
-
-
-    const detalheElemento =
-        document.getElementById(
-            "reading-detail"
-        );
-
-
-    const ultimoResultado =
-        document.getElementById(
-            "last-result"
-        );
-
-
-    if (valorElemento) {
-
-        valorElemento.textContent =
-            valor;
-
-    }
-
-
-    if (statusElemento) {
-
-        statusElemento.textContent =
-            formatarStatus(status);
-
-    }
-
-
-    if (detalheElemento) {
-
-        detalheElemento.textContent =
-            detalhe;
-
-    }
-
-
-    if (ultimoResultado) {
-
-        ultimoResultado.textContent =
-            formatarStatus(status);
-
-    }
-
-}
-
-
-// ============================================================
-// STATUS
-// ============================================================
-
-function formatarStatus(status) {
-
-    if (!status) {
-        return "Analisado";
-    }
-
-
-    const texto =
-        String(status);
-
-
-    const normalizado =
-        texto.toLowerCase();
-
-
-    if (
-        normalizado ===
-            "aprovado" ||
-        normalizado ===
-            "ok" ||
-        normalizado ===
-            "limpo"
-    ) {
-
-        return "Aprovado";
-
-    }
-
-
-    if (
-        normalizado ===
-            "reprovado" ||
-        normalizado ===
-            "alerta" ||
-        normalizado ===
-            "sujo"
-    ) {
-
-        return "Alerta";
-
-    }
-
-
-    return texto;
-
-}
-
-
-// ============================================================
-// HISTÓRICO
-// ============================================================
-
-const CHAVE_HISTORICO =
-    "cleansurface_historico";
-
-
-function salvarHistorico(
-    resultado
-) {
-
-    let historico =
-        obterHistorico();
-
-
-    const existe =
-        historico.some(
-            item =>
-                String(item.id) ===
-                String(resultado.id)
-        );
-
-
-    if (!existe) {
-
-        historico.unshift(
-            resultado
-        );
-
-    }
-
-
-    historico =
-        historico.slice(
-            0,
-            100
-        );
-
-
-    localStorage.setItem(
-        CHAVE_HISTORICO,
-        JSON.stringify(
-            historico
-        )
-    );
-
-
-    carregarHistorico();
-
-}
-
-
-function obterHistorico() {
-
-    try {
-
-        const salvo =
-            localStorage.getItem(
-                CHAVE_HISTORICO
-            );
-
-
-        if (!salvo) {
-            return [];
-        }
-
-
-        const dados =
-            JSON.parse(salvo);
-
-
-        return Array.isArray(dados)
-            ? dados
-            : [];
-
-
-    } catch (erro) {
-
-        return [];
-
-    }
-
-}
-
-
-function carregarHistorico() {
-
-    const historico =
-        obterHistorico();
-
-
-    const tabela =
-        document.querySelector(
-            ".table-placeholder"
-        );
-
-
-    if (!tabela) {
-        return;
-    }
-
-
-    tabela.innerHTML = "";
-
-
-    const cabecalhos = [
-        "DATA E HORA",
-        "RESULTADO",
-        "NÍVEL",
-        "STATUS"
-    ];
-
-
-    cabecalhos.forEach(
-        texto => {
-
-            const elemento =
-                document.createElement(
-                    "div"
-                );
-
-            elemento.textContent =
-                texto;
-
-            tabela.appendChild(
-                elemento
-            );
-
-        }
-    );
-
-
-    if (
-        historico.length === 0
-    ) {
-
-        const vazio =
-            document.createElement(
-                "p"
-            );
-
-        vazio.textContent =
-            "Nenhuma análise registrada ainda.";
-
-        tabela.appendChild(
-            vazio
-        );
-
-        return;
-
-    }
-
-
-    historico.forEach(
-        item => {
-
-            const data =
-                document.createElement(
-                    "div"
-                );
-
-            data.textContent =
-                formatarData(
-                    item.data
-                );
-
-
-            const resultado =
-                document.createElement(
-                    "div"
-                );
-
-            resultado.textContent =
-                formatarStatus(
-                    item.status
-                );
-
-
-            const nivel =
-                document.createElement(
-                    "div"
-                );
-
-            nivel.textContent =
-                item.valor ??
-                "--";
-
-
-            const detalhe =
-                document.createElement(
-                    "div"
-                );
-
-            detalhe.textContent =
-                item.detalhe ??
-                "Registrado";
-
-
-            tabela.appendChild(data);
-            tabela.appendChild(resultado);
-            tabela.appendChild(nivel);
-            tabela.appendChild(detalhe);
-
-        }
-    );
-
-}
-
-
-function formatarData(
-    data
-) {
-
-    if (!data) {
-        return "--";
-    }
-
-
-    const dataObj =
-        new Date(data);
-
-
-    if (
-        isNaN(
-            dataObj.getTime()
-        )
-    ) {
-
-        return String(data);
-
-    }
-
-
-    return dataObj.toLocaleString(
-        "pt-BR",
-        {
-            dateStyle: "short",
-            timeStyle: "short"
-        }
-    );
-
-}
-
-
-// ============================================================
-// DASHBOARD
-// ============================================================
-
-function atualizarDashboard() {
-
-    const historico =
-        obterHistorico();
-
-
-    const contador =
-        document.getElementById(
-            "alert-count"
-        );
-
-
-    if (contador) {
-
-        const alertas =
-            historico.filter(
-                item => {
-
-                    const status =
-                        String(
-                            item.status ??
-                            ""
-                        ).toLowerCase();
-
-
-                    return (
-                        status.includes(
-                            "alerta"
-                        ) ||
-                        status.includes(
-                            "reprovado"
-                        ) ||
-                        status.includes(
-                            "sujo"
-                        )
-                    );
-
-                }
-            );
-
-
-        contador.textContent =
-            alertas.length;
-
-    }
-
-
-    if (
-        historico.length >
-        0
-    ) {
-
-        const ultimo =
-            historico[0];
-
-
-        const elemento =
-            document.getElementById(
-                "last-result"
-            );
-
-
-        if (elemento) {
-
-            elemento.textContent =
-                formatarStatus(
-                    ultimo.status
-                );
-
-        }
-
-    }
-
-}
-
-
-// ============================================================
-// CONFIGURAÇÕES
-// ============================================================
-
-function saveSettings() {
-
-    const email =
-        document.getElementById(
-            "email"
-        );
-
-
-    const nivel =
-        document.getElementById(
-            "nivelAlerta"
-        );
-
-
-    const configuracoes = {
-
-        email:
-            email
-                ? email.value
-                : "",
-
-        nivelAlerta:
-            nivel
-                ? nivel.value
-                : 70
-
-    };
-
-
-    localStorage.setItem(
-        "cleansurface_config",
-        JSON.stringify(
-            configuracoes
-        )
-    );
-
-
-    const salvo =
-        document.getElementById(
-            "saved"
-        );
-
-
-    if (salvo) {
-
-        salvo.textContent =
-            "✓ Configurações salvas";
-
-        setTimeout(
-            () => {
-                salvo.textContent =
-                    "";
-            },
-            3000
-        );
-
-    }
-
-}
-
-
-function carregarConfiguracoes() {
-
-    try {
-
-        const salvo =
-            localStorage.getItem(
-                "cleansurface_config"
-            );
-
-
-        if (!salvo) {
-            return;
-        }
-
-
-        const configuracoes =
-            JSON.parse(
-                salvo
-            );
-
-
-        const email =
-            document.getElementById(
-                "email"
-            );
-
-
-        const nivel =
-            document.getElementById(
-                "nivelAlerta"
-            );
-
-
-        if (email) {
-
-            email.value =
-                configuracoes.email ||
-                "";
-
-        }
-
-
-        if (nivel) {
-
-            nivel.value =
-                configuracoes.nivelAlerta ??
-                70;
-
-        }
-
-    } catch (erro) {
-
-        console.error(
-            erro
-        );
-
-    }
-
-}
-
-
-function obterConfiguracoes() {
-
-    try {
-
-        const salvo =
-            localStorage.getItem(
-                "cleansurface_config"
-            );
-
-
-        if (!salvo) {
-
-            return {
-                email: "",
-                nivelAlerta: 70
-            };
-
-        }
-
-
-        return JSON.parse(
-            salvo
-        );
-
-    } catch (erro) {
-
-        return {
-            email: "",
-            nivelAlerta: 70
-        };
-
-    }
-
-}
-
-
-// ============================================================
-// PERSONALIZAÇÃO
-// ============================================================
-
-function aplicarPaleta(
-    paleta
-) {
-
-    document.documentElement.style.setProperty(
-        "--primary",
-        paleta.primary
-    );
-
-
-    document.documentElement.style.setProperty(
-        "--secondary",
-        paleta.secondary
-    );
-
-
-    document.documentElement.style.setProperty(
-        "--background",
-        paleta.background
-    );
-
-
-    document.documentElement.style.setProperty(
-        "--card",
-        paleta.card
-    );
-
-
-    document.documentElement.style.setProperty(
-        "--text",
-        paleta.text
-    );
-
-
-    preencherCores(
-        paleta
-    );
-
-
-    localStorage.setItem(
-        "cleansurface_paleta",
-        JSON.stringify(
-            paleta
-        )
-    );
-
-}
-
-
-function aplicarPreset(
-    nome
-) {
-
-    const paleta =
-        PALETAS[nome];
-
-
-    if (!paleta) {
-        return;
-    }
-
-
-    aplicarPaleta(
-        paleta
-    );
-
-
-    const mensagem =
-        document.getElementById(
-            "paletteSaved"
-        );
-
-
-    if (mensagem) {
-
-        mensagem.textContent =
-            "✓ Paleta aplicada";
-
-        setTimeout(
-            () => {
-                mensagem.textContent =
-                    "";
-            },
-            2500
-        );
-
-    }
-
-}
-
-
-function preencherCores(
-    paleta
-) {
-
-    const mapa = {
-
-        corPrincipal:
-            paleta.primary,
-
-        corSecundaria:
-            paleta.secondary,
-
-        corFundo:
-            paleta.background,
-
-        corCartao:
-            paleta.card,
-
-        corTexto:
-            paleta.text
-
-    };
-
-
-    Object.entries(
-        mapa
-    ).forEach(
-        ([id, valor]) => {
-
-            const elemento =
-                document.getElementById(
-                    id
-                );
-
-
-            if (elemento) {
-
-                elemento.value =
-                    valor;
-
-            }
-
-        }
-    );
-
-
-    const hex = {
-
-        hexPrincipal:
-            paleta.primary,
-
-        hexSecundaria:
-            paleta.secondary,
-
-        hexFundo:
-            paleta.background,
-
-        hexCartao:
-            paleta.card,
-
-        hexTexto:
-            paleta.text
-
-    };
-
-
-    Object.entries(
-        hex
-    ).forEach(
-        ([id, valor]) => {
-
-            const elemento =
-                document.getElementById(
-                    id
-                );
-
-
-            if (elemento) {
-
-                elemento.value =
-                    valor.toUpperCase();
-
-            }
-
-        }
-    );
-
-}
-
-
-function aplicarCoresPersonalizadas() {
-
-    const paleta = {
-
-        primary:
-            obterCor(
-                "hexPrincipal",
-                "#39e6a3"
-            ),
-
-        secondary:
-            obterCor(
-                "hexSecundaria",
-                "#55cba0"
-            ),
-
-        background:
-            obterCor(
-                "hexFundo",
-                "#07100f"
-            ),
-
-        card:
-            obterCor(
-                "hexCartao",
-                "#0b1917"
-            ),
-
-        text:
-            obterCor(
-                "hexTexto",
-                "#edf7f4"
-            )
-
-    };
-
-
-    aplicarPaleta(
-        paleta
-    );
-
-
-    const mensagem =
-        document.getElementById(
-            "paletteSaved"
-        );
-
-
-    if (mensagem) {
-
-        mensagem.textContent =
-            "✓ Paleta personalizada aplicada";
-
-        setTimeout(
-            () => {
-                mensagem.textContent =
-                    "";
-            },
-            3000
-        );
-
-    }
-
-}
-
-
-function obterCor(
-    id,
-    padrao
-) {
-
-    const elemento =
-        document.getElementById(
-            id
-        );
-
-
-    if (!elemento) {
-        return padrao;
-    }
-
-
-    let valor =
-        elemento.value.trim();
-
-
-    if (
-        !/^#[0-9A-Fa-f]{6}$/.test(
-            valor
-        )
-    ) {
-
-        valor =
-            padrao;
-
-        elemento.value =
-            padrao.toUpperCase();
-
-    }
-
-
-    return valor;
-
-}
-
-
-// ============================================================
-// SELETORES DE COR
-// ============================================================
-
-function configurarSeletoresDeCor() {
-
-    const pares = [
-
-        [
-            "corPrincipal",
-            "hexPrincipal"
-        ],
-
-        [
-            "corSecundaria",
-            "hexSecundaria"
-        ],
-
-        [
-            "corFundo",
-            "hexFundo"
-        ],
-
-        [
-            "corCartao",
-            "hexCartao"
-        ],
-
-        [
-            "corTexto",
-            "hexTexto"
-        ]
-
-    ];
-
-
-    pares.forEach(
-        ([colorId, hexId]) => {
-
-            const color =
-                document.getElementById(
-                    colorId
-                );
-
-            const hex =
-                document.getElementById(
-                    hexId
-                );
-
-
-            if (!color || !hex) {
-                return;
-            }
-
-
-            color.addEventListener(
-                "input",
-                () => {
-
-                    hex.value =
-                        color.value.toUpperCase();
-
-                }
-            );
-
-
-            hex.addEventListener(
-                "input",
-                () => {
-
-                    const valor =
-                        hex.value.trim();
-
-
-                    if (
-                        /^#[0-9A-Fa-f]{6}$/.test(
-                            valor
-                        )
-                    ) {
-
-                        color.value =
-                            valor;
-
-                    }
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-function carregarPaleta() {
-
-    try {
-
-        const salva =
-            localStorage.getItem(
-                "cleansurface_paleta"
-            );
-
-
-        if (!salva) {
-
-            preencherCores(
-                PALETAS.original
-            );
-
-            return;
-
-        }
-
-
-        const paleta =
-            JSON.parse(
-                salva
-            );
-
-
-        aplicarPaleta(
-            paleta
-        );
-
-
-    } catch (erro) {
-
-        aplicarPaleta(
-            PALETAS.original
-        );
-
-    }
-
-}
-
-
-// ============================================================
-// FUNÇÕES GLOBAIS
-// ============================================================
-
-window.iniciarAnalise =
-    iniciarAnalise;
-
-window.saveSettings =
-    saveSettings;
-
-window.showPage =
-    showPage;
-
-window.aplicarPreset =
-    aplicarPreset;
-
-window.aplicarCoresPersonalizadas =
-    aplicarCoresPersonalizadas;
-
-
-// ============================================================
-// RESTAURAR PALETA
-// ============================================================
-
-function restaurarPaleta() {
-
-    aplicarPaleta(
-        PALETAS.original
-    );
-
-
-    const mensagem =
-        document.getElementById(
-            "paletteSaved"
-        );
-
-
-    if (mensagem) {
-
-        mensagem.textContent =
-            "✓ Paleta original restaurada";
-
-        setTimeout(
-            () => {
-                mensagem.textContent =
-                    "";
-            },
-            3000
-        );
-
-    }
-
-}
-
-
-window.restaurarPaleta =
-    restaurarPaleta;
+  }
+};
