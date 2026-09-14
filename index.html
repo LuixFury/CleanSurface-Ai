@@ -2,798 +2,573 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CleanSurface AI</title>
 
 <style>
 *{box-sizing:border-box}
 
 :root{
---primary:#39e6a3;
---secondary:#55cba0;
---background:#07100f;
---sidebar:#091615;
---card:#0b1917;
---text:#edf7f4;
---muted:#78918c;
---border:#1a3732;
---dark:#062019;
+  --primary:#39e6a3;
+  --secondary:#55cba0;
+  --background:#07100f;
+  --sidebar:#091615;
+  --card:#0b1917;
+  --card2:#0e211d;
+  --text:#edf7f4;
+  --muted:#78918c;
+  --border:#1a3732;
+  --input:#081311;
+  --primary-dark:#062019;
+  --danger:#fb7185;
+  --warning:#facc15;
+  --shadow:rgba(0,0,0,.22);
 }
 
+body.light{
+  --background:#eee6d6;
+  --sidebar:#e4dac6;
+  --card:#f5efe3;
+  --card2:#e9dfcd;
+  --text:#302a20;
+  --muted:#756b5c;
+  --border:#cfc1a9;
+  --input:#f8f2e7;
+  --primary-dark:#26372f;
+  --shadow:rgba(67,55,38,.12);
+}
+
+body.light .nav-item:hover,
+body.light .nav-item.active{background:#dcd0bb}
+
+body.light .hero{
+  background:radial-gradient(circle at 80% 45%,#f5efe3,#e4dac6 52%,#eee6d6 100%);
+}
+
+html,body{margin:0;min-height:100%}
 body{
-margin:0;
-font-family:Inter,"Segoe UI",Arial,sans-serif;
-background:var(--background);
-color:var(--text);
-display:flex;
-min-height:100vh;
+  font-family:Inter,"Segoe UI",Arial,sans-serif;
+  background:var(--background);
+  color:var(--text);
+  display:flex;
+  min-height:100vh;
+  transition:background .25s,color .25s;
 }
-
 button,input{font:inherit}
 
 .sidebar{
-width:250px;
-min-height:100vh;
-background:var(--sidebar);
-border-right:1px solid var(--border);
-padding:28px 18px;
-display:flex;
-flex-direction:column;
-flex-shrink:0;
+  width:250px;
+  min-height:100vh;
+  background:var(--sidebar);
+  border-right:1px solid var(--border);
+  padding:26px 16px;
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+  transition:background .25s,border-color .25s;
 }
-
 .brand{
-display:flex;
-align-items:center;
-gap:12px;
-padding:4px 10px 28px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:0 8px 28px;
 }
-
 .brand-icon{
-width:40px;
-height:40px;
-border-radius:12px;
-background:var(--primary);
-color:var(--dark);
-display:grid;
-place-items:center;
-font-size:23px;
-font-weight:900;
+  width:42px;height:42px;border-radius:13px;
+  display:grid;place-items:center;
+  background:var(--primary);
+  color:var(--primary-dark);
+  font-size:23px;font-weight:900;
+  box-shadow:0 0 25px color-mix(in srgb,var(--primary) 22%,transparent);
 }
+.brand strong{display:block;font-size:16px;letter-spacing:.2px}
+.brand span{display:block;color:var(--primary);font-size:13px;font-weight:900;letter-spacing:2px}
 
-.brand strong{
-display:block;
-font-size:16px;
-}
-
-.brand span{
-display:block;
-color:var(--primary);
-font-size:13px;
-font-weight:800;
-letter-spacing:2px;
-}
-
-.school-mini{
-padding:12px 10px 22px;
-border-bottom:1px solid var(--border);
-margin-bottom:10px;
-}
-
-.school-mini img{
-width:42px;
-height:42px;
-object-fit:contain;
-display:block;
-margin-bottom:8px;
-}
-
-.school-mini strong{
-display:block;
-font-size:11px;
-line-height:1.35;
-}
-
-.school-mini small{
-display:block;
-color:#68847e;
-font-size:10px;
-margin-top:3px;
-}
-
-nav{
-display:flex;
-flex-direction:column;
-gap:7px;
-}
-
+nav{display:flex;flex-direction:column;gap:6px}
 .nav-item{
-border:0;
-background:transparent;
-color:#89a29d;
-text-align:left;
-padding:13px 14px;
-border-radius:11px;
-font-size:14px;
-cursor:pointer;
-display:flex;
-gap:12px;
-align-items:center;
+  width:100%;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  text-align:left;
+  padding:13px 13px;
+  border-radius:11px;
+  font-size:14px;
+  cursor:pointer;
+  display:flex;
+  gap:12px;
+  align-items:center;
+  transition:.18s;
 }
-
-.nav-item:hover,
+.nav-item .ico{width:18px;text-align:center;font-size:15px}
+.nav-item:hover{
+  background:var(--card2);
+  color:var(--text);
+}
 .nav-item.active{
-background:#102521;
-color:#fff;
+  background:var(--card2);
+  color:var(--text);
+  box-shadow:inset 3px 0 var(--primary);
 }
-
-.nav-item.active{
-box-shadow:inset 3px 0 var(--primary);
-}
+.nav-item.active .ico{color:var(--primary)}
 
 .connection-card{
-margin-top:auto;
-border:1px solid var(--border);
-background:#0d201d;
-border-radius:13px;
-padding:13px;
-display:flex;
-gap:10px;
-align-items:center;
+  margin-top:auto;
+  border:1px solid var(--border);
+  background:var(--card2);
+  border-radius:13px;
+  padding:13px;
+  display:flex;
+  gap:10px;
+  align-items:center;
 }
-
 .status-dot{
-width:9px;
-height:9px;
-background:#f0b85b;
-border-radius:50%;
-box-shadow:0 0 10px #f0b85b;
+  width:9px;height:9px;background:var(--warning);
+  border-radius:50%;
+  box-shadow:0 0 10px var(--warning);
+  flex-shrink:0;
 }
-
 .connection-card small{
-font-size:9px;
-color:#68847e;
-display:block;
-letter-spacing:1px;
+  font-size:8px;color:var(--muted);
+  display:block;letter-spacing:1px;
 }
-
-.connection-card strong{
-font-size:11px;
-}
+.connection-card strong{font-size:11px}
 
 .main{
-flex:1;
-padding:30px 42px;
-max-width:1500px;
-margin:auto;
-width:100%;
+  flex:1;
+  width:100%;
+  max-width:1500px;
+  margin:auto;
+  padding:30px 42px;
 }
-
 .topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:28px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:27px;
 }
-
 .eyebrow{
-font-size:10px;
-letter-spacing:2px;
-color:var(--secondary);
-font-weight:800;
-margin:0 0 7px;
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--secondary);
+  font-weight:900;
+  margin:0 0 7px;
 }
-
-.topbar h1{
-font-size:27px;
-margin:0;
-}
-
+.topbar h1{font-size:27px;margin:0}
 .user-chip{
-border:1px solid var(--border);
-padding:9px 13px;
-border-radius:30px;
-color:#8ba6a0;
-font-size:12px;
+  border:1px solid var(--border);
+  background:var(--card);
+  padding:9px 13px;
+  border-radius:30px;
+  color:var(--muted);
+  font-size:12px;
 }
+
+.page{display:none}
+.page.active-page{display:block}
 
 .hero{
-min-height:330px;
-border:1px solid var(--border);
-border-radius:22px;
-background:radial-gradient(circle at 80% 45%,var(--card),var(--sidebar) 45%,var(--background) 75%);
-padding:48px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-overflow:hidden;
+  min-height:330px;
+  border:1px solid var(--border);
+  border-radius:22px;
+  background:radial-gradient(circle at 80% 45%,var(--card),var(--sidebar) 48%,var(--background) 82%);
+  padding:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  overflow:hidden;
+  box-shadow:0 18px 45px var(--shadow);
 }
-
-.hero h2{
-font-size:42px;
-line-height:1.08;
-margin:0 0 15px;
-}
-
-.hero h2 em{
-font-style:normal;
-color:var(--primary);
-}
-
+.hero h2{font-size:42px;line-height:1.08;margin:0 0 15px}
+.hero h2 em{font-style:normal;color:var(--primary)}
 .hero-text{
-color:#8ea8a2;
-max-width:570px;
-line-height:1.6;
+  color:var(--muted);
+  max-width:570px;
+  line-height:1.65;
 }
-
 .primary{
-background:var(--primary);
-color:var(--dark);
-border:0;
-border-radius:10px;
-padding:12px 18px;
-font-weight:800;
-cursor:pointer;
-margin-top:12px;
+  background:var(--primary);
+  color:var(--primary-dark);
+  border:0;
+  border-radius:10px;
+  padding:12px 18px;
+  font-weight:900;
+  cursor:pointer;
+  margin-top:12px;
+  transition:.18s;
 }
-
-.primary:hover{
-filter:brightness(1.08);
+.primary:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.primary:disabled{opacity:.55;cursor:wait;transform:none}
+.secondary-button{
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:11px 16px;
+  font-weight:800;
+  cursor:pointer;
 }
-
-.primary:disabled{
-opacity:.6;
-cursor:wait;
-}
-
-.analysis-status{
-color:var(--muted);
-font-size:12px;
-margin-top:10px;
-}
+.secondary-button:hover{border-color:var(--primary);color:var(--primary)}
+.analysis-status{color:var(--muted);font-size:12px;margin-top:10px}
 
 .hero-orb{
-width:210px;
-height:210px;
-border:1px solid #27574d;
-border-radius:50%;
-display:grid;
-place-items:center;
-position:relative;
-margin-right:50px;
+  width:210px;height:210px;
+  border:1px solid var(--border);
+  border-radius:50%;
+  display:grid;place-items:center;
+  position:relative;margin-right:50px;
 }
-
 .orb-ring{
-position:absolute;
-width:155px;
-height:155px;
-border:1px solid var(--primary);
-border-radius:50%;
-opacity:.45;
+  position:absolute;
+  width:155px;height:155px;
+  border:1px solid var(--primary);
+  border-radius:50%;
+  opacity:.45;
+  animation:pulse 2.5s infinite;
 }
-
 .orb-core{
-width:82px;
-height:82px;
-border-radius:50%;
-background:var(--primary);
-color:var(--dark);
-display:grid;
-place-items:center;
-font-weight:900;
-font-size:25px;
-box-shadow:0 0 55px var(--primary);
+  width:82px;height:82px;
+  border-radius:50%;
+  background:var(--primary);
+  color:var(--primary-dark);
+  display:grid;place-items:center;
+  font-weight:900;font-size:25px;
+  box-shadow:0 0 55px var(--primary);
 }
+@keyframes pulse{50%{transform:scale(1.08);opacity:.2}}
 
 .cards{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:16px;
-margin:18px 0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin:18px 0;
 }
-
-.stat-card,
-.section-card,
-.credit-card,
-.credits-header{
-border:1px solid var(--border);
-background:var(--card);
-border-radius:16px;
+.stat-card,.section-card,.credit-card,.credits-header{
+  border:1px solid var(--border);
+  background:var(--card);
+  border-radius:16px;
+  transition:background .25s,border-color .25s;
 }
-
-.stat-card{
-padding:20px;
-}
-
-.stat-icon{
-color:var(--primary);
-font-size:20px;
-margin-bottom:17px;
-}
-
+.stat-card{padding:20px}
+.stat-icon{color:var(--primary);font-size:20px;margin-bottom:17px}
 .stat-card span{
-display:block;
-font-size:9px;
-letter-spacing:1.5px;
-color:#66817b;
+  display:block;font-size:9px;
+  letter-spacing:1.5px;color:var(--muted);
 }
+.stat-card strong{display:block;font-size:22px;margin:7px 0}
+.stat-card small{color:var(--muted)}
 
-.stat-card strong{
-display:block;
-font-size:22px;
-margin:7px 0;
-}
-
-.stat-card small{
-color:var(--muted);
-}
-
-.section-card{
-padding:25px;
-}
-
-.section-card.big{
-min-height:520px;
-}
-
+.section-card{padding:25px}
+.section-card.big{min-height:520px}
 .section-head{
-display:flex;
-justify-content:space-between;
-align-items:center;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
 }
+.section-head h3{margin:0;font-size:21px}
+.section-head p:not(.eyebrow){color:var(--muted);margin:6px 0 0}
 
-.section-head h3{
-margin:0;
-font-size:21px;
-}
-
-.section-head p:not(.eyebrow){
-color:#708983;
-margin:6px 0 0;
-}
-
-.flow{
-display:flex;
-align-items:stretch;
-margin-top:30px;
-}
-
+.flow{display:flex;align-items:stretch;margin-top:30px}
 .flow-step{
-flex:1;
-border:1px solid var(--border);
-border-radius:13px;
-padding:22px;
-display:flex;
-flex-direction:column;
-gap:7px;
+  flex:1;
+  border:1px solid var(--border);
+  background:var(--card2);
+  border-radius:13px;
+  padding:22px;
+  display:flex;
+  flex-direction:column;
+  gap:7px;
 }
-
-.flow-step b{
-color:var(--primary);
-font-size:11px;
-}
-
-.flow-step span{
-color:var(--muted);
-font-size:12px;
-}
-
-.flow-line{
-width:40px;
-height:1px;
-background:#285149;
-align-self:center;
-}
+.flow-step b{color:var(--primary);font-size:11px}
+.flow-step span{color:var(--muted);font-size:12px}
+.flow-line{width:40px;height:1px;background:var(--border);align-self:center}
 
 .badge{
-font-size:9px;
-padding:7px 10px;
-border-radius:20px;
-letter-spacing:1px;
+  font-size:9px;
+  padding:7px 10px;
+  border-radius:20px;
+  letter-spacing:1px;
 }
-
-.waiting{
-color:#e6b968;
-background:#2b2515;
-}
+.waiting{color:#e6b968;background:rgba(230,185,104,.12)}
+.ok{color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent)}
+.bad{color:var(--danger);background:rgba(251,113,133,.12)}
 
 .reading{
-display:flex;
-align-items:center;
-gap:55px;
-margin:65px 0 0 25px;
+  display:flex;
+  align-items:center;
+  gap:55px;
+  margin:65px 0 0 25px;
 }
-
 .reading-circle{
-width:190px;
-height:190px;
-border:8px solid var(--border);
-border-radius:50%;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:55px;
-font-weight:800;
-color:var(--primary);
+  width:190px;height:190px;
+  border:8px solid var(--border);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:55px;
+  font-weight:900;
+  color:var(--primary);
 }
-
-.reading-circle small{
-font-size:18px;
-}
-
-.reading .label{
-font-size:10px;
-letter-spacing:2px;
-color:#6f8983;
-}
-
-.reading h2{
-font-size:30px;
-margin:9px 0;
-}
-
-.reading p{
-color:#77918b;
-}
+.reading-circle small{font-size:18px}
+.reading .label{font-size:10px;letter-spacing:2px;color:var(--muted)}
+.reading h2{font-size:30px;margin:9px 0}
+.reading p{color:var(--muted)}
 
 .empty{
-height:330px;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-color:var(--muted);
-text-align:center;
+  height:330px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  color:var(--muted);
+  text-align:center;
 }
-
 .empty div{
-width:55px;
-height:55px;
-border-radius:50%;
-background:#102923;
-color:var(--primary);
-display:grid;
-place-items:center;
-font-size:25px;
-margin-bottom:15px;
+  width:55px;height:55px;border-radius:50%;
+  background:var(--card2);color:var(--primary);
+  display:grid;place-items:center;font-size:25px;margin-bottom:15px;
 }
+.empty strong{color:var(--text);margin-bottom:7px}
+.empty span{max-width:390px;font-size:13px}
 
-.empty strong{
-color:var(--text);
-margin-bottom:7px;
+.table-wrap{overflow:auto;margin-top:28px}
+.history-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:620px;
 }
-
-.empty span{
-max-width:390px;
-font-size:13px;
+.history-table th,.history-table td{
+  padding:14px 12px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:12px;
 }
-
-.table-placeholder{
-margin-top:35px;
-border:1px solid var(--border);
-border-radius:10px;
-display:grid;
-grid-template-columns:1.2fr 1fr .7fr .7fr;
-padding:16px;
-color:#68837d;
-font-size:11px;
-letter-spacing:1px;
-gap:10px;
+.history-table th{
+  color:var(--muted);
+  font-size:9px;
+  letter-spacing:1.3px;
 }
-
-.table-placeholder p{
-grid-column:1/-1;
-text-align:center;
-padding:60px 0;
-color:#5c756f;
-letter-spacing:0;
-}
+.history-table td{color:var(--text)}
 
 .settings{
-max-width:700px;
-margin-top:35px;
-display:grid;
-gap:18px;
+  max-width:760px;
+  margin-top:35px;
+  display:grid;
+  gap:18px;
 }
-
-.settings label{
-font-size:12px;
-color:#8da59f;
+.settings label{font-size:12px;color:var(--muted)}
+.settings input[type=email],
+.settings input[type=number]{
+  display:block;
+  width:100%;
+  margin-top:7px;
+  background:var(--input);
+  border:1px solid var(--border);
+  border-radius:9px;
+  padding:13px;
+  color:var(--text);
+  outline:none;
 }
-
-.settings input{
-display:block;
-width:100%;
-margin-top:7px;
-background:#081311;
-border:1px solid var(--border);
-border-radius:9px;
-padding:13px;
-color:#fff;
-outline:none;
-}
-
-.settings input:focus{
-border-color:var(--primary);
-}
-
-.saved{
-color:var(--primary);
-font-size:12px;
-}
+.settings input:focus{border-color:var(--primary)}
+.saved{color:var(--primary);font-size:12px;min-height:15px}
 
 .appearance-box{
-margin-top:30px;
-padding-top:25px;
-border-top:1px solid var(--border);
+  margin-top:32px;
+  padding-top:28px;
+  border-top:1px solid var(--border);
+}
+.appearance-title h3{margin:0;font-size:20px}
+.appearance-title p{color:var(--muted);font-size:13px;margin:6px 0 0}
+
+.theme-mode{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin:22px 0;
+}
+.theme-btn{
+  border:1px solid var(--border);
+  background:var(--card2);
+  color:var(--text);
+  border-radius:13px;
+  padding:16px;
+  cursor:pointer;
+  text-align:left;
+  font-weight:800;
+  transition:.18s;
+}
+.theme-btn:hover{border-color:var(--primary)}
+.theme-btn.active{
+  border-color:var(--primary);
+  background:color-mix(in srgb,var(--primary) 10%,var(--card2));
+  box-shadow:inset 0 0 0 1px var(--primary);
+}
+.theme-btn span{
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  font-weight:500;
+  margin-top:4px;
 }
 
-.appearance-box h3{
-margin:0;
+.palette-title{
+  color:var(--muted);
+  font-size:12px;
+  margin:25px 0 12px;
 }
-
-.appearance-box p{
-color:var(--muted);
-font-size:13px;
-}
-
 .palette-presets{
-display:grid;
-grid-template-columns:repeat(5,1fr);
-gap:10px;
-margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
 }
-
 .palette-card{
-background:#081311;
-border:1px solid var(--border);
-border-radius:11px;
-padding:12px;
-color:var(--text);
-cursor:pointer;
-text-align:center;
+  border:1px solid var(--border);
+  background:var(--card2);
+  color:var(--text);
+  border-radius:14px;
+  padding:0;
+  overflow:hidden;
+  cursor:pointer;
+  text-align:left;
+  transition:.18s;
 }
-
-.palette-card:hover{
-border-color:var(--primary);
-transform:translateY(-2px);
+.palette-card:hover{transform:translateY(-2px);border-color:var(--primary)}
+.palette-card.selected{
+  border-color:var(--primary);
+  box-shadow:0 0 0 1px var(--primary);
 }
-
-.palette-colors{
-display:flex;
-gap:4px;
+.palette-preview{
+  height:55px;
+  display:flex;
 }
-
-.palette-colors i{
-height:25px;
-flex:1;
-border-radius:5px;
+.palette-preview .p-side{width:25%;background:var(--pside)}
+.palette-preview .p-main{
+  flex:1;background:var(--pbg);padding:8px;
 }
-
-.palette-card strong{
-display:block;
-font-size:11px;
-margin-top:8px;
+.palette-preview .p-card{
+  width:70%;height:100%;border-radius:6px;background:var(--pcard);
+  border-left:4px solid var(--pp);
+}
+.palette-name{
+  padding:10px 11px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:11px;
+  font-weight:800;
+}
+.palette-dot{
+  width:9px;height:9px;border-radius:50%;background:var(--pp);
+  box-shadow:0 0 7px var(--pp);
 }
 
 .custom-colors{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-margin-top:22px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:20px;
+  padding:17px;
+  border:1px solid var(--border);
+  background:var(--card2);
+  border-radius:14px;
 }
-
 .color-input{
-display:flex;
-gap:8px;
+  display:flex;
+  gap:8px;
+  align-items:center;
 }
-
 .color-input input[type=color]{
-width:48px;
-height:43px;
-padding:3px;
-margin:7px 0 0;
-cursor:pointer;
+  width:44px;height:42px;padding:3px;
+  margin:0;border:1px solid var(--border);
+  border-radius:8px;background:var(--input);cursor:pointer;
 }
-
 .color-input input[type=text]{
-flex:1;
+  width:100%;padding:11px;
+  border:1px solid var(--border);
+  border-radius:8px;background:var(--input);
+  color:var(--text);outline:none;
+  text-transform:uppercase;
 }
+.color-input input[type=text]:focus{border-color:var(--primary)}
 
 .credits-header{
-display:flex;
-gap:20px;
-align-items:center;
-padding:25px;
-margin-bottom:18px;
+  display:flex;
+  gap:20px;
+  align-items:center;
+  padding:25px;
+  margin-bottom:18px;
 }
-
-.credits-logo img{
-width:90px;
-height:90px;
-object-fit:contain;
+.credits-symbol{
+  width:90px;height:90px;
+  border-radius:20px;
+  background:var(--primary);
+  color:var(--primary-dark);
+  display:grid;place-items:center;
+  font-size:42px;font-weight:900;
+  box-shadow:0 15px 35px color-mix(in srgb,var(--primary) 15%,transparent);
 }
-
-.credits-header h2{
-margin:4px 0 8px;
-font-size:28px;
-}
-
-.credits-header p:not(.eyebrow){
-margin:4px 0;
-color:#9bb2ad;
-}
-
-.credits-header span{
-font-size:12px;
-color:var(--muted);
-}
-
+.credits-header h2{margin:4px 0 8px;font-size:28px}
+.credits-header p:not(.eyebrow){margin:4px 0;color:var(--muted)}
+.credits-header span{font-size:12px;color:var(--muted)}
 .credits-grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:18px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
 }
-
-.credit-card{
-padding:24px;
-min-height:260px;
-}
-
-.credit-card.teachers{
-grid-column:1/-1;
-}
-
-.credit-icon{
-font-size:30px;
-margin-bottom:15px;
-}
-
-.credit-card h3{
-margin:0 0 5px;
-font-size:21px;
-}
-
-.credit-count{
-font-size:11px;
-color:var(--primary);
-}
-
+.credit-card{padding:24px;min-height:260px}
+.credit-card.teachers{grid-column:1/-1}
+.credit-icon{font-size:30px;margin-bottom:15px}
+.credit-card h3{margin:0 0 5px;font-size:21px}
+.credit-count{font-size:11px;color:var(--primary)}
 .people-list{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:8px;
-margin-top:20px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin-top:20px;
 }
-
 .people-list div{
-background:#081311;
-border:1px solid var(--border);
-border-radius:8px;
-padding:9px;
-font-size:12px;
-color:#c5d5d1;
+  background:var(--card2);
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:9px;
+  font-size:12px;
+  color:var(--text);
 }
 
-.page{
-display:none;
+@media(max-width:950px){
+  .sidebar{width:215px}
+  .hero{padding:32px}
+  .hero-orb{margin-right:0}
+  .palette-presets{grid-template-columns:repeat(3,1fr)}
 }
-
-.active-page{
-display:block;
-}
-
-@media(max-width:900px){
-.sidebar{width:210px}
-.hero{padding:30px}
-.hero-orb{margin-right:0}
-.palette-presets{grid-template-columns:repeat(3,1fr)}
-}
-
 @media(max-width:800px){
-.sidebar{
-width:72px;
-padding:20px 10px;
+  .sidebar{width:72px;padding:20px 10px}
+  .brand{padding:4px 6px 35px}
+  .brand>div:last-child,.nav-item span,.connection-card>div:last-child{display:none}
+  .nav-item{justify-content:center}
+  .main{padding:20px}
+  .hero{padding:30px}
+  .hero h2{font-size:31px}
+  .hero-orb{display:none}
+  .cards{grid-template-columns:1fr}
+  .flow{flex-direction:column;gap:10px}
+  .flow-line{width:1px;height:25px}
+  .reading{margin-left:0;gap:25px}
+  .reading-circle{width:130px;height:130px;font-size:38px}
+  .palette-presets{grid-template-columns:repeat(2,1fr)}
 }
-
-.brand div:last-child,
-.nav-item span,
-.connection-card div:last-child,
-.school-mini{
-display:none;
-}
-
-.brand{
-padding:4px 6px 35px;
-}
-
-.nav-item{
-justify-content:center;
-}
-
-.main{
-padding:20px;
-}
-
-.hero{
-padding:30px;
-}
-
-.hero h2{
-font-size:31px;
-}
-
-.hero-orb{
-display:none;
-}
-
-.cards{
-grid-template-columns:1fr;
-}
-
-.flow{
-flex-direction:column;
-gap:10px;
-}
-
-.flow-line{
-width:1px;
-height:25px;
-}
-
-.reading{
-margin-left:0;
-gap:25px;
-}
-
-.reading-circle{
-width:130px;
-height:130px;
-font-size:38px;
-}
-
-.credits-grid{
-grid-template-columns:1fr;
-}
-
-.credit-card.teachers{
-grid-column:auto;
-}
-
-.custom-colors{
-grid-template-columns:1fr;
-}
-}
-
-@media(max-width:550px){
-.topbar{
-align-items:flex-start;
-}
-
-.user-chip{
-display:none;
-}
-
-.hero{
-min-height:auto;
-}
-
-.hero h2{
-font-size:27px;
-}
-
-.reading{
-flex-direction:column;
-align-items:flex-start;
-}
-
-.palette-presets{
-grid-template-columns:repeat(2,1fr);
-}
-
-.people-list{
-grid-template-columns:1fr;
-}
+@media(max-width:560px){
+  .topbar{align-items:flex-start}
+  .user-chip{display:none}
+  .hero{min-height:auto}
+  .hero h2{font-size:27px}
+  .reading{flex-direction:column;align-items:flex-start}
+  .theme-mode,.custom-colors{grid-template-columns:1fr}
+  .credits-grid{grid-template-columns:1fr}
+  .credit-card.teachers{grid-column:auto}
+  .people-list{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -801,1478 +576,717 @@ grid-template-columns:1fr;
 <body>
 
 <aside class="sidebar">
+  <div class="brand">
+    <div class="brand-icon">✦</div>
+    <div>
+      <strong>CleanSurface</strong>
+      <span>AI</span>
+    </div>
+  </div>
 
-<div class="brand">
-<div class="brand-icon">✦</div>
-<div>
-<strong>CleanSurface</strong>
-<span>AI</span>
-</div>
-</div>
+  <nav>
+    <button class="nav-item active" data-page="dashboard">
+      <span class="ico">⌂</span><span>Dashboard</span>
+    </button>
+    <button class="nav-item" data-page="monitoramento">
+      <span class="ico">◉</span><span>Monitoramento</span>
+    </button>
+    <button class="nav-item" data-page="alertas">
+      <span class="ico">⚠</span><span>Alertas</span>
+    </button>
+    <button class="nav-item" data-page="historico">
+      <span class="ico">◷</span><span>Histórico</span>
+    </button>
+    <button class="nav-item" data-page="configuracoes">
+      <span class="ico">⚙</span><span>Configurações</span>
+    </button>
+    <button class="nav-item" data-page="creditos">
+      <span class="ico">★</span><span>Equipe / Créditos</span>
+    </button>
+  </nav>
 
-<nav>
-
-<button class="nav-item active" data-page="dashboard">
-⌂ <span>Dashboard</span>
-</button>
-
-<button class="nav-item" data-page="monitoramento">
-◉ <span>Monitoramento</span>
-</button>
-
-<button class="nav-item" data-page="alertas">
-⚠ <span>Alertas</span>
-</button>
-
-<button class="nav-item" data-page="historico">
-◷ <span>Histórico</span>
-</button>
-
-<button class="nav-item" data-page="configuracoes">
-⚙ <span>Configurações</span>
-</button>
-
-<button class="nav-item" data-page="creditos">
-★ <span>Equipe / Créditos</span>
-</button>
-
-</nav>
-
-<div class="connection-card">
-<div class="status-dot"></div>
-<div>
-<small>STATUS DO SISTEMA</small>
-<strong>Pronto para conectar</strong>
-</div>
-</div>
-
+  <div class="connection-card">
+    <div class="status-dot"></div>
+    <div>
+      <small>STATUS DO SISTEMA</small>
+      <strong>Pronto para conectar</strong>
+    </div>
+  </div>
 </aside>
 
 <main class="main">
 
 <header class="topbar">
-<div>
-<p class="eyebrow">MONITORAMENTO INTELIGENTE</p>
-<h1 id="page-title">Dashboard</h1>
-</div>
-
-<div class="user-chip">
-CA &nbsp; CleanSurface AI
-</div>
+  <div>
+    <p class="eyebrow">MONITORAMENTO INTELIGENTE</p>
+    <h1 id="page-title">Dashboard</h1>
+  </div>
+  <div class="user-chip">CA &nbsp; CleanSurface AI</div>
 </header>
-
-
-<!-- DASHBOARD -->
 
 <section id="dashboard" class="page active-page">
 
-<div class="hero">
+  <div class="hero">
+    <div>
+      <p class="eyebrow">CLEAN SURFACE INTELLIGENCE</p>
+      <h2>Monitore suas superfícies<br><em>de forma inteligente.</em></h2>
+      <p class="hero-text">
+        O CleanSurface AI utiliza inteligência artificial para analisar
+        superfícies através do ESP32-S3-CAM e apresentar os resultados
+        de forma rápida e clara.
+      </p>
 
-<div>
+      <button id="analisarBtn" class="primary">🔍 INICIAR ANÁLISE</button>
+      <p id="statusAnalise" class="analysis-status">Pronto para iniciar uma análise.</p>
+    </div>
 
-<p class="eyebrow">CLEAN SURFACE INTELLIGENCE</p>
+    <div class="hero-orb">
+      <div class="orb-ring"></div>
+      <div class="orb-core">AI</div>
+    </div>
+  </div>
 
-<h2>
-Monitore suas superfícies
-<br>
-<em>de forma inteligente.</em>
-</h2>
+  <div class="cards">
+    <div class="stat-card">
+      <div class="stat-icon">◉</div>
+      <span>DISPOSITIVO</span>
+      <strong id="device-status">Aguardando</strong>
+      <small>ESP32-S3-CAM</small>
+    </div>
 
-<p class="hero-text">
-O CleanSurface AI utiliza inteligência artificial
-para analisar superfícies através do ESP32-S3-CAM
-e apresentar os resultados de forma rápida e clara.
-</p>
+    <div class="stat-card">
+      <div class="stat-icon">⌁</div>
+      <span>ÚLTIMA LEITURA</span>
+      <strong id="last-result">Nenhuma</strong>
+      <small>Os dados aparecerão aqui</small>
+    </div>
 
-<button id="analisarBtn" class="primary">
-🔍 INICIAR ANÁLISE
-</button>
+    <div class="stat-card">
+      <div class="stat-icon">⚠</div>
+      <span>ALERTAS</span>
+      <strong id="alert-count">0</strong>
+      <small>Alertas registrados</small>
+    </div>
+  </div>
 
-<p id="statusAnalise" class="analysis-status">
-Pronto para iniciar uma análise.
-</p>
+  <div class="section-card">
+    <div class="section-head">
+      <div>
+        <h3>Fluxo do sistema</h3>
+        <p>Como o CleanSurface AI funciona</p>
+      </div>
+    </div>
 
-</div>
-
-<div class="hero-orb">
-<div class="orb-ring"></div>
-<div class="orb-core">AI</div>
-</div>
-
-</div>
-
-
-<div class="cards">
-
-<div class="stat-card">
-<div class="stat-icon">◉</div>
-<span>DISPOSITIVO</span>
-<strong id="device-status">Aguardando</strong>
-<small>ESP32-S3-CAM</small>
-</div>
-
-<div class="stat-card">
-<div class="stat-icon">⌁</div>
-<span>ÚLTIMA LEITURA</span>
-<strong id="last-result">Nenhuma</strong>
-<small>Os dados aparecerão aqui</small>
-</div>
-
-<div class="stat-card">
-<div class="stat-icon">⚠</div>
-<span>ALERTAS</span>
-<strong id="alert-count">0</strong>
-<small>Alertas registrados</small>
-</div>
-
-</div>
-
-
-<div class="section-card">
-
-<div class="section-head">
-<div>
-<h3>Fluxo do sistema</h3>
-<p>Como o CleanSurface AI funciona</p>
-</div>
-</div>
-
-<div class="flow">
-
-<div class="flow-step">
-<b>01</b>
-<strong>ESP32-S3-CAM</strong>
-<span>Captura a superfície</span>
-</div>
-
-<div class="flow-line"></div>
-
-<div class="flow-step">
-<b>02</b>
-<strong>Inteligência Artificial</strong>
-<span>Analisa a imagem</span>
-</div>
-
-<div class="flow-line"></div>
-
-<div class="flow-step">
-<b>03</b>
-<strong>CleanSurface AI</strong>
-<span>Apresenta o resultado</span>
-</div>
-
-<div class="flow-line"></div>
-
-<div class="flow-step">
-<b>04</b>
-<strong>E-mail</strong>
-<span>Envia a notificação</span>
-</div>
-
-</div>
-
-</div>
+    <div class="flow">
+      <div class="flow-step"><b>01</b><strong>ESP32-S3-CAM</strong><span>Captura a superfície</span></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><b>02</b><strong>Inteligência Artificial</strong><span>Analisa a imagem</span></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><b>03</b><strong>CleanSurface AI</strong><span>Apresenta o resultado</span></div>
+      <div class="flow-line"></div>
+      <div class="flow-step"><b>04</b><strong>E-mail</strong><span>Envia a notificação</span></div>
+    </div>
+  </div>
 
 </section>
-
-
-<!-- MONITORAMENTO -->
 
 <section id="monitoramento" class="page">
+  <div class="section-card big">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">TEMPO REAL</p>
+        <h3>Monitoramento</h3>
+        <p>Acompanhe o resultado da análise realizada pelo dispositivo.</p>
+      </div>
+      <span id="monitorBadge" class="badge waiting">AGUARDANDO DISPOSITIVO</span>
+    </div>
 
-<div class="section-card big">
-
-<div class="section-head">
-
-<div>
-<p class="eyebrow">TEMPO REAL</p>
-<h3>Monitoramento</h3>
-<p>Acompanhe o resultado da análise realizada pelo dispositivo.</p>
-</div>
-
-<span class="badge waiting">
-AGUARDANDO DISPOSITIVO
-</span>
-
-</div>
-
-<div class="reading">
-
-<div class="reading-circle">
-<span id="reading-value">--</span>
-<small>%</small>
-</div>
-
-<div>
-<span class="label">RESULTADO DA ANÁLISE</span>
-<h2 id="reading-status">Aguardando leitura</h2>
-<p id="reading-detail">Nenhum dado recebido ainda.</p>
-</div>
-
-</div>
-
-</div>
-
+    <div class="reading">
+      <div class="reading-circle">
+        <span id="reading-value">--</span><small>%</small>
+      </div>
+      <div>
+        <span class="label">RESULTADO DA ANÁLISE</span>
+        <h2 id="reading-status">Aguardando leitura</h2>
+        <p id="reading-detail">Nenhum dado recebido ainda.</p>
+      </div>
+    </div>
+  </div>
 </section>
-
-
-<!-- ALERTAS -->
 
 <section id="alertas" class="page">
-
-<div class="section-card big">
-
-<div class="section-head">
-<div>
-<p class="eyebrow">NOTIFICAÇÕES</p>
-<h3>Alertas</h3>
-<p>Acompanhe as condições que exigem atenção.</p>
-</div>
-</div>
-
-<div class="empty">
-<div>✓</div>
-<strong>Nenhum alerta</strong>
-<span>
-Quando uma análise gerar uma condição de alerta,
-ela aparecerá nesta área.
-</span>
-</div>
-
-</div>
-
+  <div class="section-card big">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">NOTIFICAÇÕES</p>
+        <h3>Alertas</h3>
+        <p>Acompanhe as condições que exigem atenção.</p>
+      </div>
+    </div>
+    <div id="alertsArea" class="empty">
+      <div>✓</div>
+      <strong>Nenhum alerta</strong>
+      <span>Quando uma análise gerar uma condição de alerta, ela aparecerá nesta área.</span>
+    </div>
+  </div>
 </section>
-
-
-<!-- HISTÓRICO -->
 
 <section id="historico" class="page">
+  <div class="section-card big">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">REGISTROS</p>
+        <h3>Histórico</h3>
+        <p>Consulte as análises realizadas pelo sistema.</p>
+      </div>
+      <button class="secondary-button" onclick="limparHistorico()">Limpar histórico</button>
+    </div>
 
-<div class="section-card big">
-
-<div class="section-head">
-<div>
-<p class="eyebrow">REGISTROS</p>
-<h3>Histórico</h3>
-<p>Consulte as análises realizadas pelo sistema.</p>
-</div>
-</div>
-
-<div class="table-placeholder">
-
-<div>DATA E HORA</div>
-<div>RESULTADO</div>
-<div>NÍVEL</div>
-<div>STATUS</div>
-
-<p>Nenhuma análise registrada ainda.</p>
-
-</div>
-
-</div>
-
+    <div class="table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr><th>DATA E HORA</th><th>RESULTADO</th><th>VALOR</th><th>STATUS</th></tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:60px">Nenhuma análise registrada ainda.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </section>
-
-
-<!-- CONFIGURAÇÕES -->
 
 <section id="configuracoes" class="page">
+  <div class="section-card big">
 
-<div class="section-card big">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">SISTEMA</p>
+        <h3>Configurações</h3>
+        <p>Configure notificações e aparência do CleanSurface AI.</p>
+      </div>
+    </div>
 
-<div class="section-head">
+    <div class="settings">
+      <label>
+        E-mail para receber os resultados
+        <input type="email" id="email" placeholder="seuemail@exemplo.com">
+      </label>
 
-<div>
-<p class="eyebrow">SISTEMA</p>
-<h3>Configurações</h3>
-<p>Configure o recebimento das notificações.</p>
-</div>
+      <label>
+        Nível mínimo para alerta
+        <input type="number" id="nivelAlerta" min="0" max="100" value="70">
+      </label>
 
-</div>
+      <button class="primary" onclick="saveSettings()">💾 Salvar configurações</button>
+      <span id="saved" class="saved"></span>
+    </div>
 
-<div class="settings">
+    <div class="appearance-box">
+      <div class="appearance-title">
+        <p class="eyebrow">APARÊNCIA</p>
+        <h3>Personalize o CleanSurface AI</h3>
+        <p>Escolha entre modo claro ou escuro e depois selecione uma paleta.</p>
+      </div>
 
-<label>
-E-mail para receber os resultados
-<input type="email" id="email" placeholder="seuemail@exemplo.com">
-</label>
+      <div class="theme-mode">
+        <button id="darkModeBtn" class="theme-btn" onclick="setTheme('dark')">
+          🌙 Modo escuro
+          <span>Interface escura para ambientes com pouca luz.</span>
+        </button>
 
-<label>
-Nível mínimo para alerta
-<input type="number" id="nivelAlerta" min="0" max="100" value="70">
-</label>
+        <button id="lightModeBtn" class="theme-btn" onclick="setTheme('light')">
+          ☀️ Modo claro
+          <span>Interface clara para ambientes iluminados.</span>
+        </button>
+      </div>
 
-<button class="primary" onclick="saveSettings()">
-💾 Salvar configurações
-</button>
+      <div class="palette-title">PALETAS DE CORES</div>
+      <div id="palettePresets" class="palette-presets"></div>
 
-<span id="saved" class="saved"></span>
+      <div class="palette-title">CORES PERSONALIZADAS</div>
+      <div class="custom-colors">
+        <div class="color-input">
+          <input type="color" id="corPrincipal">
+          <input type="text" id="hexPrincipal">
+        </div>
+        <div class="color-input">
+          <input type="color" id="corSecundaria">
+          <input type="text" id="hexSecundaria">
+        </div>
+        <div class="color-input">
+          <input type="color" id="corFundo">
+          <input type="text" id="hexFundo">
+        </div>
+        <div class="color-input">
+          <input type="color" id="corLateral">
+          <input type="text" id="hexLateral">
+        </div>
+        <div class="color-input">
+          <input type="color" id="corCartao">
+          <input type="text" id="hexCartao">
+        </div>
+        <div class="color-input">
+          <input type="color" id="corTexto">
+          <input type="text" id="hexTexto">
+        </div>
+      </div>
 
-</div>
+      <button class="primary" onclick="aplicarPersonalizado()">🎨 Aplicar cores personalizadas</button>
+      <p id="paletteSaved" class="saved"></p>
+    </div>
 
-
-<div class="appearance-box">
-
-<h3>🎨 Personalização</h3>
-
-<p>
-Escolha uma paleta para alterar a aparência do CleanSurface AI.
-</p>
-
-<div class="palet<div class="palette-presets">
-
-<button class="palette-card" onclick="aplicarPreset('verde')">
-<div class="palette-colors">
-<i style="background:#39e6a3"></i>
-<i style="background:#07100f"></i>
-</div>
-<strong>Verde</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('azul')">
-<div class="palette-colors">
-<i style="background:#38bdf8"></i>
-<i style="background:#07111f"></i>
-</div>
-<strong>Azul</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('roxo')">
-<div class="palette-colors">
-<i style="background:#a78bfa"></i>
-<i style="background:#100b1c"></i>
-</div>
-<strong>Roxo</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('vermelho')">
-<div class="palette-colors">
-<i style="background:#fb7185"></i>
-<i style="background:#1a090c"></i>
-</div>
-<strong>Vermelho</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('laranja')">
-<div class="palette-colors">
-<i style="background:#fb923c"></i>
-<i style="background:#1b0e06"></i>
-</div>
-<strong>Laranja</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('amarelo')">
-<div class="palette-colors">
-<i style="background:#facc15"></i>
-<i style="background:#171304"></i>
-</div>
-<strong>Amarelo</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('rosa')">
-<div class="palette-colors">
-<i style="background:#f472b6"></i>
-<i style="background:#190b14"></i>
-</div>
-<strong>Rosa</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('ciano')">
-<div class="palette-colors">
-<i style="background:#22d3ee"></i>
-<i style="background:#061519"></i>
-</div>
-<strong>Ciano</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('azulescuro')">
-<div class="palette-colors">
-<i style="background:#6366f1"></i>
-<i style="background:#090b1d"></i>
-</div>
-<strong>Índigo</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('branco')">
-<div class="palette-colors">
-<i style="background:#ffffff"></i>
-<i style="background:#111827"></i>
-</div>
-<strong>Branco</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('dourado')">
-<div class="palette-colors">
-<i style="background:#eab308"></i>
-<i style="background:#151005"></i>
-</div>
-<strong>Dourado</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('turquesa')">
-<div class="palette-colors">
-<i style="background:#2dd4bf"></i>
-<i style="background:#061512"></i>
-</div>
-<strong>Turquesa</strong>
-</button>
-
-</div>te-presets">
-
-<button class="palette-card" onclick="aplicarPreset('original')">
-<div class="palette-colors">
-<i style="background:#39e6a3"></i>
-<i style="background:#07100f"></i>
-</div>
-<strong>Verde</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('azul')">
-<div class="palette-colors">
-<i style="background:#38bdf8"></i>
-<i style="background:#07111f"></i>
-</div>
-<strong>Azul</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('roxo')">
-<div class="palette-colors">
-<i style="background:#a78bfa"></i>
-<i style="background:#100b1c"></i>
-</div>
-<strong>Roxo</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('vermelho')">
-<div class="palette-colors">
-<i style="background:#fb7185"></i>
-<i style="background:#1a090c"></i>
-</div>
-<strong>Vermelho</strong>
-</button>
-
-<button class="palette-card" onclick="aplicarPreset('laranja')">
-<div class="palette-colors">
-<i style="background:#fb923c"></i>
-<i style="background:#1b0e06"></i>
-</div>
-<strong>Laranja</strong>
-</button>
-
-</div>
-
-<div class="custom-colors">
-
-<div class="color-input">
-<input type="color" id="corPrincipal" value="#39e6a3">
-<input type="text" id="hexPrincipal" value="#39E6A3">
-</div>
-
-<div class="color-input">
-<input type="color" id="corSecundaria" value="#55cba0">
-<input type="text" id="hexSecundaria" value="#55CBA0">
-</div>
-
-<div class="color-input">
-<input type="color" id="corFundo" value="#07100f">
-<input type="text" id="hexFundo" value="#07100F">
-</div>
-
-<div class="color-input">
-<input type="color" id="corCartao" value="#0b1917">
-<input type="text" id="hexCartao" value="#0B1917">
-</div>
-
-<div class="color-input">
-<input type="color" id="corTexto" value="#edf7f4">
-<input type="text" id="hexTexto" value="#EDF7F4">
-</div>
-
-</div>
-
-<button class="primary" onclick="aplicarCoresPersonalizadas()">
-🎨 Aplicar cores personalizadas
-</button>
-
-<p id="paletteSaved" class="saved"></p>
-
-</div>
-
-</div>
-
+  </div>
 </section>
 
-
-<!-- CRÉDITOS -->
-
 <section id="creditos" class="page">
+  <div class="credits-header">
+    <div class="credits-symbol">✦</div>
+    <div>
+      <p class="eyebrow">PROJETO ACADÊMICO • 2026</p>
+      <h2>CleanSurface AI</h2>
+      <p>Projeto desenvolvido para monitoramento inteligente de superfícies.</p>
+      <span>Equipe, colaboradores e orientação</span>
+    </div>
+  </div>
 
-<div class="credits-header">
+  <div class="credits-grid">
+    <div class="credit-card">
+      <div class="credit-icon">🔧</div>
+      <p class="eyebrow">CURSO TÉCNICO</p>
+      <h3>Mecatrônica</h3>
+      <span class="credit-count">8 integrantes</span>
+      <div class="people-list">
+        <div>Luiz Fernando F.</div><div>Luiz Fernando A.</div>
+        <div>Christopher G.</div><div>Mirella F.</div>
+        <div>David J.</div><div>Beatriz S.</div>
+        <div>Hyanara P.</div><div>Yasmin L.</div>
+      </div>
+    </div>
 
-<div class="credits-logo">
-<img src="logo-escola.png" alt="CEEP Ozório Gonçalves Nogueira">
-</div>
+    <div class="credit-card">
+      <div class="credit-icon">🍎</div>
+      <p class="eyebrow">CURSO TÉCNICO</p>
+      <h3>Alimentos</h3>
+      <span class="credit-count">4 integrantes</span>
+      <div class="people-list">
+        <div>Yasmin Loponi</div><div>Laura C.</div>
+        <div>Cibelly</div><div>Kailaine</div>
+      </div>
+    </div>
 
-<div>
-
-<p class="eyebrow">PROJETO ACADÊMICO • 2026</p>
-
-<h2>CleanSurface AI</h2>
-
-<p>
-Centro Estadual de Educação Profissional
-Ozório Gonçalves Nogueira
-</p>
-
-<span>Bandeirantes - Paraná</span>
-
-</div>
-
-</div>
-
-
-<div class="credits-grid">
-
-<div class="credit-card">
-
-<div class="credit-icon">🔧</div>
-
-<p class="eyebrow">CURSO TÉCNICO</p>
-
-<h3>Mecatrônica</h3>
-
-<span class="credit-count">8 integrantes</span>
-
-<div class="people-list">
-
-<div>Luiz Fernando F.</div>
-<div>Luiz Fernando A.</div>
-<div>Christopher G.</div>
-<div>Mirella F.</div>
-<div>David J.</div>
-<div>Beatriz S.</div>
-<div>Hyanara P.</div>
-<div>Yasmin L.</div>
-
-</div>
-
-</div>
-
-
-<div class="credit-card">
-
-<div class="credit-icon">🍎</div>
-
-<p class="eyebrow">CURSO TÉCNICO</p>
-
-<h3>Alimentos</h3>
-
-<span class="credit-count">4 integrantes</span>
-
-<div class="people-list">
-
-<div>Yasmin Loponi</div>
-<div>Laura C.</div>
-<div>Cibelly</div>
-<div>Kailaine</div>
-
-</div>
-
-</div>
-
-
-<div class="credit-card teachers">
-
-<div class="credit-icon">👨‍🏫</div>
-
-<p class="eyebrow">ORIENTAÇÃO</p>
-
-<h3>Professores</h3>
-
-<span class="credit-count">4 professores</span>
-
-<div class="people-list">
-
-<div>Renata Barauldi</div>
-<div>Jessily S.</div>
-<div>Rafael O.</div>
-<div>Alexandre</div>
-
-</div>
-
-</div>
-
-</div>
-
+    <div class="credit-card teachers">
+      <div class="credit-icon">👨‍🏫</div>
+      <p class="eyebrow">ORIENTAÇÃO</p>
+      <h3>Professores</h3>
+      <span class="credit-count">4 professores</span>
+      <div class="people-list">
+        <div>Renata Barauldi</div><div>Jessily S.</div>
+        <div>Rafael O.</div><div>Alexandre</div>
+      </div>
+    </div>
+  </div>
 </section>
 
 </main>
 
-
 <script>
-
-const API_URL =
-"https://cleansurface-api.luizinfernando19.workers.dev";
+const API_URL="https://cleansurface-api.luizinfernando19.workers.dev";
 
 let analiseAtualId=null;
-let verificandoResultado=false;
+let pollingAtivo=false;
 
-
-const PALETAS={
-
-original:{
-primary:"#39e6a3",
-secondary:"#55cba0",
-background:"#07100f",
-card:"#0b1917",
-text:"#edf7f4"
-},
-
-azul:{
-primary:"#38bdf8",
-secondary:"#60a5fa",
-background:"#07111f",
-card:"#0b1728",
-text:"#edf7ff"
-},
-
-roxo:{
-primary:"#a78bfa",
-secondary:"#c4b5fd",
-background:"#100b1c",
-card:"#171025",
-text:"#f5f3ff"
-},
-
-vermelho:{
-primary:"#fb7185",
-secondary:"#fda4af",
-background:"#1a090c",
-card:"#241013",
-text:"#fff1f2"
-},
-
-laranja:{
-primary:"#fb923c",
-secondary:"#fdba74",
-background:"#1b0e06",
-card:"#26140a",
-text:"#fff7ed"
-}
-
+const PALLETES={
+  verde:{name:"Verde",primary:"#39e6a3",secondary:"#55cba0",background:"#07100f",sidebar:"#091615",card:"#0b1917",text:"#edf7f4",muted:"#78918c",border:"#1a3732",input:"#081311",dark:"#062019"},
+  azul:{name:"Azul",primary:"#38bdf8",secondary:"#60a5fa",background:"#06101c",sidebar:"#081521",card:"#0b1c2c",text:"#edf8ff",muted:"#7895a8",border:"#19384b",input:"#07131f",dark:"#06131d"},
+  roxo:{name:"Roxo",primary:"#a78bfa",secondary:"#c4b5fd",background:"#0d0917",sidebar:"#120d1f",card:"#181226",text:"#f5f3ff",muted:"#9288a8",border:"#30244a",input:"#0c0815",dark:"#0b0712"},
+  vermelho:{name:"Vermelho",primary:"#fb7185",secondary:"#fda4af",background:"#18090c",sidebar:"#210d11",card:"#281217",text:"#fff1f2",muted:"#ad858b",border:"#4b2028",input:"#16080b",dark:"#17070a"},
+  laranja:{name:"Laranja",primary:"#fb923c",secondary:"#fdba74",background:"#190d05",sidebar:"#211108",card:"#2a1609",text:"#fff7ed",muted:"#aa8a72",border:"#4a2914",input:"#160b04",dark:"#180b03"},
+  amarelo:{name:"Amarelo",primary:"#facc15",secondary:"#fde047",background:"#151203",sidebar:"#1c1805",card:"#252008",text:"#fffbea",muted:"#a79c72",border:"#49400f",input:"#110f02",dark:"#141002"},
+  rosa:{name:"Rosa",primary:"#f472b6",secondary:"#f9a8d4",background:"#180a13",sidebar:"#210d19",card:"#29121f",text:"#fff1f8",muted:"#aa8197",border:"#4a2037",input:"#150810",dark:"#160810"},
+  ciano:{name:"Ciano",primary:"#22d3ee",secondary:"#67e8f9",background:"#041316",sidebar:"#071b1f",card:"#0a2227",text:"#ecfeff",muted:"#71999f",border:"#16434b",input:"#031013",dark:"#031014"},
+  indigo:{name:"Índigo",primary:"#6366f1",secondary:"#818cf8",background:"#090a1b",sidebar:"#0d0f25",card:"#141733",text:"#eef2ff",muted:"#8589a8",border:"#292d59",input:"#08091a",dark:"#070817"},
+  turquesa:{name:"Turquesa",primary:"#2dd4bf",secondary:"#5eead4",background:"#051310",sidebar:"#081b17",card:"#0c241f",text:"#ecfdf5",muted:"#709a91",border:"#18473d",input:"#04100d",dark:"#04100d"},
+  dourado:{name:"Dourado",primary:"#eab308",secondary:"#facc15",background:"#120e04",sidebar:"#191306",card:"#241b08",text:"#fffbeb",muted:"#a5966c",border:"#493b12",input:"#100c03",dark:"#100c03"},
+  neon:{name:"Neon",primary:"#00ff88",secondary:"#00e5ff",background:"#030807",sidebar:"#06110e",card:"#0a1814",text:"#effff8",muted:"#65a18c",border:"#124c3a",input:"#020605",dark:"#010503"},
+  cyberpunk:{name:"Cyberpunk",primary:"#ff00e5",secondary:"#00e5ff",background:"#090512",sidebar:"#10071a",card:"#170b22",text:"#fff2ff",muted:"#a178a6",border:"#4d1c55",input:"#07030d",dark:"#05020a"},
+  oceano:{name:"Oceano",primary:"#14b8a6",secondary:"#06b6d4",background:"#031316",sidebar:"#061c21",card:"#09252a",text:"#ecfeff",muted:"#6d9da3",border:"#15515a",input:"#020d10",dark:"#020d10"},
+  lavanda:{name:"Lavanda",primary:"#c084fc",secondary:"#e879f9",background:"#100817",sidebar:"#170d20",card:"#21122d",text:"#faf5ff",muted:"#9c7eaa",border:"#442457",input:"#0a0510",dark:"#0a0510"},
+  grafite:{name:"Grafite",primary:"#cbd5e1",secondary:"#94a3b8",background:"#0b0f14",sidebar:"#11161d",card:"#171d25",text:"#f8fafc",muted:"#8996a6",border:"#2a3440",input:"#0a0e13",dark:"#080b0f"}
 };
 
-
-const titles={
-dashboard:"Dashboard",
-monitoramento:"Monitoramento",
-alertas:"Alertas",
-historico:"Histórico",
-configuracoes:"Configurações",
-creditos:"Equipe / Créditos"
+const titleMap={
+  dashboard:"Dashboard",
+  monitoramento:"Monitoramento",
+  alertas:"Alertas",
+  historico:"Histórico",
+  configuracoes:"Configurações",
+  creditos:"Equipe / Créditos"
 };
-
 
 document.addEventListener("DOMContentLoaded",()=>{
+  document.querySelectorAll(".nav-item").forEach(btn=>{
+    btn.addEventListener("click",()=>showPage(btn.dataset.page));
+  });
 
-document.querySelectorAll(".nav-item").forEach(btn=>{
+  document.getElementById("analisarBtn").addEventListener("click",iniciarAnalise);
 
-btn.addEventListener("click",()=>{
-
-showPage(btn.dataset.page);
-
+  montarPaletas();
+  carregarTema();
+  carregarPaleta();
+  carregarConfiguracoes();
+  atualizarHistorico();
+  atualizarDashboard();
 });
-
-});
-
-carregarConfiguracoes();
-carregarPaleta();
-atualizarDashboard();
-
-const botao=document.getElementById("analisarBtn");
-
-if(botao){
-
-botao.addEventListener("click",iniciarAnalise);
-
-}
-
-});
-
 
 function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active-page"));
+  document.getElementById(id)?.classList.add("active-page");
 
-document.querySelectorAll(".page").forEach(page=>{
-page.classList.remove("active-page");
-});
+  document.querySelectorAll(".nav-item").forEach(b=>{
+    b.classList.toggle("active",b.dataset.page===id);
+  });
 
-const page=document.getElementById(id);
-
-if(page){
-page.classList.add("active-page");
+  document.getElementById("page-title").textContent=titleMap[id]||"CleanSurface AI";
 }
 
-document.querySelectorAll(".nav-item").forEach(btn=>{
+function montarPaletas(){
+  const area=document.getElementById("palettePresets");
 
-btn.classList.toggle(
-"active",
-btn.dataset.page===id
-);
-
-});
-
-const title=document.getElementById("page-title");
-
-if(title){
-title.textContent=titles[id]||"CleanSurface AI";
+  Object.entries(PALLETES).forEach(([key,p])=>{
+    const btn=document.createElement("button");
+    btn.className="palette-card";
+    btn.dataset.palette=key;
+    btn.innerHTML=`
+      <div class="palette-preview"
+        style="--pside:${p.sidebar};--pbg:${p.background};--pcard:${p.card};--pp:${p.primary}">
+        <div class="p-side"></div>
+        <div class="p-main"><div class="p-card"></div></div>
+      </div>
+      <div class="palette-name">
+        <span>${p.name}</span>
+        <i class="palette-dot" style="--pp:${p.primary}"></i>
+      </div>
+    `;
+    btn.onclick=()=>aplicarPreset(key);
+    area.appendChild(btn);
+  });
 }
 
+function aplicarPreset(key){
+  const p=PALLETES[key];
+  if(!p)return;
+
+  aplicarVariaveis(p);
+  localStorage.setItem("cleansurface_palette",JSON.stringify(p));
+
+  document.querySelectorAll(".palette-card").forEach(b=>{
+    b.classList.toggle("selected",b.dataset.palette===key);
+  });
+
+  preencherCores(p);
+  document.getElementById("paletteSaved").textContent="✓ Paleta aplicada.";
 }
 
-
-async function iniciarAnalise(){
-
-const botao=document.getElementById("analisarBtn");
-const status=document.getElementById("statusAnalise");
-
-const email=
-document.getElementById("email")?.value.trim() ||
-localStorage.getItem("cleansurface_email") ||
-"";
-
-
-if(!email){
-
-status.textContent=
-"Digite seu e-mail em Configurações antes de iniciar.";
-
-showPage("configuracoes");
-
-return;
-
+function aplicarVariaveis(p){
+  const root=document.documentElement;
+  Object.entries(p).forEach(([k,v])=>{
+    if(k!=="name")root.style.setProperty("--"+k,v);
+  });
 }
 
-
-localStorage.setItem(
-"cleansurface_email",
-email
-);
-
-
-botao.disabled=true;
-
-status.textContent=
-"⏳ Solicitando análise...";
-
-
-try{
-
-const resposta=await fetch(
-API_URL+"/iniciar-analise",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email:email
-})
-}
-);
-
-
-if(!resposta.ok){
-
-throw new Error(
-"HTTP "+resposta.status
-);
-
+function setTheme(theme){
+  document.body.classList.toggle("light",theme==="light");
+  localStorage.setItem("cleansurface_theme",theme);
+  atualizarBotoesTema();
 }
 
-
-const dados=await resposta.json();
-
-
-if(!dados.analise_id){
-
-throw new Error(
-dados.mensagem||
-"API não retornou o ID."
-);
-
+function carregarTema(){
+  const theme=localStorage.getItem("cleansurface_theme")||"dark";
+  document.body.classList.toggle("light",theme==="light");
+  atualizarBotoesTema();
 }
 
-
-analiseAtualId=dados.analise_id;
-
-localStorage.setItem(
-"cleansurface_analise_atual",
-String(analiseAtualId)
-);
-
-
-status.textContent=
-"📷 Aguardando ESP32-S3-CAM...";
-
-
-document.getElementById(
-"device-status"
-).textContent="Aguardando";
-
-
-showPage("monitoramento");
-
-iniciarPolling();
-
-
-}catch(erro){
-
-console.error(erro);
-
-status.textContent=
-"❌ Não foi possível iniciar a análise.";
-
-botao.disabled=false;
-
+function atualizarBotoesTema(){
+  const light=document.body.classList.contains("light");
+  document.getElementById("lightModeBtn").classList.toggle("active",light);
+  document.getElementById("darkModeBtn").classList.toggle("active",!light);
 }
-
-}
-
-
-function iniciarPolling(){
-
-if(verificandoResultado)return;
-
-verificandoResultado=true;
-
-verificarResultado();
-
-}
-
-
-async function verificarResultado(){
-
-if(!analiseAtualId){
-
-verificandoResultado=false;
-
-return;
-
-}
-
-
-try{
-
-const resposta=await fetch(
-
-API_URL+
-"/resultado?analise_id="+
-encodeURIComponent(analiseAtualId),
-
-{
-cache:"no-store"
-}
-
-);
-
-
-if(resposta.ok){
-
-const dados=await resposta.json();
-
-
-if(
-dados.disponivel===true &&
-String(dados.analise_id)===
-String(analiseAtualId)
-){
-
-processarResultado(dados);
-
-verificandoResultado=false;
-
-return;
-
-}
-
-}
-
-}catch(erro){
-
-console.log(
-"Aguardando resultado...",
-erro
-);
-
-}
-
-
-setTimeout(
-verificarResultado,
-3000
-);
-
-}
-
-
-function processarResultado(dados){
-
-const botao=
-document.getElementById("analisarBtn");
-
-const status=
-document.getElementById("statusAnalise");
-
-
-if(botao){
-botao.disabled=false;
-}
-
-
-if(status){
-status.textContent=
-"✅ Análise concluída.";
-}
-
-
-const valor=
-dados.valor ??
-dados.resultado ??
-"--";
-
-
-const detalhe=
-dados.detalhe ??
-"Resultado recebido do ESP32-S3-CAM.";
-
-
-const situacao=
-dados.status ??
-"concluido";
-
-
-document.getElementById(
-"reading-value"
-).textContent=valor;
-
-
-document.getElementById(
-"reading-status"
-).textContent=
-String(situacao).toUpperCase();
-
-
-document.getElementById(
-"reading-detail"
-).textContent=detalhe;
-
-
-document.getElementById(
-"device-status"
-).textContent="Online";
-
-
-document.getElementById(
-"last-result"
-).textContent=valor;
-
-
-salvarHistorico({
-
-analise_id:analiseAtualId,
-valor:valor,
-status:situacao,
-detalhe:detalhe,
-data:new Date().toLocaleString("pt-BR")
-
-});
-
-
-atualizarHistorico();
-atualizarDashboard();
-
-}
-
-
-function saveSettings(){
-
-const email=
-document.getElementById("email")
-?.value.trim()||"";
-
-
-const nivel=
-document.getElementById("nivelAlerta")
-?.value||"70";
-
-
-localStorage.setItem(
-"cleansurface_email",
-email
-);
-
-localStorage.setItem(
-"cleansurface_nivel",
-nivel
-);
-
-
-const saved=
-document.getElementById("saved");
-
-
-if(saved){
-
-saved.textContent=
-"✓ Configurações salvas.";
-
-}
-
-}
-
-
-function carregarConfiguracoes(){
-
-const email=
-localStorage.getItem(
-"cleansurface_email"
-)||"";
-
-
-const nivel=
-localStorage.getItem(
-"cleansurface_nivel"
-)||"70";
-
-
-const emailEl=
-document.getElementById("email");
-
-
-const nivelEl=
-document.getElementById(
-"nivelAlerta"
-);
-
-
-if(emailEl){
-emailEl.value=email;
-}
-
-
-if(nivelEl){
-nivelEl.value=nivel;
-}
-
-
-const atual=
-localStorage.getItem(
-"cleansurface_analise_atual"
-);
-
-
-if(atual){
-analiseAtualId=atual;
-}
-
-}
-
-
-function salvarHistorico(item){
-
-const lista=
-JSON.parse(
-localStorage.getItem(
-"cleansurface_historico"
-)||"[]"
-);
-
-
-lista.unshift(item);
-
-
-localStorage.setItem(
-"cleansurface_historico",
-JSON.stringify(
-lista.slice(0,50)
-)
-);
-
-}
-
-
-function atualizarHistorico(){
-
-const box=
-document.querySelector(
-".table-placeholder"
-);
-
-
-if(!box)return;
-
-
-const lista=
-JSON.parse(
-localStorage.getItem(
-"cleansurface_historico"
-)||"[]"
-);
-
-
-box.innerHTML=`
-<div>DATA E HORA</div>
-<div>RESULTADO</div>
-<div>NÍVEL</div>
-<div>STATUS</div>
-`;
-
-
-if(!lista.length){
-
-box.innerHTML+=`
-<p>Nenhuma análise registrada ainda.</p>
-`;
-
-return;
-
-}
-
-
-lista.forEach(item=>{
-
-box.innerHTML+=`
-<div>${escapeHtml(item.data)}</div>
-<div>${escapeHtml(String(item.valor))}</div>
-<div>--</div>
-<div>${escapeHtml(String(item.status))}</div>
-`;
-
-});
-
-}
-
-
-function atualizarDashboard(){
-
-atualizarHistorico();
-
-
-const lista=
-JSON.parse(
-localStorage.getItem(
-"cleansurface_historico"
-)||"[]"
-);
-
-
-const alertas=
-lista.filter(item=>{
-
-const status=
-String(item.status||"")
-.toLowerCase();
-
-
-return(
-status.includes("alert")||
-status.includes("reprov")||
-status.includes("contamin")
-);
-
-});
-
-
-const alertCount=
-document.getElementById(
-"alert-count"
-);
-
-
-if(alertCount){
-
-alertCount.textContent=
-alertas.length;
-
-}
-
-
-if(lista.length){
-
-document.getElementById(
-"last-result"
-).textContent=
-lista[0].valor;
-
-}
-
-}
-
-
-function escapeHtml(value){
-
-return String(value)
-.replaceAll("&","&amp;")
-.replaceAll("<","&lt;")
-.replaceAll(">","&gt;")
-.replaceAll('"',"&quot;")
-.replaceAll("'","&#039;");
-
-}
-
-
-function aplicarPreset(nome){
-
-const paleta=PALETAS[nome];
-
-if(!paleta)return;
-
-aplicarVariaveis(paleta);
-
-preencherControles(paleta);
-
-localStorage.setItem(
-"cleansurface_paleta",
-JSON.stringify(paleta)
-);
-
-
-const saved=
-document.getElementById(
-"paletteSaved"
-);
-
-
-if(saved){
-
-saved.textContent=
-"✓ Paleta aplicada.";
-
-}
-
-}
-
-
-function aplicarVariaveis(paleta){
-
-const root=
-document.documentElement;
-
-
-root.style.setProperty(
-"--primary",
-paleta.primary
-);
-
-root.style.setProperty(
-"--secondary",
-paleta.secondary
-);
-
-root.style.setProperty(
-"--background",
-paleta.background
-);
-
-root.style.setProperty(
-"--card",
-paleta.card
-);
-
-root.style.setProperty(
-"--text",
-paleta.text
-);
-
-}
-
-
-function preencherControles(p){
-
-const mapa={
-
-corPrincipal:[
-"primary",
-"hexPrincipal"
-],
-
-corSecundaria:[
-"secondary",
-"hexSecundaria"
-],
-
-corFundo:[
-"background",
-"hexFundo"
-],
-
-corCartao:[
-"card",
-"hexCartao"
-],
-
-corTexto:[
-"text",
-"hexTexto"
-]
-
-};
-
-
-Object.entries(mapa).forEach(
-([id,campos])=>{
-
-const chave=campos[0];
-const textoId=campos[1];
-
-
-const color=
-document.getElementById(id);
-
-
-const text=
-document.getElementById(textoId);
-
-
-if(color){
-color.value=p[chave];
-}
-
-
-if(text){
-text.value=
-p[chave].toUpperCase();
-}
-
-});
-
-}
-
-
-function lerCor(id,hexId,fallback){
-
-const color=
-document.getElementById(id)?.value;
-
-
-const text=
-document.getElementById(hexId)
-?.value.trim();
-
-
-if(
-/^#[0-9A-Fa-f]{6}$/.test(text||"")
-){
-
-return text;
-
-}
-
-
-if(
-/^#[0-9A-Fa-f]{6}$/.test(color||"")
-){
-
-return color;
-
-}
-
-
-return fallback;
-
-}
-
-
-function aplicarCoresPersonalizadas(){
-
-const paleta={
-
-primary:
-lerCor(
-"corPrincipal",
-"hexPrincipal",
-"#39e6a3"
-),
-
-secondary:
-lerCor(
-"corSecundaria",
-"hexSecundaria",
-"#55cba0"
-),
-
-background:
-lerCor(
-"corFundo",
-"hexFundo",
-"#07100f"
-),
-
-card:
-lerCor(
-"corCartao",
-"hexCartao",
-"#0b1917"
-),
-
-text:
-lerCor(
-"corTexto",
-"hexTexto",
-"#edf7f4"
-)
-
-};
-
-
-aplicarVariaveis(paleta);
-
-preencherControles(paleta);
-
-localStorage.setItem(
-"cleansurface_paleta",
-JSON.stringify(paleta)
-);
-
-
-document.getElementById(
-"paletteSaved"
-).textContent=
-"✓ Cores personalizadas aplicadas.";
-
-}
-
 
 function carregarPaleta(){
-
-try{
-
-const salva=
-JSON.parse(
-localStorage.getItem(
-"cleansurface_paleta"
-)||"null"
-);
-
-
-if(salva){
-
-aplicarVariaveis(salva);
-
-preencherControles(salva);
-
+  try{
+    const saved=JSON.parse(localStorage.getItem("cleansurface_palette")||"null");
+    if(saved){
+      aplicarVariaveis(saved);
+      preencherCores(saved);
+    }else{
+      preencherCores(PALLETES.verde);
+    }
+  }catch(e){}
 }
 
-}catch(e){
+function preencherCores(p){
+  const map={
+    primary:["corPrincipal","hexPrincipal"],
+    secondary:["corSecundaria","hexSecundaria"],
+    background:["corFundo","hexFundo"],
+    sidebar:["corLateral","hexLateral"],
+    card:["corCartao","hexCartao"],
+    text:["corTexto","hexTexto"]
+  };
 
-console.log(
-"Paleta padrão utilizada."
-);
-
+  Object.entries(map).forEach(([key,ids])=>{
+    const color=document.getElementById(ids[0]);
+    const text=document.getElementById(ids[1]);
+    if(p[key]){
+      color.value=p[key];
+      text.value=p[key].toUpperCase();
+    }
+  });
 }
 
+function validarHex(v){
+  return /^#[0-9a-fA-F]{6}$/.test(v);
 }
 
+function obterCor(colorId,textId,fallback){
+  const text=document.getElementById(textId).value.trim();
+  const color=document.getElementById(colorId).value;
+  return validarHex(text)?text:color||fallback;
+}
+
+function aplicarPersonalizado(){
+  const p={
+    primary:obterCor("corPrincipal","hexPrincipal","#39e6a3"),
+    secondary:obterCor("corSecundaria","hexSecundaria","#55cba0"),
+    background:obterCor("corFundo","hexFundo","#07100f"),
+    sidebar:obterCor("corLateral","hexLateral","#091615"),
+    card:obterCor("corCartao","hexCartao","#0b1917"),
+    text:obterCor("corTexto","hexTexto","#edf7f4"),
+    muted:"#78918c",
+    border:"#1a3732",
+    input:"#081311",
+    dark:"#062019"
+  };
+
+  aplicarVariaveis(p);
+  localStorage.setItem("cleansurface_palette",JSON.stringify(p));
+  document.querySelectorAll(".palette-card").forEach(b=>b.classList.remove("selected"));
+  preencherCores(p);
+  document.getElementById("paletteSaved").textContent="✓ Cores personalizadas aplicadas.";
+}
+
+function saveSettings(){
+  const email=document.getElementById("email").value.trim();
+  const nivel=document.getElementById("nivelAlerta").value;
+
+  localStorage.setItem("cleansurface_email",email);
+  localStorage.setItem("cleansurface_nivel",nivel);
+
+  document.getElementById("saved").textContent="✓ Configurações salvas.";
+}
+
+function carregarConfiguracoes(){
+  document.getElementById("email").value=localStorage.getItem("cleansurface_email")||"";
+  document.getElementById("nivelAlerta").value=localStorage.getItem("cleansurface_nivel")||"70";
+  analiseAtualId=localStorage.getItem("cleansurface_analise_atual")||null;
+}
+
+async function iniciarAnalise(){
+  const btn=document.getElementById("analisarBtn");
+  const status=document.getElementById("statusAnalise");
+  const email=document.getElementById("email").value.trim()||localStorage.getItem("cleansurface_email")||"";
+
+  if(!email){
+    status.textContent="Digite seu e-mail em Configurações antes de iniciar.";
+    showPage("configuracoes");
+    return;
+  }
+
+  localStorage.setItem("cleansurface_email",email);
+  btn.disabled=true;
+  status.textContent="⏳ Solicitando análise...";
+
+  try{
+    const r=await fetch(API_URL+"/iniciar-analise",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email})
+    });
+
+    if(!r.ok)throw new Error("HTTP "+r.status);
+
+    const data=await r.json();
+
+    if(!data.analise_id)throw new Error(data.mensagem||"ID não recebido.");
+
+    analiseAtualId=String(data.analise_id);
+    localStorage.setItem("cleansurface_analise_atual",analiseAtualId);
+
+    status.textContent="📷 Aguardando ESP32-S3-CAM...";
+    document.getElementById("device-status").textContent="Aguardando";
+
+    showPage("monitoramento");
+    iniciarPolling();
+
+  }catch(e){
+    console.error(e);
+    status.textContent="❌ Não foi possível iniciar a análise.";
+    btn.disabled=false;
+  }
+}
+
+function iniciarPolling(){
+  if(pollingAtivo)return;
+  pollingAtivo=true;
+  verificarResultado();
+}
+
+async function verificarResultado(){
+  if(!analiseAtualId){
+    pollingAtivo=false;
+    return;
+  }
+
+  try{
+    const r=await fetch(
+      API_URL+"/resultado?analise_id="+encodeURIComponent(analiseAtualId),
+      {cache:"no-store"}
+    );
+
+    if(r.ok){
+      const data=await r.json();
+
+      if(data.disponivel===true &&
+         String(data.analise_id)===String(analiseAtualId)){
+        processarResultado(data);
+        pollingAtivo=false;
+        return;
+      }
+    }
+  }catch(e){
+    console.log("Aguardando ESP32...",e);
+  }
+
+  setTimeout(verificarResultado,3000);
+}
+
+function processarResultado(data){
+  document.getElementById("analisarBtn").disabled=false;
+  document.getElementById("statusAnalise").textContent="✅ Análise concluída.";
+  document.getElementById("device-status").textContent="Online";
+
+  const valor=data.valor??data.resultado??"--";
+  const status=data.status??"concluido";
+  const detalhe=data.detalhe??"Resultado recebido do ESP32-S3-CAM.";
+
+  document.getElementById("reading-value").textContent=valor;
+  document.getElementById("reading-status").textContent=String(status).toUpperCase();
+  document.getElementById("reading-detail").textContent=detalhe;
+  document.getElementById("last-result").textContent=valor;
+
+  const badge=document.getElementById("monitorBadge");
+  badge.textContent="RESULTADO RECEBIDO";
+  badge.className="badge ok";
+
+  salvarHistorico({
+    data:new Date().toLocaleString("pt-BR"),
+    analise_id:analiseAtualId,
+    valor,
+    status,
+    detalhe
+  });
+
+  atualizarHistorico();
+  atualizarDashboard();
+  atualizarAlertas();
+}
+
+function getHistorico(){
+  return JSON.parse(localStorage.getItem("cleansurface_historico")||"[]");
+}
+
+function salvarHistorico(item){
+  const lista=getHistorico();
+  lista.unshift(item);
+  localStorage.setItem("cleansurface_historico",JSON.stringify(lista.slice(0,100)));
+}
+
+function atualizarHistorico(){
+  const body=document.getElementById("historyBody");
+  const lista=getHistorico();
+
+  if(!lista.length){
+    body.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:60px">Nenhuma análise registrada ainda.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=lista.map(x=>`
+    <tr>
+      <td>${escapeHtml(x.data)}</td>
+      <td>${escapeHtml(String(x.detalhe||"Análise"))}</td>
+      <td>${escapeHtml(String(x.valor))}</td>
+      <td>${escapeHtml(String(x.status))}</td>
+    </tr>
+  `).join("");
+}
+
+function limparHistorico(){
+  if(!confirm("Deseja realmente limpar o histórico?"))return;
+  localStorage.removeItem("cleansurface_historico");
+  atualizarHistorico();
+  atualizarDashboard();
+  atualizarAlertas();
+}
+
+function atualizarDashboard(){
+  const lista=getHistorico();
+  document.getElementById("alert-count").textContent=lista.filter(e=>isAlerta(e)).length;
+
+  if(lista.length){
+    document.getElementById("last-result").textContent=lista[0].valor;
+  }
+
+  atualizarAlertas();
+}
+
+function isAlerta(item){
+  const s=String(item.status||"").toLowerCase();
+  const d=String(item.detalhe||"").toLowerCase();
+  return s.includes("alert")||s.includes("reprov")||s.includes("contamin")||
+         d.includes("alert")||d.includes("reprov")||d.includes("contamin");
+}
+
+function atualizarAlertas(){
+  const area=document.getElementById("alertsArea");
+  const alertas=getHistorico().filter(isAlerta);
+
+  if(!alertas.length){
+    area.innerHTML=`
+      <div>✓</div>
+      <strong>Nenhum alerta</strong>
+      <span>Quando uma análise gerar uma condição de alerta, ela aparecerá nesta área.</span>
+    `;
+    return;
+  }
+
+  area.style.height="auto";
+  area.style.alignItems="stretch";
+  area.style.textAlign="left";
+  area.innerHTML=alertas.map(x=>`
+    <div style="margin-bottom:10px;color:var(--danger)">⚠</div>
+    <strong>${escapeHtml(String(x.status))}</strong>
+    <span style="margin:7px 0 20px">${escapeHtml(String(x.detalhe||"Alerta registrado"))}</span>
+  `).join("");
+}
+
+function escapeHtml(v){
+  return String(v)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
 </script>
 
 </body>
