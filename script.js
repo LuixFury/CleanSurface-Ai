@@ -6,9 +6,10 @@
 const API_URL =
     "https://cleansurface-api.luizinfernando19.workers.dev";
 
-let analiseAtualId = null;
-let verificandoResultado = false;
-
+let analiseAtualId=null;
+let pollingAtivo=false;
+let analiseFinalizada=false;
+let tempoLimiteAnalise=null;
 
 // ============================================================
 // PALETAS
@@ -357,177 +358,89 @@ async function verificarAPI() {
 // ============================================================
 // INICIAR ANÁLISE
 // ============================================================
+async function iniciarAnalise(){
+  const btn=document.getElementById("analisarBtn");
+  const status=document.getElementById("statusAnalise");
+  const email=document.getElementById("email").value.trim()||
+               localStorage.getItem("cleansurface_email")||"";
 
-async function iniciarAnalise() {
+  if(!email){
+    status.textContent="Digite seu e-mail em Configurações antes de iniciar.";
+    showPage("configuracoes");
+    return;
+  }
 
-    const botao =
-        document.getElementById(
-            "analisarBtn"
-        );
+  localStorage.setItem("cleansurface_email",email);
 
-    const status =
-        document.getElementById(
-            "statusAnalise"
-        );
+  btn.disabled=true;
+  analiseFinalizada=false;
 
-    const dispositivo =
-        document.getElementById(
-            "device-status"
-        );
+  status.textContent="⏳ Solicitando análise...";
 
+  try{
+    const r=await fetch(API_URL+"/iniciar-analise",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({email})
+    });
 
-    if (verificandoResultado) {
-        return;
+    if(!r.ok){
+      throw new Error("HTTP "+r.status);
     }
 
+    const data=await r.json();
 
-    if (botao) {
-
-        botao.disabled = true;
-
-        botao.innerHTML =
-            "⏳ SOLICITANDO ANÁLISE...";
-
+    if(!data.analise_id){
+      throw new Error(data.mensagem||"ID não recebido.");
     }
 
+    analiseAtualId=String(data.analise_id);
 
-    if (status) {
+    localStorage.setItem(
+      "cleansurface_analise_atual",
+      analiseAtualId
+    );
 
-        status.textContent =
-            "Solicitando análise ao ESP32-S3-CAM...";
+    status.textContent="📷 Aguardando ESP32-S3-CAM...";
+    document.getElementById("device-status").textContent="Aguardando";
 
-    }
+    document.getElementById("reading-value").textContent="--";
+    document.getElementById("reading-status").textContent="AGUARDANDO LEITURA";
+    document.getElementById("reading-detail").textContent=
+      "Aguardando a câmera visualizar a superfície.";
 
+    const badge=document.getElementById("monitorBadge");
+    badge.textContent="AGUARDANDO DISPOSITIVO";
+    badge.className="badge waiting";
 
-    if (dispositivo) {
+    showPage("monitoramento");
 
-        dispositivo.textContent =
-            "Solicitando...";
+    iniciarPolling();
 
-    }
+    /*
+      Se o ESP32 não enviar absolutamente nenhum resultado
+      dentro de 30 segundos, considera a superfície
+      como não visualizada.
+    */
 
+    clearTimeout(tempoLimiteAnalise);
 
-    try {
+    tempoLimiteAnalise=setTimeout(()=>{
+      if(!analiseFinalizada){
+        finalizarSemResultado();
+      }
+    },30000);
 
-        const configuracoes =
-            obterConfiguracoes();
+  }catch(e){
+    console.error(e);
 
+    status.textContent=
+      "❌ Não foi possível iniciar a análise.";
 
-        const resposta =
-            await fetch(
-                `${API_URL}/iniciar-analise`,
-                {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        email:
-                            configuracoes.email ||
-                            ""
-
-                    }),
-
-                    cache: "no-store"
-
-                }
-            );
-
-
-        if (!resposta.ok) {
-
-            throw new Error(
-                `Erro HTTP ${resposta.status}`
-            );
-
-        }
-
-
-        const dados =
-            await resposta.json();
-
-
-        console.log(
-            "Análise criada:",
-            dados
-        );
-
-
-        if (!dados.sucesso) {
-
-            throw new Error(
-                dados.mensagem ||
-                "Não foi possível iniciar a análise."
-            );
-
-        }
-
-
-        analiseAtualId =
-            dados.analise_id;
-
-
-        if (status) {
-
-            status.textContent =
-                "Análise solicitada. Aguardando ESP32-S3-CAM...";
-
-        }
-
-
-        if (dispositivo) {
-
-            dispositivo.textContent =
-                "Aguardando ESP32";
-
-        }
-
-
-        aguardarResultado();
-
-
-    } catch (erro) {
-
-        console.error(
-            "Erro:",
-            erro
-        );
-
-
-        if (status) {
-
-            status.textContent =
-                "❌ Não foi possível iniciar a análise.";
-
-        }
-
-
-        if (dispositivo) {
-
-            dispositivo.textContent =
-                "Offline";
-
-        }
-
-
-    } finally {
-
-        if (botao) {
-
-            botao.disabled = false;
-
-            botao.innerHTML =
-                "🔍 INICIAR ANÁLISE";
-
-        }
-
-    }
-
+    btn.disabled=false;
+  }
 }
 
 
