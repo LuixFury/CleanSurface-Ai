@@ -448,173 +448,42 @@ async function iniciarAnalise(){
 // RESULTADO
 // ============================================================
 
-async function aguardarResultado() {
+async function verificarResultado(){
+  if(!analiseAtualId || analiseFinalizada){
+    pollingAtivo=false;
+    return;
+  }
 
-    if (verificandoResultado) {
+  try{
+    const r=await fetch(
+      API_URL+"/resultado?analise_id="+
+      encodeURIComponent(analiseAtualId),
+      {
+        cache:"no-store"
+      }
+    );
+
+    if(r.ok){
+      const data=await r.json();
+
+      if(
+        data.disponivel===true &&
+        String(data.analise_id)===String(analiseAtualId)
+      ){
+        processarResultado(data);
+        pollingAtivo=false;
         return;
+      }
     }
 
+  }catch(e){
+    console.log("Aguardando ESP32...",e);
+  }
 
-    if (!analiseAtualId) {
-        return;
-    }
-
-
-    verificandoResultado = true;
-
-
-    const status =
-        document.getElementById(
-            "statusAnalise"
-        );
-
-
-    const dispositivo =
-        document.getElementById(
-            "device-status"
-        );
-
-
-    let tentativas = 0;
-
-    const limiteTentativas = 40;
-
-
-    const intervalo =
-        setInterval(
-            async () => {
-
-                tentativas++;
-
-
-                try {
-
-                    const resposta =
-                        await fetch(
-                            `${API_URL}/resultado?analise_id=${analiseAtualId}`,
-                            {
-                                method: "GET",
-                                headers: {
-                                    "Accept":
-                                        "application/json"
-                                },
-                                cache:
-                                    "no-store"
-                            }
-                        );
-
-
-                    if (!resposta.ok) {
-
-                        throw new Error(
-                            `HTTP ${resposta.status}`
-                        );
-
-                    }
-
-
-                    const dados =
-                        await resposta.json();
-
-
-                    console.log(
-                        "Resultado:",
-                        dados
-                    );
-
-
-                    if (
-                        dados.disponivel !==
-                        true
-                    ) {
-
-                        if (status) {
-
-                            status.textContent =
-                                "Aguardando análise do ESP32-S3-CAM...";
-
-                        }
-
-                        return;
-
-                    }
-
-
-                    if (
-                        String(
-                            dados.analise_id
-                        ) !==
-                        String(
-                            analiseAtualId
-                        )
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    clearInterval(
-                        intervalo
-                    );
-
-
-                    verificandoResultado =
-                        false;
-
-
-                    processarResultado(
-                        dados
-                    );
-
-
-                } catch (erro) {
-
-                    console.log(
-                        "Aguardando resultado..."
-                    );
-
-                }
-
-
-                if (
-                    tentativas >=
-                    limiteTentativas
-                ) {
-
-                    clearInterval(
-                        intervalo
-                    );
-
-
-                    verificandoResultado =
-                        false;
-
-
-                    if (status) {
-
-                        status.textContent =
-                            "⏳ O ESP32 ainda não enviou o resultado.";
-
-                    }
-
-
-                    if (dispositivo) {
-
-                        dispositivo.textContent =
-                            "Aguardando";
-
-                    }
-
-                }
-
-            },
-            3000
-        );
-
+  if(!analiseFinalizada){
+    setTimeout(verificarResultado,3000);
+  }
 }
-
-
 // ============================================================
 // PROCESSAR RESULTADO
 // ============================================================
