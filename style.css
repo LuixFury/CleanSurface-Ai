@@ -803,45 +803,43 @@ body{
 }
 
 
-/* =========================================================
-   TEMA CLARO
-   ========================================================= */
+/* ============================================================
+   MODO CLARO — BEGE
+   ============================================================ */
 
 body.light{
-    --background:#f2f5f7;
-    --sidebar:#ffffff;
-    --card:#ffffff;
-
-    --text:#17211f;
-    --muted:#64746f;
-
-    --border:#d7e1de;
-    --input:#f7f9f9;
-
-    --primary-dark:#10231e;
+  --background:#eee6d6;
+  --sidebar:#e4dac6;
+  --card:#f5efe3;
+  --card2:#e9dfcd;
+  --text:#302a20;
+  --muted:#756b5c;
+  --border:#cfc1a9;
+  --input:#f8f2e7;
+  --primary-dark:#26372f;
+  --shadow:rgba(67,55,38,.12);
 }
 
-body.light .hero{
-    background:
-        radial-gradient(
-            circle at 80% 45%,
-            #ffffff,
-            #f1f7f5 55%,
-            #eaf1ef 100%
-        ) !important;
+body.light .connection-card{
+  background:#e9dfcd !important;
+}
+
+body.light .palette-card{
+  background:#f5efe3 !important;
 }
 
 body.light .nav-item:hover,
 body.light .nav-item.active{
-    background:#edf6f3 !important;
+  background:#dcd0bb !important;
 }
 
-body.light .connection-card{
-    background:#f5f9f8 !important;
-}
-
-body.light .palette-card{
-    background:#f7f9f9 !important;
+body.light .hero{
+  background:radial-gradient(
+    circle at 80% 45%,
+    #f5efe3,
+    #e4dac6 52%,
+    #eee6d6 100%
+  ) !important;
 }
 
 
