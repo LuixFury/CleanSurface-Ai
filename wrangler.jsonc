@@ -1,8 +1,6 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "cleansurface-ai",
-  "compatibility_date": "2026-09-14",
-  "assets": {
-    "directory": "."
-  }
+  "main": "worker.js",
+  "compatibility_date": "2026-09-14"
 }
