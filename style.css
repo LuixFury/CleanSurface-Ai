@@ -308,3 +308,266 @@ nav{display:flex;flex-direction:column;gap:7px}
   .credits-header{align-items:flex-start}
   .people-list{grid-template-columns:1fr}
 }
+/* =========================================================
+   SELETOR DE PALETAS
+   ========================================================= */
+
+.appearance-box{
+  margin-top:35px;
+  padding-top:30px;
+  border-top:1px solid var(--border);
+}
+
+.appearance-box h3{
+  font-size:20px;
+  margin:0;
+}
+
+.appearance-box > p{
+  color:var(--muted);
+  font-size:13px;
+  margin:7px 0 24px;
+}
+
+/* Área das paletas */
+
+.palette-presets{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+
+/* Cartão */
+
+.palette-card{
+  position:relative;
+  overflow:hidden;
+
+  min-height:125px;
+
+  border:1px solid var(--border);
+  border-radius:15px;
+
+  background:var(--sidebar);
+
+  padding:0;
+
+  cursor:pointer;
+
+  color:var(--text);
+
+  text-align:left;
+
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.palette-card:hover{
+  transform:translateY(-3px);
+
+  border-color:var(--primary);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.25);
+}
+
+/* Preview */
+
+.palette-preview{
+  height:76px;
+
+  padding:12px;
+
+  display:flex;
+  align-items:flex-end;
+
+  gap:7px;
+}
+
+/* Mini sidebar */
+
+.palette-preview::before{
+  content:"";
+
+  width:24px;
+  height:48px;
+
+  border-radius:6px;
+
+  background:var(--preview-sidebar);
+
+  border:1px solid var(--preview-border);
+}
+
+/* Mini cards */
+
+.palette-preview::after{
+  content:"";
+
+  flex:1;
+
+  height:48px;
+
+  border-radius:6px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--preview-card) 0%,
+      var(--preview-card) 70%,
+      var(--preview-primary) 70%,
+      var(--preview-primary) 100%
+    );
+
+  border:1px solid var(--preview-border);
+}
+
+/* Nome */
+
+.palette-info{
+  padding:9px 12px 12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.palette-info strong{
+  font-size:12px;
+  font-weight:700;
+}
+
+.palette-info span{
+  width:10px;
+  height:10px;
+
+  border-radius:50%;
+
+  background:var(--preview-primary);
+
+  box-shadow:
+    0 0 8px var(--preview-primary);
+}
+
+/* Selecionada */
+
+.palette-card.selected{
+  border-color:var(--preview-primary);
+
+  box-shadow:
+    0 0 0 2px var(--preview-primary),
+    0 10px 30px rgba(0,0,0,.25);
+}
+
+.palette-card.selected::before{
+  content:"✓";
+
+  position:absolute;
+
+  top:9px;
+  right:9px;
+
+  width:22px;
+  height:22px;
+
+  border-radius:50%;
+
+  display:grid;
+  place-items:center;
+
+  background:var(--preview-primary);
+  color:#07100f;
+
+  font-size:12px;
+  font-weight:900;
+
+  z-index:2;
+}
+
+
+/* =========================================================
+   CORES PERSONALIZADAS
+   ========================================================= */
+
+.custom-colors{
+  margin-top:25px;
+
+  padding:18px;
+
+  border:1px solid var(--border);
+  border-radius:14px;
+
+  background:var(--sidebar);
+
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+
+  gap:13px;
+}
+
+.color-input{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.color-input input[type="color"]{
+  width:43px;
+  height:43px;
+
+  padding:3px;
+
+  border:1px solid var(--border);
+
+  border-radius:9px;
+
+  background:var(--card);
+
+  cursor:pointer;
+}
+
+.color-input input[type="text"]{
+  width:100%;
+
+  margin:0;
+
+  padding:11px;
+
+  border:1px solid var(--border);
+
+  border-radius:8px;
+
+  background:var(--card);
+
+  color:var(--text);
+
+  outline:none;
+
+  font-size:12px;
+}
+
+.color-input input[type="text"]:focus{
+  border-color:var(--primary);
+}
+
+@media(max-width:900px){
+
+  .palette-presets{
+    grid-template-columns:repeat(3,1fr);
+  }
+
+}
+
+@media(max-width:650px){
+
+  .palette-presets{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .custom-colors{
+    grid-template-columns:1fr;
+  }
+
+}
