@@ -571,3 +571,300 @@ nav{display:flex;flex-direction:column;gap:7px}
   }
 
 }
+/* =========================================================
+   SISTEMA DE TEMAS - CLEAN SURFACE AI
+   ========================================================= */
+
+:root{
+    --primary:#39e6a3;
+    --secondary:#55cba0;
+
+    --background:#07100f;
+    --sidebar:#091615;
+    --card:#0b1917;
+
+    --text:#edf7f4;
+    --muted:#78918c;
+
+    --border:#1a3732;
+    --input:#081311;
+
+    --primary-dark:#062019;
+}
+
+
+/* =========================
+   TEMA ESCURO
+   ========================= */
+
+body{
+    background:var(--background) !important;
+    color:var(--text) !important;
+}
+
+.sidebar{
+    background:var(--sidebar) !important;
+    border-color:var(--border) !important;
+}
+
+.main{
+    background:var(--background) !important;
+}
+
+.stat-card,
+.section-card,
+.credit-card,
+.credits-header{
+    background:var(--card) !important;
+    border-color:var(--border) !important;
+}
+
+.nav-item{
+    color:var(--muted) !important;
+}
+
+.nav-item:hover,
+.nav-item.active{
+    background:var(--card) !important;
+    color:var(--text) !important;
+}
+
+.nav-item.active{
+    box-shadow:inset 3px 0 var(--primary) !important;
+}
+
+.brand-icon{
+    background:var(--primary) !important;
+    color:var(--primary-dark) !important;
+}
+
+.brand span,
+.eyebrow,
+.stat-icon,
+.credit-count{
+    color:var(--primary) !important;
+}
+
+.primary{
+    background:var(--primary) !important;
+    color:var(--primary-dark) !important;
+}
+
+.connection-card{
+    background:var(--card) !important;
+    border-color:var(--border) !important;
+}
+
+.hero{
+    background:
+        radial-gradient(
+            circle at 80% 45%,
+            var(--card),
+            var(--sidebar) 48%,
+            var(--background) 80%
+        ) !important;
+
+    border-color:var(--border) !important;
+}
+
+.hero h2 em{
+    color:var(--primary) !important;
+}
+
+.flow-step,
+.table-placeholder,
+.custom-colors{
+    background:var(--card) !important;
+    border-color:var(--border) !important;
+}
+
+.flow-step b{
+    color:var(--primary) !important;
+}
+
+.reading-circle{
+    border-color:var(--border) !important;
+    color:var(--primary) !important;
+}
+
+.settings input,
+.color-input input[type="text"],
+.color-input input[type="color"]{
+    background:var(--input) !important;
+    color:var(--text) !important;
+    border-color:var(--border) !important;
+}
+
+
+/* =========================================================
+   SELETOR DE TEMA
+   ========================================================= */
+
+.theme-mode{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin:20px 0 28px;
+}
+
+.theme-mode button{
+    border:1px solid var(--border);
+    background:var(--card);
+    color:var(--text);
+    border-radius:13px;
+    padding:16px;
+    cursor:pointer;
+    transition:.2s;
+    font-weight:700;
+}
+
+.theme-mode button:hover{
+    border-color:var(--primary);
+    transform:translateY(-2px);
+}
+
+.theme-mode button.active{
+    background:var(--primary);
+    color:var(--primary-dark);
+    border-color:var(--primary);
+}
+
+
+/* =========================================================
+   PALETAS
+   ========================================================= */
+
+.palette-presets{
+    display:grid !important;
+    grid-template-columns:repeat(4,1fr) !important;
+    gap:14px !important;
+}
+
+.palette-card{
+    position:relative;
+    min-height:110px;
+
+    padding:0 !important;
+
+    overflow:hidden;
+
+    border:1px solid var(--border) !important;
+    border-radius:15px !important;
+
+    background:var(--sidebar) !important;
+    color:var(--text) !important;
+
+    cursor:pointer;
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s;
+}
+
+.palette-card:hover{
+    transform:translateY(-3px);
+
+    border-color:var(--primary) !important;
+
+    box-shadow:
+        0 8px 25px rgba(0,0,0,.25);
+}
+
+.palette-card.selected{
+    border:2px solid var(--primary) !important;
+
+    box-shadow:
+        0 0 0 2px rgba(255,255,255,.04),
+        0 8px 25px rgba(0,0,0,.25);
+}
+
+.palette-preview{
+    height:65px;
+    padding:10px;
+}
+
+.palette-info{
+    padding:10px 12px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.palette-info strong{
+    font-size:12px;
+}
+
+.palette-info span{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+}
+
+
+/* =========================================================
+   TEMA CLARO
+   ========================================================= */
+
+body.light{
+    --background:#f2f5f7;
+    --sidebar:#ffffff;
+    --card:#ffffff;
+
+    --text:#17211f;
+    --muted:#64746f;
+
+    --border:#d7e1de;
+    --input:#f7f9f9;
+
+    --primary-dark:#10231e;
+}
+
+body.light .hero{
+    background:
+        radial-gradient(
+            circle at 80% 45%,
+            #ffffff,
+            #f1f7f5 55%,
+            #eaf1ef 100%
+        ) !important;
+}
+
+body.light .nav-item:hover,
+body.light .nav-item.active{
+    background:#edf6f3 !important;
+}
+
+body.light .connection-card{
+    background:#f5f9f8 !important;
+}
+
+body.light .palette-card{
+    background:#f7f9f9 !important;
+}
+
+
+/* =========================================================
+   RESPONSIVO
+   ========================================================= */
+
+@media(max-width:900px){
+
+    .palette-presets{
+        grid-template-columns:repeat(3,1fr) !important;
+    }
+
+}
+
+@media(max-width:650px){
+
+    .palette-presets{
+        grid-template-columns:repeat(2,1fr) !important;
+    }
+
+    .theme-mode{
+        grid-template-columns:1fr;
+    }
+
+}
