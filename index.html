@@ -1,771 +1,1826 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+// ============================================================
+// CleanSurface AI
+// API + ESP32-S3-CAM + Histórico + Personalização
+// ============================================================
 
-  <title>CleanSurface AI</title>
+const API_URL =
+    "https://cleansurface-api.luizinfernando19.workers.dev";
 
-  <link rel="stylesheet" href="style.css">
-</head>
+let analiseAtualId = null;
+let verificandoResultado = false;
 
-<body>
 
-  <aside class="sidebar">
+// ============================================================
+// PALETAS
+// ============================================================
 
-    <div class="brand">
-      <div class="brand-icon">✦</div>
+const PALETAS = {
 
-      <div>
-        <strong>CleanSurface</strong>
-        <span>AI</span>
-      </div>
-    </div>
+    original: {
+        primary: "#39e6a3",
+        secondary: "#55cba0",
+        background: "#07100f",
+        card: "#0b1917",
+        text: "#edf7f4"
+    },
 
-    <nav>
+    azul: {
+        primary: "#38bdf8",
+        secondary: "#60a5fa",
+        background: "#07111f",
+        card: "#0b1728",
+        text: "#edf7ff"
+    },
 
-      <button class="nav-item active" data-page="dashboard">
-        ⌂ <span>Dashboard</span>
-      </button>
+    roxo: {
+        primary: "#a78bfa",
+        secondary: "#c4b5fd",
+        background: "#100b1c",
+        card: "#171025",
+        text: "#f5f3ff"
+    },
 
-      <button class="nav-item" data-page="monitoramento">
-        ◉ <span>Monitoramento</span>
-      </button>
+    vermelho: {
+        primary: "#fb7185",
+        secondary: "#fda4af",
+        background: "#1a090c",
+        card: "#241013",
+        text: "#fff1f2"
+    },
 
-      <button class="nav-item" data-page="alertas">
-        ⚠ <span>Alertas</span>
-      </button>
+    laranja: {
+        primary: "#fb923c",
+        secondary: "#fdba74",
+        background: "#1b0e06",
+        card: "#26140a",
+        text: "#fff7ed"
+    }
 
-      <button class="nav-item" data-page="historico">
-        ◷ <span>Histórico</span>
-      </button>
+};
 
-      <button class="nav-item" data-page="configuracoes">
-        ⚙ <span>Configurações</span>
-      </button>
 
-    </nav>
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
 
-    <div class="connection-card">
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-      <div class="status-dot"></div>
+        configurarNavegacao();
 
-      <div>
-        <small>STATUS DO SISTEMA</small>
-        <strong>Pronto para conectar</strong>
-      </div>
+        carregarConfiguracoes();
 
-    </div>
+        carregarHistorico();
 
-  </aside>
+        carregarPaleta();
 
+        configurarSeletoresDeCor();
 
-  <main class="main">
+        atualizarDashboard();
 
-    <header class="topbar">
+        verificarAPI();
 
-      <div>
-        <p class="eyebrow">
-          MONITORAMENTO INTELIGENTE
-        </p>
+    }
+);
 
-        <h1 id="page-title">
-          Dashboard
-        </h1>
-      </div>
 
-      <div class="top-actions">
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
 
-        <div class="user-chip">
-          CA
-          <span>CleanSurface AI</span>
-        </div>
+function configurarNavegacao() {
 
-      </div>
+    const botoes =
+        document.querySelectorAll(
+            ".nav-item"
+        );
 
-    </header>
+    botoes.forEach(
+        botao => {
 
+            botao.addEventListener(
+                "click",
+                () => {
 
-    <!-- DASHBOARD -->
+                    const pagina =
+                        botao.dataset.page;
 
-    <section id="dashboard" class="page active-page">
+                    if (pagina) {
+                        mostrarPagina(pagina);
+                    }
 
-      <div class="hero">
+                }
+            );
 
-        <div>
+        }
+    );
 
-          <p class="eyebrow">
-            CLEAN SURFACE INTELLIGENCE
-          </p>
+}
 
-          <h2>
-            Monitore suas superfícies
-            <br>
-            <em>de forma inteligente.</em>
-          </h2>
 
-          <p class="hero-text">
-            O CleanSurface AI utiliza inteligência artificial
-            para analisar superfícies através do ESP32-S3-CAM
-            e apresentar os resultados de forma rápida e clara.
-          </p>
+function mostrarPagina(nomePagina) {
 
-          <button
-            id="analisarBtn"
-            class="primary"
-            onclick="iniciarAnalise()"
-          >
-            🔍 INICIAR ANÁLISE
-          </button>
+    const paginas =
+        document.querySelectorAll(
+            ".page"
+        );
 
-          <p
-            id="statusAnalise"
-            class="analysis-status"
-          >
-            Pronto para iniciar uma análise.
-          </p>
+    const botoes =
+        document.querySelectorAll(
+            ".nav-item"
+        );
 
-        </div>
 
+    paginas.forEach(
+        pagina =>
+            pagina.classList.remove(
+                "active-page"
+            )
+    );
 
-        <div class="hero-orb">
 
-          <div class="orb-ring"></div>
+    botoes.forEach(
+        botao =>
+            botao.classList.remove(
+                "active"
+            )
+    );
 
-          <div class="orb-core">
-            AI
-          </div>
 
-        </div>
+    const paginaSelecionada =
+        document.getElementById(
+            nomePagina
+        );
 
-      </div>
 
+    if (paginaSelecionada) {
 
-      <div class="cards">
+        paginaSelecionada.classList.add(
+            "active-page"
+        );
 
-        <div class="stat-card">
+    }
 
-          <div class="stat-icon">
-            ◉
-          </div>
 
-          <span>DISPOSITIVO</span>
+    const botaoSelecionado =
+        document.querySelector(
+            `.nav-item[data-page="${nomePagina}"]`
+        );
 
-          <strong id="device-status">
-            Aguardando
-          </strong>
 
-          <small>
-            ESP32-S3-CAM
-          </small>
+    if (botaoSelecionado) {
 
-        </div>
+        botaoSelecionado.classList.add(
+            "active"
+        );
 
+    }
 
-        <div class="stat-card">
 
-          <div class="stat-icon">
-            ⌁
-          </div>
+    const titulo =
+        document.getElementById(
+            "page-title"
+        );
 
-          <span>ÚLTIMA LEITURA</span>
 
-          <strong id="last-result">
-            Nenhuma
-          </strong>
+    if (titulo) {
 
-          <small>
-            Os dados aparecerão aqui
-          </small>
+        const titulos = {
 
-        </div>
+            dashboard:
+                "Dashboard",
 
+            monitoramento:
+                "Monitoramento",
 
-        <div class="stat-card">
+            alertas:
+                "Alertas",
 
-          <div class="stat-icon">
-            ⚠
-          </div>
+            historico:
+                "Histórico",
 
-          <span>ALERTAS</span>
+            configuracoes:
+                "Configurações"
 
-          <strong id="alert-count">
-            0
-          </strong>
+        };
 
-          <small>
-            Alertas registrados
-          </small>
+        titulo.textContent =
+            titulos[nomePagina] ||
+            "CleanSurface AI";
+    }
 
-        </div>
 
-      </div>
+    if (
+        nomePagina ===
+        "historico"
+    ) {
 
+        carregarHistorico();
 
-      <div class="section-card">
+    }
 
-        <div class="section-head">
+}
 
-          <div>
 
-            <h3>
-              Fluxo do sistema
-            </h3>
+function showPage(nomePagina) {
 
-            <p>
-              Como o CleanSurface AI funciona
-            </p>
+    mostrarPagina(nomePagina);
 
-          </div>
+}
 
-        </div>
 
+// ============================================================
+// API
+// ============================================================
 
-        <div class="flow">
+async function verificarAPI() {
 
-          <div class="flow-step">
-            <b>01</b>
-            <strong>ESP32-S3-CAM</strong>
-            <span>Captura a superfície</span>
-          </div>
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-          <div class="flow-line"></div>
 
-          <div class="flow-step">
-            <b>02</b>
-            <strong>Inteligência Artificial</strong>
-            <span>Analisa a imagem</span>
-          </div>
+    try {
 
-          <div class="flow-line"></div>
+        const resposta =
+            await fetch(
+                API_URL,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
 
-          <div class="flow-step">
-            <b>03</b>
-            <strong>CleanSurface AI</strong>
-            <span>Apresenta o resultado</span>
-          </div>
 
-          <div class="flow-line"></div>
+        if (!resposta.ok) {
+            throw new Error(
+                "API offline"
+            );
+        }
 
-          <div class="flow-step">
-            <b>04</b>
-            <strong>E-mail</strong>
-            <span>Envia a notificação</span>
-          </div>
 
-        </div>
+        const dados =
+            await resposta.json();
 
-      </div>
 
-    </section>
+        console.log(
+            "API:",
+            dados
+        );
 
 
-    <!-- MONITORAMENTO -->
+        if (dispositivo) {
 
-    <section id="monitoramento" class="page">
+            dispositivo.textContent =
+                "Online";
 
-      <div class="section-card big">
+        }
 
-        <div class="section-head">
 
-          <div>
+    } catch (erro) {
 
-            <p class="eyebrow">
-              TEMPO REAL
-            </p>
+        console.error(
+            "API:",
+            erro
+        );
 
-            <h3>
-              Monitoramento
-            </h3>
 
-            <p>
-              Acompanhe o resultado da análise
-              realizada pelo dispositivo.
-            </p>
+        if (dispositivo) {
 
-          </div>
+            dispositivo.textContent =
+                "Offline";
 
-          <span class="badge waiting">
-            AGUARDANDO DISPOSITIVO
-          </span>
+        }
 
-        </div>
+    }
 
+}
 
-        <div class="reading">
 
-          <div class="reading-circle">
+// ============================================================
+// INICIAR ANÁLISE
+// ============================================================
 
-            <span id="reading-value">
-              --
-            </span>
+async function iniciarAnalise() {
 
-            <small>
-              %
-            </small>
+    const botao =
+        document.getElementById(
+            "analisarBtn"
+        );
 
-          </div>
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-          <div>
 
-            <span class="label">
-              RESULTADO DA ANÁLISE
-            </span>
+    if (verificandoResultado) {
+        return;
+    }
 
-            <h2 id="reading-status">
-              Aguardando leitura
-            </h2>
 
-            <p id="reading-detail">
-              Nenhum dado recebido ainda.
-            </p>
+    if (botao) {
 
-          </div>
+        botao.disabled = true;
 
-        </div>
+        botao.innerHTML =
+            "⏳ SOLICITANDO ANÁLISE...";
 
-      </div>
+    }
 
-    </section>
 
+    if (status) {
 
-    <!-- ALERTAS -->
+        status.textContent =
+            "Solicitando análise ao ESP32-S3-CAM...";
 
-    <section id="alertas" class="page">
+    }
 
-      <div class="section-card big">
 
-        <div class="section-head">
+    if (dispositivo) {
 
-          <div>
+        dispositivo.textContent =
+            "Solicitando...";
 
-            <p class="eyebrow">
-              NOTIFICAÇÕES
-            </p>
+    }
 
-            <h3>
-              Alertas
-            </h3>
 
-            <p>
-              Os alertas do dispositivo aparecerão nesta área.
-            </p>
+    try {
 
-          </div>
+        const configuracoes =
+            obterConfiguracoes();
 
-        </div>
 
+        const resposta =
+            await fetch(
+                `${API_URL}/iniciar-analise`,
+                {
 
-        <div class="empty">
+                    method: "POST",
 
-          <div>
-            ✓
-          </div>
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-          <strong>
-            Nenhum alerta
-          </strong>
+                    body: JSON.stringify({
 
-          <span>
-            Quando o ESP32 enviar uma condição de alerta,
-            ela aparecerá aqui.
-          </span>
+                        email:
+                            configuracoes.email ||
+                            ""
 
-        </div>
+                    }),
 
-      </div>
+                    cache: "no-store"
 
-    </section>
+                }
+            );
 
 
-    <!-- HISTÓRICO -->
+        if (!resposta.ok) {
 
-    <section id="historico" class="page">
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
 
-      <div class="section-card big">
+        }
 
-        <div class="section-head">
 
-          <div>
+        const dados =
+            await resposta.json();
 
-            <p class="eyebrow">
-              REGISTROS
-            </p>
 
-            <h3>
-              Histórico
-            </h3>
+        console.log(
+            "Análise criada:",
+            dados
+        );
 
-            <p>
-              Histórico das análises realizadas.
-            </p>
 
-          </div>
+        if (!dados.sucesso) {
 
-        </div>
+            throw new Error(
+                dados.mensagem ||
+                "Não foi possível iniciar a análise."
+            );
 
+        }
 
-        <div class="table-placeholder">
 
-          <div>Data e hora</div>
-          <div>Resultado</div>
-          <div>Nível</div>
-          <div>Status</div>
+        analiseAtualId =
+            dados.analise_id;
 
-          <p>
-            Nenhuma análise registrada ainda.
-          </p>
 
-        </div>
+        if (status) {
 
-      </div>
+            status.textContent =
+                "Análise solicitada. Aguardando ESP32-S3-CAM...";
 
-    </section>
+        }
 
 
-    <!-- CONFIGURAÇÕES -->
+        if (dispositivo) {
 
-    <section id="configuracoes" class="page">
+            dispositivo.textContent =
+                "Aguardando ESP32";
 
-      <div class="section-card big">
+        }
 
-        <div class="section-head">
 
-          <div>
+        aguardarResultado();
 
-            <p class="eyebrow">
-              SISTEMA
-            </p>
 
-            <h3>
-              Configurações
-            </h3>
+    } catch (erro) {
 
-            <p>
-              Personalize o funcionamento e a aparência do sistema.
-            </p>
+        console.error(
+            "Erro:",
+            erro
+        );
 
-          </div>
 
-        </div>
+        if (status) {
 
+            status.textContent =
+                "❌ Não foi possível iniciar a análise.";
 
-        <div class="settings">
+        }
 
-          <label>
-            E-mail para receber alertas
 
-            <input
-              type="email"
-              id="email"
-              placeholder="seuemail@exemplo.com"
-            >
+        if (dispositivo) {
 
-          </label>
+            dispositivo.textContent =
+                "Offline";
 
+        }
 
-          <label>
-            Nível mínimo para alerta
 
-            <input
-              type="number"
-              id="nivelAlerta"
-              min="0"
-              max="100"
-              value="70"
-            >
+    } finally {
 
-          </label>
+        if (botao) {
 
+            botao.disabled = false;
 
-          <button
-            class="primary"
-            onclick="saveSettings()"
-          >
-            💾 Salvar configurações
-          </button>
+            botao.innerHTML =
+                "🔍 INICIAR ANÁLISE";
 
+        }
 
-          <span
-            id="saved"
-            class="saved"
-          ></span>
+    }
 
+}
 
-          <!-- PERSONALIZAÇÃO -->
 
-          <div class="appearance-box">
+// ============================================================
+// RESULTADO
+// ============================================================
 
-            <div class="appearance-title">
+async function aguardarResultado() {
 
-              <div>
+    if (verificandoResultado) {
+        return;
+    }
 
-                <p class="eyebrow">
-                  APARÊNCIA
-                </p>
 
-                <h3>
-                  🎨 Personalizar cores
-                </h3>
+    if (!analiseAtualId) {
+        return;
+    }
 
-                <p>
-                  Escolha uma paleta pronta ou crie sua própria combinação.
-                </p>
 
-              </div>
+    verificandoResultado = true;
 
-            </div>
 
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
-            <!-- PALETAS PRONTAS -->
 
-            <div class="palette-presets">
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-              <button
-                class="palette-card"
-                onclick="aplicarPreset('original')"
-              >
-                <span class="palette-colors">
-                  <i style="background:#39e6a3"></i>
-                  <i style="background:#07100f"></i>
-                  <i style="background:#0b1917"></i>
-                </span>
-                <strong>Original</strong>
-              </button>
 
+    let tentativas = 0;
 
-              <button
-                class="palette-card"
-                onclick="aplicarPreset('azul')"
-              >
-                <span class="palette-colors">
-                  <i style="background:#38bdf8"></i>
-                  <i style="background:#07111f"></i>
-                  <i style="background:#0b1728"></i>
-                </span>
-                <strong>Ocean Blue</strong>
-              </button>
+    const limiteTentativas = 40;
 
 
-              <button
-                class="palette-card"
-                onclick="aplicarPreset('roxo')"
-              >
-                <span class="palette-colors">
-                  <i style="background:#a78bfa"></i>
-                  <i style="background:#100b1c"></i>
-                  <i style="background:#171025"></i>
-                </span>
-                <strong>Purple</strong>
-              </button>
+    const intervalo =
+        setInterval(
+            async () => {
 
+                tentativas++;
 
-              <button
-                class="palette-card"
-                onclick="aplicarPreset('vermelho')"
-              >
-                <span class="palette-colors">
-                  <i style="background:#fb7185"></i>
-                  <i style="background:#1a090c"></i>
-                  <i style="background:#241013"></i>
-                </span>
-                <strong>Red</strong>
-              </button>
 
+                try {
 
-              <button
-                class="palette-card"
-                onclick="aplicarPreset('laranja')"
-              >
-                <span class="palette-colors">
-                  <i style="background:#fb923c"></i>
-                  <i style="background:#1b0e06"></i>
-                  <i style="background:#26140a"></i>
-                </span>
-                <strong>Orange</strong>
-              </button>
+                    const resposta =
+                        await fetch(
+                            `${API_URL}/resultado?analise_id=${analiseAtualId}`,
+                            {
+                                method: "GET",
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                },
+                                cache:
+                                    "no-store"
+                            }
+                        );
 
-            </div>
 
+                    if (!resposta.ok) {
 
-            <!-- CORES PERSONALIZADAS -->
+                        throw new Error(
+                            `HTTP ${resposta.status}`
+                        );
 
-            <div class="custom-colors">
+                    }
 
-              <div class="color-control">
 
-                <label>
-                  Cor principal
+                    const dados =
+                        await resposta.json();
 
-                  <div class="color-input">
 
-                    <input
-                      type="color"
-                      id="corPrincipal"
-                      value="#39e6a3"
-                    >
+                    console.log(
+                        "Resultado:",
+                        dados
+                    );
 
-                    <input
-                      type="text"
-                      id="hexPrincipal"
-                      value="#39E6A3"
-                      maxlength="7"
-                    >
 
-                  </div>
+                    if (
+                        dados.disponivel !==
+                        true
+                    ) {
 
-                </label>
+                        if (status) {
 
-              </div>
+                            status.textContent =
+                                "Aguardando análise do ESP32-S3-CAM...";
 
+                        }
 
-              <div class="color-control">
+                        return;
 
-                <label>
-                  Cor secundária
+                    }
 
-                  <div class="color-input">
 
-                    <input
-                      type="color"
-                      id="corSecundaria"
-                      value="#55cba0"
-                    >
+                    if (
+                        String(
+                            dados.analise_id
+                        ) !==
+                        String(
+                            analiseAtualId
+                        )
+                    ) {
 
-                    <input
-                      type="text"
-                      id="hexSecundaria"
-                      value="#55CBA0"
-                      maxlength="7"
-                    >
+                        return;
 
-                  </div>
+                    }
 
-                </label>
 
-              </div>
+                    clearInterval(
+                        intervalo
+                    );
 
 
-              <div class="color-control">
+                    verificandoResultado =
+                        false;
 
-                <label>
-                  Fundo
 
-                  <div class="color-input">
+                    processarResultado(
+                        dados
+                    );
 
-                    <input
-                      type="color"
-                      id="corFundo"
-                      value="#07100f"
-                    >
 
-                    <input
-                      type="text"
-                      id="hexFundo"
-                      value="#07100F"
-                      maxlength="7"
-                    >
+                } catch (erro) {
 
-                  </div>
+                    console.log(
+                        "Aguardando resultado..."
+                    );
 
-                </label>
+                }
 
-              </div>
 
+                if (
+                    tentativas >=
+                    limiteTentativas
+                ) {
 
-              <div class="color-control">
+                    clearInterval(
+                        intervalo
+                    );
 
-                <label>
-                  Cartões
 
-                  <div class="color-input">
+                    verificandoResultado =
+                        false;
 
-                    <input
-                      type="color"
-                      id="corCartao"
-                      value="#0b1917"
-                    >
 
-                    <input
-                      type="text"
-                      id="hexCartao"
-                      value="#0B1917"
-                      maxlength="7"
-                    >
+                    if (status) {
 
-                  </div>
+                        status.textContent =
+                            "⏳ O ESP32 ainda não enviou o resultado.";
 
-                </label>
+                    }
 
-              </div>
 
+                    if (dispositivo) {
 
-              <div class="color-control">
+                        dispositivo.textContent =
+                            "Aguardando";
 
-                <label>
-                  Texto
+                    }
 
-                  <div class="color-input">
+                }
 
-                    <input
-                      type="color"
-                      id="corTexto"
-                      value="#edf7f4"
-                    >
+            },
+            3000
+        );
 
-                    <input
-                      type="text"
-                      id="hexTexto"
-                      value="#EDF7F4"
-                      maxlength="7"
-                    >
+}
 
-                  </div>
 
-                </label>
+// ============================================================
+// PROCESSAR RESULTADO
+// ============================================================
 
-              </div>
+function processarResultado(
+    dados
+) {
 
-            </div>
+    const valor =
+        dados.valor ??
+        "--";
 
 
-            <div class="appearance-buttons">
+    const resultadoStatus =
+        dados.status ??
+        "Analisado";
 
-              <button
-                class="primary"
-                onclick="aplicarCoresPersonalizadas()"
-              >
-                🎨 Aplicar paleta
-              </button>
 
-              <button
-                class="secondary-button"
-                onclick="restaurarPaleta()"
-              >
-                ↺ Restaurar padrão
-              </button>
+    const detalhe =
+        dados.detalhe ??
+        "Resultado recebido pelo CleanSurface AI.";
 
-            </div>
 
+    atualizarMonitoramento(
+        valor,
+        resultadoStatus,
+        detalhe
+    );
 
-            <span
-              id="paletteSaved"
-              class="saved"
-            ></span>
 
-          </div>
+    salvarHistorico({
 
-        </div>
+        id:
+            dados.analise_id ??
+            Date.now(),
 
-      </div>
+        data:
+            dados.criado_em ??
+            new Date().toISOString(),
 
-    </section>
+        valor:
+            valor,
 
-  </main>
+        status:
+            resultadoStatus,
 
+        detalhe:
+            detalhe
 
-  <script src="script.js?v=5"></script>
+    });
 
-</body>
-</html>
+
+    atualizarDashboard();
+
+
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
+
+
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
+
+
+    if (status) {
+
+        status.textContent =
+            "✅ Análise concluída.";
+
+    }
+
+
+    if (dispositivo) {
+
+        dispositivo.textContent =
+            "Online";
+
+    }
+
+}
+
+
+// ============================================================
+// MONITORAMENTO
+// ============================================================
+
+function atualizarMonitoramento(
+    valor,
+    status,
+    detalhe
+) {
+
+    const valorElemento =
+        document.getElementById(
+            "reading-value"
+        );
+
+
+    const statusElemento =
+        document.getElementById(
+            "reading-status"
+        );
+
+
+    const detalheElemento =
+        document.getElementById(
+            "reading-detail"
+        );
+
+
+    const ultimoResultado =
+        document.getElementById(
+            "last-result"
+        );
+
+
+    if (valorElemento) {
+
+        valorElemento.textContent =
+            valor;
+
+    }
+
+
+    if (statusElemento) {
+
+        statusElemento.textContent =
+            formatarStatus(status);
+
+    }
+
+
+    if (detalheElemento) {
+
+        detalheElemento.textContent =
+            detalhe;
+
+    }
+
+
+    if (ultimoResultado) {
+
+        ultimoResultado.textContent =
+            formatarStatus(status);
+
+    }
+
+}
+
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function formatarStatus(status) {
+
+    if (!status) {
+        return "Analisado";
+    }
+
+
+    const texto =
+        String(status);
+
+
+    const normalizado =
+        texto.toLowerCase();
+
+
+    if (
+        normalizado ===
+            "aprovado" ||
+        normalizado ===
+            "ok" ||
+        normalizado ===
+            "limpo"
+    ) {
+
+        return "Aprovado";
+
+    }
+
+
+    if (
+        normalizado ===
+            "reprovado" ||
+        normalizado ===
+            "alerta" ||
+        normalizado ===
+            "sujo"
+    ) {
+
+        return "Alerta";
+
+    }
+
+
+    return texto;
+
+}
+
+
+// ============================================================
+// HISTÓRICO
+// ============================================================
+
+const CHAVE_HISTORICO =
+    "cleansurface_historico";
+
+
+function salvarHistorico(
+    resultado
+) {
+
+    let historico =
+        obterHistorico();
+
+
+    const existe =
+        historico.some(
+            item =>
+                String(item.id) ===
+                String(resultado.id)
+        );
+
+
+    if (!existe) {
+
+        historico.unshift(
+            resultado
+        );
+
+    }
+
+
+    historico =
+        historico.slice(
+            0,
+            100
+        );
+
+
+    localStorage.setItem(
+        CHAVE_HISTORICO,
+        JSON.stringify(
+            historico
+        )
+    );
+
+
+    carregarHistorico();
+
+}
+
+
+function obterHistorico() {
+
+    try {
+
+        const salvo =
+            localStorage.getItem(
+                CHAVE_HISTORICO
+            );
+
+
+        if (!salvo) {
+            return [];
+        }
+
+
+        const dados =
+            JSON.parse(salvo);
+
+
+        return Array.isArray(dados)
+            ? dados
+            : [];
+
+
+    } catch (erro) {
+
+        return [];
+
+    }
+
+}
+
+
+function carregarHistorico() {
+
+    const historico =
+        obterHistorico();
+
+
+    const tabela =
+        document.querySelector(
+            ".table-placeholder"
+        );
+
+
+    if (!tabela) {
+        return;
+    }
+
+
+    tabela.innerHTML = "";
+
+
+    const cabecalhos = [
+        "DATA E HORA",
+        "RESULTADO",
+        "NÍVEL",
+        "STATUS"
+    ];
+
+
+    cabecalhos.forEach(
+        texto => {
+
+            const elemento =
+                document.createElement(
+                    "div"
+                );
+
+            elemento.textContent =
+                texto;
+
+            tabela.appendChild(
+                elemento
+            );
+
+        }
+    );
+
+
+    if (
+        historico.length === 0
+    ) {
+
+        const vazio =
+            document.createElement(
+                "p"
+            );
+
+        vazio.textContent =
+            "Nenhuma análise registrada ainda.";
+
+        tabela.appendChild(
+            vazio
+        );
+
+        return;
+
+    }
+
+
+    historico.forEach(
+        item => {
+
+            const data =
+                document.createElement(
+                    "div"
+                );
+
+            data.textContent =
+                formatarData(
+                    item.data
+                );
+
+
+            const resultado =
+                document.createElement(
+                    "div"
+                );
+
+            resultado.textContent =
+                formatarStatus(
+                    item.status
+                );
+
+
+            const nivel =
+                document.createElement(
+                    "div"
+                );
+
+            nivel.textContent =
+                item.valor ??
+                "--";
+
+
+            const detalhe =
+                document.createElement(
+                    "div"
+                );
+
+            detalhe.textContent =
+                item.detalhe ??
+                "Registrado";
+
+
+            tabela.appendChild(data);
+            tabela.appendChild(resultado);
+            tabela.appendChild(nivel);
+            tabela.appendChild(detalhe);
+
+        }
+    );
+
+}
+
+
+function formatarData(
+    data
+) {
+
+    if (!data) {
+        return "--";
+    }
+
+
+    const dataObj =
+        new Date(data);
+
+
+    if (
+        isNaN(
+            dataObj.getTime()
+        )
+    ) {
+
+        return String(data);
+
+    }
+
+
+    return dataObj.toLocaleString(
+        "pt-BR",
+        {
+            dateStyle: "short",
+            timeStyle: "short"
+        }
+    );
+
+}
+
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+
+function atualizarDashboard() {
+
+    const historico =
+        obterHistorico();
+
+
+    const contador =
+        document.getElementById(
+            "alert-count"
+        );
+
+
+    if (contador) {
+
+        const alertas =
+            historico.filter(
+                item => {
+
+                    const status =
+                        String(
+                            item.status ??
+                            ""
+                        ).toLowerCase();
+
+
+                    return (
+                        status.includes(
+                            "alerta"
+                        ) ||
+                        status.includes(
+                            "reprovado"
+                        ) ||
+                        status.includes(
+                            "sujo"
+                        )
+                    );
+
+                }
+            );
+
+
+        contador.textContent =
+            alertas.length;
+
+    }
+
+
+    if (
+        historico.length >
+        0
+    ) {
+
+        const ultimo =
+            historico[0];
+
+
+        const elemento =
+            document.getElementById(
+                "last-result"
+            );
+
+
+        if (elemento) {
+
+            elemento.textContent =
+                formatarStatus(
+                    ultimo.status
+                );
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// CONFIGURAÇÕES
+// ============================================================
+
+function saveSettings() {
+
+    const email =
+        document.getElementById(
+            "email"
+        );
+
+
+    const nivel =
+        document.getElementById(
+            "nivelAlerta"
+        );
+
+
+    const configuracoes = {
+
+        email:
+            email
+                ? email.value
+                : "",
+
+        nivelAlerta:
+            nivel
+                ? nivel.value
+                : 70
+
+    };
+
+
+    localStorage.setItem(
+        "cleansurface_config",
+        JSON.stringify(
+            configuracoes
+        )
+    );
+
+
+    const salvo =
+        document.getElementById(
+            "saved"
+        );
+
+
+    if (salvo) {
+
+        salvo.textContent =
+            "✓ Configurações salvas";
+
+        setTimeout(
+            () => {
+                salvo.textContent =
+                    "";
+            },
+            3000
+        );
+
+    }
+
+}
+
+
+function carregarConfiguracoes() {
+
+    try {
+
+        const salvo =
+            localStorage.getItem(
+                "cleansurface_config"
+            );
+
+
+        if (!salvo) {
+            return;
+        }
+
+
+        const configuracoes =
+            JSON.parse(
+                salvo
+            );
+
+
+        const email =
+            document.getElementById(
+                "email"
+            );
+
+
+        const nivel =
+            document.getElementById(
+                "nivelAlerta"
+            );
+
+
+        if (email) {
+
+            email.value =
+                configuracoes.email ||
+                "";
+
+        }
+
+
+        if (nivel) {
+
+            nivel.value =
+                configuracoes.nivelAlerta ??
+                70;
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            erro
+        );
+
+    }
+
+}
+
+
+function obterConfiguracoes() {
+
+    try {
+
+        const salvo =
+            localStorage.getItem(
+                "cleansurface_config"
+            );
+
+
+        if (!salvo) {
+
+            return {
+                email: "",
+                nivelAlerta: 70
+            };
+
+        }
+
+
+        return JSON.parse(
+            salvo
+        );
+
+    } catch (erro) {
+
+        return {
+            email: "",
+            nivelAlerta: 70
+        };
+
+    }
+
+}
+
+
+// ============================================================
+// PERSONALIZAÇÃO
+// ============================================================
+
+function aplicarPaleta(
+    paleta
+) {
+
+    document.documentElement.style.setProperty(
+        "--primary",
+        paleta.primary
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--secondary",
+        paleta.secondary
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--background",
+        paleta.background
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--card",
+        paleta.card
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--text",
+        paleta.text
+    );
+
+
+    preencherCores(
+        paleta
+    );
+
+
+    localStorage.setItem(
+        "cleansurface_paleta",
+        JSON.stringify(
+            paleta
+        )
+    );
+
+}
+
+
+function aplicarPreset(
+    nome
+) {
+
+    const paleta =
+        PALETAS[nome];
+
+
+    if (!paleta) {
+        return;
+    }
+
+
+    aplicarPaleta(
+        paleta
+    );
+
+
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
+
+
+    if (mensagem) {
+
+        mensagem.textContent =
+            "✓ Paleta aplicada";
+
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            2500
+        );
+
+    }
+
+}
+
+
+function preencherCores(
+    paleta
+) {
+
+    const mapa = {
+
+        corPrincipal:
+            paleta.primary,
+
+        corSecundaria:
+            paleta.secondary,
+
+        corFundo:
+            paleta.background,
+
+        corCartao:
+            paleta.card,
+
+        corTexto:
+            paleta.text
+
+    };
+
+
+    Object.entries(
+        mapa
+    ).forEach(
+        ([id, valor]) => {
+
+            const elemento =
+                document.getElementById(
+                    id
+                );
+
+
+            if (elemento) {
+
+                elemento.value =
+                    valor;
+
+            }
+
+        }
+    );
+
+
+    const hex = {
+
+        hexPrincipal:
+            paleta.primary,
+
+        hexSecundaria:
+            paleta.secondary,
+
+        hexFundo:
+            paleta.background,
+
+        hexCartao:
+            paleta.card,
+
+        hexTexto:
+            paleta.text
+
+    };
+
+
+    Object.entries(
+        hex
+    ).forEach(
+        ([id, valor]) => {
+
+            const elemento =
+                document.getElementById(
+                    id
+                );
+
+
+            if (elemento) {
+
+                elemento.value =
+                    valor.toUpperCase();
+
+            }
+
+        }
+    );
+
+}
+
+
+function aplicarCoresPersonalizadas() {
+
+    const paleta = {
+
+        primary:
+            obterCor(
+                "hexPrincipal",
+                "#39e6a3"
+            ),
+
+        secondary:
+            obterCor(
+                "hexSecundaria",
+                "#55cba0"
+            ),
+
+        background:
+            obterCor(
+                "hexFundo",
+                "#07100f"
+            ),
+
+        card:
+            obterCor(
+                "hexCartao",
+                "#0b1917"
+            ),
+
+        text:
+            obterCor(
+                "hexTexto",
+                "#edf7f4"
+            )
+
+    };
+
+
+    aplicarPaleta(
+        paleta
+    );
+
+
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
+
+
+    if (mensagem) {
+
+        mensagem.textContent =
+            "✓ Paleta personalizada aplicada";
+
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            3000
+        );
+
+    }
+
+}
+
+
+function obterCor(
+    id,
+    padrao
+) {
+
+    const elemento =
+        document.getElementById(
+            id
+        );
+
+
+    if (!elemento) {
+        return padrao;
+    }
+
+
+    let valor =
+        elemento.value.trim();
+
+
+    if (
+        !/^#[0-9A-Fa-f]{6}$/.test(
+            valor
+        )
+    ) {
+
+        valor =
+            padrao;
+
+        elemento.value =
+            padrao.toUpperCase();
+
+    }
+
+
+    return valor;
+
+}
+
+
+// ============================================================
+// SELETORES DE COR
+// ============================================================
+
+function configurarSeletoresDeCor() {
+
+    const pares = [
+
+        [
+            "corPrincipal",
+            "hexPrincipal"
+        ],
+
+        [
+            "corSecundaria",
+            "hexSecundaria"
+        ],
+
+        [
+            "corFundo",
+            "hexFundo"
+        ],
+
+        [
+            "corCartao",
+            "hexCartao"
+        ],
+
+        [
+            "corTexto",
+            "hexTexto"
+        ]
+
+    ];
+
+
+    pares.forEach(
+        ([colorId, hexId]) => {
+
+            const color =
+                document.getElementById(
+                    colorId
+                );
+
+            const hex =
+                document.getElementById(
+                    hexId
+                );
+
+
+            if (!color || !hex) {
+                return;
+            }
+
+
+            color.addEventListener(
+                "input",
+                () => {
+
+                    hex.value =
+                        color.value.toUpperCase();
+
+                }
+            );
+
+
+            hex.addEventListener(
+                "input",
+                () => {
+
+                    const valor =
+                        hex.value.trim();
+
+
+                    if (
+                        /^#[0-9A-Fa-f]{6}$/.test(
+                            valor
+                        )
+                    ) {
+
+                        color.value =
+                            valor;
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+}
+
+
+function carregarPaleta() {
+
+    try {
+
+        const salva =
+            localStorage.getItem(
+                "cleansurface_paleta"
+            );
+
+
+        if (!salva) {
+
+            preencherCores(
+                PALETAS.original
+            );
+
+            return;
+
+        }
+
+
+        const paleta =
+            JSON.parse(
+                salva
+            );
+
+
+        aplicarPaleta(
+            paleta
+        );
+
+
+    } catch (erro) {
+
+        aplicarPaleta(
+            PALETAS.original
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// FUNÇÕES GLOBAIS
+// ============================================================
+
+window.iniciarAnalise =
+    iniciarAnalise;
+
+window.saveSettings =
+    saveSettings;
+
+window.showPage =
+    showPage;
+
+window.aplicarPreset =
+    aplicarPreset;
+
+window.aplicarCoresPersonalizadas =
+    aplicarCoresPersonalizadas;
+
+
+// ============================================================
+// RESTAURAR PALETA
+// ============================================================
+
+function restaurarPaleta() {
+
+    aplicarPaleta(
+        PALETAS.original
+    );
+
+
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
+
+
+    if (mensagem) {
+
+        mensagem.textContent =
+            "✓ Paleta original restaurada";
+
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            3000
+        );
+
+    }
+
+}
+
+
+window.restaurarPaleta =
+    restaurarPaleta;
