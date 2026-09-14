@@ -16,48 +16,103 @@ let verificandoResultado = false;
 
 const PALETAS = {
 
-    original: {
-        primary: "#39e6a3",
-        secondary: "#55cba0",
-        background: "#07100f",
-        card: "#0b1917",
-        text: "#edf7f4"
-    },
+verde:{
+primary:"#39e6a3",
+secondary:"#55cba0",
+background:"#07100f",
+card:"#0b1917",
+text:"#edf7f4"
+},
 
-    azul: {
-        primary: "#38bdf8",
-        secondary: "#60a5fa",
-        background: "#07111f",
-        card: "#0b1728",
-        text: "#edf7ff"
-    },
+azul:{
+primary:"#38bdf8",
+secondary:"#60a5fa",
+background:"#07111f",
+card:"#0b1728",
+text:"#edf7ff"
+},
 
-    roxo: {
-        primary: "#a78bfa",
-        secondary: "#c4b5fd",
-        background: "#100b1c",
-        card: "#171025",
-        text: "#f5f3ff"
-    },
+roxo:{
+primary:"#a78bfa",
+secondary:"#c4b5fd",
+background:"#100b1c",
+card:"#171025",
+text:"#f5f3ff"
+},
 
-    vermelho: {
-        primary: "#fb7185",
-        secondary: "#fda4af",
-        background: "#1a090c",
-        card: "#241013",
-        text: "#fff1f2"
-    },
+vermelho:{
+primary:"#fb7185",
+secondary:"#fda4af",
+background:"#1a090c",
+card:"#241013",
+text:"#fff1f2"
+},
 
-    laranja: {
-        primary: "#fb923c",
-        secondary: "#fdba74",
-        background: "#1b0e06",
-        card: "#26140a",
-        text: "#fff7ed"
-    }
+laranja:{
+primary:"#fb923c",
+secondary:"#fdba74",
+background:"#1b0e06",
+card:"#26140a",
+text:"#fff7ed"
+},
+
+amarelo:{
+primary:"#facc15",
+secondary:"#fde047",
+background:"#171304",
+card:"#211c08",
+text:"#fffbea"
+},
+
+rosa:{
+primary:"#f472b6",
+secondary:"#f9a8d4",
+background:"#190b14",
+card:"#24101d",
+text:"#fff1f8"
+},
+
+ciano:{
+primary:"#22d3ee",
+secondary:"#67e8f9",
+background:"#061519",
+card:"#0a1d21",
+text:"#ecfeff"
+},
+
+azulescuro:{
+primary:"#6366f1",
+secondary:"#818cf8",
+background:"#090b1d",
+card:"#11142d",
+text:"#eef2ff"
+},
+
+branco:{
+primary:"#ffffff",
+secondary:"#d1d5db",
+background:"#111827",
+card:"#1f2937",
+text:"#f9fafb"
+},
+
+dourado:{
+primary:"#eab308",
+secondary:"#facc15",
+background:"#151005",
+card:"#211a08",
+text:"#fffbeb"
+},
+
+turquesa:{
+primary:"#2dd4bf",
+secondary:"#5eead4",
+background:"#061512",
+card:"#0b211d",
+text:"#ecfdf5"
+}
 
 };
-
 
 // ============================================================
 // INICIALIZAÇÃO
