@@ -1,784 +1,1783 @@
-const API = "https://cleansurface-api.luizinfernando19.workers.dev";
-
-const HTML = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CleanSurface AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<style>
-:root{
-  --primary:#39e6a3;
-  --secondary:#55cba0;
-  --bg:#07100f;
-  --side:#091615;
-  --card:#0b1917;
-  --text:#edf7f4;
-  --muted:#8fa9a3;
-  --danger:#ff5c67;
-  --warning:#ffd166;
-}
+    <title>CleanSurface AI</title>
 
-*{box-sizing:border-box}
-
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-
-.app{
-  display:flex;
-  min-height:100vh;
-}
-
-.sidebar{
-  width:230px;
-  background:var(--side);
-  padding:25px 15px;
-  border-right:1px solid #17302b;
-}
-
-.logo{
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-  color:var(--primary);
-  margin-bottom:30px;
-}
-
-.menu button{
-  width:100%;
-  padding:13px;
-  margin:5px 0;
-  border:0;
-  border-radius:10px;
-  background:transparent;
-  color:var(--muted);
-  text-align:left;
-  cursor:pointer;
-  font-size:15px;
-}
-
-.menu button:hover,
-.menu button.active{
-  background:var(--primary);
-  color:#06100d;
-}
-
-.main{
-  flex:1;
-  padding:30px;
-}
-
-.page{display:none}
-.page.active{display:block}
-
-h1{
-  margin-top:0;
-  font-size:30px;
-}
-
-h2{
-  margin-top:0;
-}
-
-.subtitle{
-  color:var(--muted);
-}
-
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:18px;
-  margin-top:25px;
-}
-
-.card{
-  background:var(--card);
-  border:1px solid #17302b;
-  border-radius:15px;
-  padding:22px;
-}
-
-.big{
-  font-size:30px;
-  font-weight:bold;
-  color:var(--primary);
-}
-
-button.primary{
-  border:0;
-  border-radius:12px;
-  padding:15px 25px;
-  background:var(--primary);
-  color:#06100d;
-  font-weight:bold;
-  cursor:pointer;
-  font-size:16px;
-}
-
-button.primary:hover{
-  filter:brightness(1.1);
-}
-
-.status{
-  margin-top:15px;
-  padding:14px;
-  border-radius:10px;
-  background:#10231f;
-  color:var(--secondary);
-}
-
-input,select{
-  width:100%;
-  padding:12px;
-  margin-top:8px;
-  margin-bottom:15px;
-  border-radius:8px;
-  border:1px solid #24453d;
-  background:#07110f;
-  color:white;
-}
-
-.color{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-.color input[type=color]{
-  width:55px;
-  height:40px;
-  padding:2px;
-}
-
-.history-item{
-  padding:15px;
-  border-bottom:1px solid #17302b;
-}
-
-.ok{color:var(--primary)}
-.error{color:var(--danger)}
-.warning{color:var(--warning)}
-
-.credit{
-  text-align:center;
-  padding:20px;
-}
-
-@media(max-width:700px){
-  .app{display:block}
-  .sidebar{
-    width:100%;
-    border-right:0;
-    border-bottom:1px solid #17302b;
-  }
-  .menu{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-  }
-  .main{padding:18px}
-}
-</style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div class="app">
+    <!-- =========================================================
+         APLICAÇÃO
+    ========================================================== -->
 
-<aside class="sidebar">
+    <div class="app">
 
-<div class="logo">CleanSurface AI</div>
+        <!-- =====================================================
+             SIDEBAR
+        ====================================================== -->
 
-<div class="menu">
+        <aside class="sidebar">
 
-<button class="active" onclick="showPage('dashboard',this)">
-🏠 Dashboard
-</button>
+            <div class="sidebar-top">
 
-<button onclick="showPage('monitoramento',this)">
-📷 Monitoramento
-</button>
+                <div class="logo-area">
 
-<button onclick="showPage('alertas',this)">
-⚠️ Alertas
-</button>
+                    <div class="logo-icon">
+                        🧽
+                    </div>
 
-<button onclick="showPage('historico',this)">
-📋 Histórico
-</button>
+                    <div class="logo-text">
+                        <span class="logo-title">
+                            CleanSurface
+                        </span>
 
-<button onclick="showPage('configuracoes',this)">
-⚙️ Configurações
-</button>
+                        <span class="logo-ai">
+                            AI
+                        </span>
+                    </div>
 
-<button onclick="showPage('creditos',this)">
-👥 Créditos
-</button>
+                </div>
 
-</div>
 
-</aside>
+                <div class="system-indicator">
 
-<main class="main">
+                    <span class="indicator-dot"></span>
 
-<!-- DASHBOARD -->
+                    <span>
+                        Sistema online
+                    </span>
 
-<section id="dashboard" class="page active">
+                </div>
 
-<h1>Dashboard</h1>
+            </div>
 
-<p class="subtitle">
-Sistema inteligente de análise de superfícies
-</p>
 
-<div class="grid">
+            <!-- MENU -->
 
-<div class="card">
-<h3>Status do sistema</h3>
-<div class="big">ONLINE</div>
-</div>
+            <nav class="sidebar-menu">
 
-<div class="card">
-<h3>ESP32-S3-CAM</h3>
-<div id="deviceStatus">Aguardando</div>
-</div>
+                <button
+                    class="menu-item active"
+                    data-page="dashboard"
+                    onclick="abrirPagina('dashboard', this)">
 
-<div class="card">
-<h3>Último resultado</h3>
-<div id="lastResult">Nenhuma análise</div>
-</div>
+                    <span class="menu-icon">
+                        🏠
+                    </span>
 
-</div>
+                    <span class="menu-text">
+                        Dashboard
+                    </span>
 
-<div class="card" style="margin-top:20px">
+                </button>
 
-<h2>Nova análise</h2>
 
-<p>
-Clique abaixo para solicitar uma análise ao ESP32-S3-CAM.
-</p>
+                <button
+                    class="menu-item"
+                    data-page="monitoramento"
+                    onclick="abrirPagina('monitoramento', this)">
 
-<button class="primary" onclick="startAnalysis()">
-🔍 INICIAR ANÁLISE
-</button>
+                    <span class="menu-icon">
+                        📷
+                    </span>
 
-<div id="status" class="status">
-Aguardando comando.
-</div>
+                    <span class="menu-text">
+                        Monitoramento
+                    </span>
 
-</div>
+                </button>
 
-</section>
 
+                <button
+                    class="menu-item"
+                    data-page="alertas"
+                    onclick="abrirPagina('alertas', this)">
 
-<!-- MONITORAMENTO -->
+                    <span class="menu-icon">
+                        ⚠️
+                    </span>
 
-<section id="monitoramento" class="page">
+                    <span class="menu-text">
+                        Alertas
+                    </span>
 
-<h1>Monitoramento</h1>
+                    <span
+                        class="menu-badge"
+                        id="alert-count">
 
-<div class="grid">
+                        0
 
-<div class="card">
-<h3>Resultado</h3>
-<div id="monitorResult" class="big">---</div>
-</div>
+                    </span>
 
-<div class="card">
-<h3>Status</h3>
-<div id="monitorStatus">Aguardando análise</div>
-</div>
+                </button>
 
-<div class="card">
-<h3>Detalhes</h3>
-<div id="monitorDetail">---</div>
-</div>
 
-</div>
+                <button
+                    class="menu-item"
+                    data-page="historico"
+                    onclick="abrirPagina('historico', this)">
 
-</section>
+                    <span class="menu-icon">
+                        📋
+                    </span>
 
+                    <span class="menu-text">
+                        Histórico
+                    </span>
 
-<!-- ALERTAS -->
+                </button>
 
-<section id="alertas" class="page">
 
-<h1>Alertas</h1>
+                <button
+                    class="menu-item"
+                    data-page="configuracoes"
+                    onclick="abrirPagina('configuracoes', this)">
 
-<div class="card">
+                    <span class="menu-icon">
+                        ⚙️
+                    </span>
 
-<h2>Configuração de alerta</h2>
+                    <span class="menu-text">
+                        Configurações
+                    </span>
 
-<p>
-As análises recebidas podem gerar alertas conforme o resultado.
-</p>
+                </button>
 
-<div id="alertMessage">
-Nenhum alerta no momento.
-</div>
 
-</div>
+                <button
+                    class="menu-item"
+                    data-page="creditos"
+                    onclick="abrirPagina('creditos', this)">
 
-</section>
+                    <span class="menu-icon">
+                        👥
+                    </span>
 
+                    <span class="menu-text">
+                        Créditos
+                    </span>
 
-<!-- HISTÓRICO -->
+                </button>
 
-<section id="historico" class="page">
+            </nav>
 
-<h1>Histórico</h1>
 
-<div class="card">
+            <!-- INFORMAÇÕES DA SIDEBAR -->
 
-<div id="history">
-Nenhuma análise registrada.
-</div>
+            <div class="sidebar-bottom">
 
-</div>
+                <div class="connection-card">
 
-</section>
+                    <div class="connection-header">
 
+                        <span class="connection-icon">
+                            📡
+                        </span>
 
-<!-- CONFIGURAÇÕES -->
+                        <span>
+                            Conexão
+                        </span>
 
-<section id="configuracoes" class="page">
+                    </div>
 
-<h1>Configurações</h1>
 
-<div class="card">
+                    <div
+                        class="connection-status"
+                        id="sidebarConnection">
 
-<h2>E-mail</h2>
+                        Verificando...
 
-<p class="subtitle">
-E-mail para receber o resultado da análise.
-</p>
+                    </div>
 
-<input id="email" type="email" placeholder="seuemail@email.com">
+                </div>
 
-<button class="primary" onclick="saveEmail()">
-Salvar e-mail
-</button>
 
-<p id="saved"></p>
+                <div class="sidebar-version">
 
-</div>
+                    CleanSurface AI
 
-<div class="card" style="margin-top:20px">
+                    <span>
+                        v1.0
+                    </span>
 
-<h2>🎨 Cores do sistema</h2>
+                </div>
 
-<label>Cor principal</label>
+            </div>
 
-<div class="color">
-<input id="primaryColor" type="color" value="#39e6a3">
-<input id="primaryText" value="#39e6a3">
-</div>
+        </aside>
 
-<br>
 
-<label>Cor secundária</label>
+        <!-- =====================================================
+             CONTEÚDO PRINCIPAL
+        ====================================================== -->
 
-<div class="color">
-<input id="secondaryColor" type="color" value="#55cba0">
-<input id="secondaryText" value="#55cba0">
-</div>
+        <main class="main-content">
 
-<br>
 
-<button class="primary" onclick="applyColors()">
-Aplicar cores
-</button>
+            <!-- =================================================
+                 CABEÇALHO
+            ================================================== -->
 
-<button onclick="resetColors()">
-Restaurar padrão
-</button>
+            <header class="topbar">
 
-</div>
+                <div class="topbar-left">
 
-</section>
+                    <button
+                        class="mobile-menu-button"
+                        onclick="alternarMenu()">
 
+                        ☰
 
-<!-- CRÉDITOS -->
+                    </button>
 
-<section id="creditos" class="page">
 
-<h1>Créditos</h1>
+                    <div class="page-heading">
 
-<div class="card credit">
+                        <span
+                            class="page-kicker"
+                            id="pageKicker">
 
-<h2>CleanSurface AI</h2>
+                            SISTEMA
 
-<p>
-Projeto desenvolvido para análise inteligente de superfícies
-utilizando visão computacional e inteligência artificial.
-</p>
+                        </span>
 
-<br>
+                        <h1 id="pageTitle">
+                            Dashboard
+                        </h1>
 
-<h3>Desenvolvimento</h3>
+                    </div>
 
-<p>Equipe CleanSurface AI</p>
+                </div>
 
-<h3>Tecnologias</h3>
 
-<p>
-ESP32-S3-CAM<br>
-Edge Impulse<br>
-Cloudflare Workers<br>
-Cloudflare D1
-</p>
+                <div class="topbar-right">
 
-</div>
+                    <div class="live-status">
 
-</section>
+                        <span class="live-dot"></span>
 
-</main>
-</div>
+                        <span>
+                            Sistema ativo
+                        </span>
 
+                    </div>
 
-<script>
 
-const API_URL = "${API}";
+                    <div class="topbar-time">
 
-let currentAnalysis = null;
+                        <span id="currentTime">
+                            --:--:--
+                        </span>
 
-function showPage(id,button){
+                    </div>
 
-document.querySelectorAll(".page")
-.forEach(p=>p.classList.remove("active"));
+                </div>
 
-document.getElementById(id)
-.classList.add("active");
+            </header>
 
-document.querySelectorAll(".menu button")
-.forEach(b=>b.classList.remove("active"));
 
-button.classList.add("active");
+            <!-- =================================================
+                 ÁREA DAS PÁGINAS
+            ================================================== -->
 
-}
+            <div class="pages">
 
 
-async function startAnalysis(){
+                <!-- =================================================
+                     DASHBOARD
+                ================================================== -->
 
-const status=document.getElementById("status");
+                <section
+                    id="dashboard"
+                    class="page active">
 
-status.innerText="Solicitando análise ao ESP32...";
 
-const email=document.getElementById("email").value;
+                    <!-- HERO -->
 
-try{
+                    <div class="dashboard-hero">
 
-const response=await fetch(
-API_URL+"/iniciar-analise",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json"
-},
-body:JSON.stringify({
-email:email
-})
-}
-);
+                        <div class="hero-content">
 
-const data=await response.json();
+                            <div class="hero-label">
+                                INTELIGÊNCIA ARTIFICIAL
+                            </div>
 
-if(!response.ok){
-throw new Error(data.mensagem || "Erro na API");
-}
+                            <h2>
+                                Análise inteligente de superfícies
+                            </h2>
 
-currentAnalysis=data.analise_id;
+                            <p>
+                                Utilize o CleanSurface AI para realizar
+                                análises através do ESP32-S3-CAM e
+                                inteligência artificial.
+                            </p>
 
-status.innerText=
-"Análise #"+currentAnalysis+
-" aguardando o ESP32-S3-CAM.";
 
-document.getElementById("deviceStatus")
-.innerText="Aguardando ESP32";
+                            <button
+                                id="analisarBtn"
+                                class="primary-button analysis-button"
+                                onclick="iniciarAnalise()">
 
-pollResult();
+                                <span class="button-icon">
+                                    🔍
+                                </span>
 
-}catch(error){
+                                <span>
+                                    INICIAR ANÁLISE
+                                </span>
 
-status.innerText="Erro: "+error.message;
+                            </button>
 
-}
 
-}
+                            <div
+                                id="statusAnalise"
+                                class="analysis-status">
 
+                                <span class="status-circle"></span>
 
-async function pollResult(){
+                                <span>
+                                    Aguardando comando.
+                                </span>
 
-if(!currentAnalysis)return;
+                            </div>
 
-try{
+                        </div>
 
-const response=await fetch(
-API_URL+
-"/resultado?analise_id="+
-currentAnalysis
-);
 
-const data=await response.json();
+                        <div class="hero-visual">
 
-if(data.disponivel===true){
+                            <div class="camera-circle">
 
-showResult(data);
+                                <div class="camera-icon">
+                                    📷
+                                </div>
 
-return;
+                            </div>
 
-}
 
-}catch(error){
+                            <div class="ai-ring ring-one"></div>
 
-console.log(error);
+                            <div class="ai-ring ring-two"></div>
 
-}
+                            <div class="ai-ring ring-three"></div>
 
-setTimeout(pollResult,3000);
+                        </div>
 
-}
+                    </div>
 
 
-function showResult(data){
+                    <!-- CARDS PRINCIPAIS -->
 
-let valor=data.valor || "Resultado recebido";
+                    <div class="section-title">
 
-document.getElementById("status")
-.innerText="Análise concluída.";
+                        <div>
 
-document.getElementById("deviceStatus")
-.innerText="ESP32 conectado";
+                            <span class="section-kicker">
+                                VISÃO GERAL
+                            </span>
 
-document.getElementById("lastResult")
-.innerText=valor;
+                            <h2>
+                                Status do sistema
+                            </h2>
 
-document.getElementById("monitorResult")
-.innerText=valor;
+                        </div>
 
-document.getElementById("monitorStatus")
-.innerText=data.status || "Concluído";
+                    </div>
 
-document.getElementById("monitorDetail")
-.innerText=data.detalhe || "---";
 
-saveHistory(data);
+                    <div class="dashboard-cards">
 
-}
 
+                        <!-- CARD SISTEMA -->
 
-function saveHistory(data){
+                        <div class="stat-card">
 
-let history=
-JSON.parse(localStorage.getItem("cleansurface_history") || "[]");
+                            <div class="stat-card-header">
 
-history.unshift({
-data:new Date().toLocaleString("pt-BR"),
-valor:data.valor || "---",
-status:data.status || "---",
-detalhe:data.detalhe || "---"
-});
+                                <div class="stat-icon green">
+                                    ✓
+                                </div>
 
-history=history.slice(0,30);
+                                <span class="stat-label">
+                                    SISTEMA
+                                </span>
 
-localStorage.setItem(
-"cleansurface_history",
-JSON.stringify(history)
-);
+                            </div>
 
-loadHistory();
 
-}
+                            <div class="stat-value green-text">
+                                ONLINE
+                            </div>
 
 
-function loadHistory(){
+                            <div class="stat-description">
 
-let history=
-JSON.parse(localStorage.getItem("cleansurface_history") || "[]");
+                                Sistema funcionando
+                                normalmente.
 
-const box=document.getElementById("history");
+                            </div>
 
-if(history.length===0){
+                        </div>
 
-box.innerText="Nenhuma análise registrada.";
 
-return;
+                        <!-- CARD ESP32 -->
 
-}
+                        <div class="stat-card">
 
-box.innerHTML=history.map(item=>`
+                            <div class="stat-card-header">
 
-<div class="history-item">
+                                <div class="stat-icon blue">
+                                    📷
+                                </div>
 
-<strong>${item.valor}</strong>
+                                <span class="stat-label">
+                                    DISPOSITIVO
+                                </span>
 
-<br>
+                            </div>
 
-${item.status}
 
-<br>
+                            <div
+                                class="stat-value"
+                                id="device-status">
 
-<small>${item.data}</small>
+                                Aguardando
 
-<br>
+                            </div>
 
-${item.detalhe}
 
-</div>
+                            <div class="stat-description">
 
-`).join("");
+                                ESP32-S3-CAM
 
-}
+                            </div>
 
+                        </div>
 
-function saveEmail(){
 
-const email=
-document.getElementById("email").value;
+                        <!-- CARD RESULTADO -->
 
-localStorage.setItem(
-"cleansurface_email",
-email
-);
+                        <div class="stat-card">
 
-document.getElementById("saved")
-.innerText="E-mail salvo.";
+                            <div class="stat-card-header">
 
-}
+                                <div class="stat-icon purple">
+                                    🧠
+                                </div>
 
+                                <span class="stat-label">
+                                    ÚLTIMO RESULTADO
+                                </span>
 
-function applyColors(){
+                            </div>
 
-const primary=
-document.getElementById("primaryColor").value;
 
-const secondary=
-document.getElementById("secondaryColor").value;
+                            <div
+                                class="stat-value result-value"
+                                id="last-result">
 
-document.documentElement.style
-.setProperty("--primary",primary);
+                                Nenhuma análise
 
-document.documentElement.style
-.setProperty("--secondary",secondary);
+                            </div>
 
-localStorage.setItem(
-"primaryColor",
-primary
-);
 
-localStorage.setItem(
-"secondaryColor",
-secondary
-);
+                            <div class="stat-description">
 
-document.getElementById("primaryText")
-.value=primary;
+                                Resultado mais recente.
 
-document.getElementById("secondaryText")
-.value=secondary;
+                            </div>
 
-}
+                        </div>
 
 
-function resetColors(){
+                        <!-- CARD ALERTAS -->
 
-const primary="#39e6a3";
-const secondary="#55cba0";
+                        <div class="stat-card">
 
-document.documentElement.style
-.setProperty("--primary",primary);
+                            <div class="stat-card-header">
 
-document.documentElement.style
-.setProperty("--secondary",secondary);
+                                <div class="stat-icon orange">
+                                    ⚠
+                                </div>
 
-document.getElementById("primaryColor")
-.value=primary;
+                                <span class="stat-label">
+                                    ALERTAS
+                                </span>
 
-document.getElementById("secondaryColor")
-.value=secondary;
+                            </div>
 
-localStorage.removeItem("primaryColor");
-localStorage.removeItem("secondaryColor");
 
-}
+                            <div
+                                class="stat-value"
+                                id="dashboardAlertCount">
 
+                                0
 
-function loadSettings(){
+                            </div>
 
-const email=
-localStorage.getItem("cleansurface_email");
 
-if(email){
+                            <div class="stat-description">
 
-document.getElementById("email")
-.value=email;
+                                Alertas registrados.
 
-}
+                            </div>
 
-const primary=
-localStorage.getItem("primaryColor");
+                        </div>
 
-const secondary=
-localStorage.getItem("secondaryColor");
+                    </div>
 
-if(primary){
 
-document.documentElement.style
-.setProperty("--primary",primary);
+                    <!-- MONITORAMENTO RÁPIDO -->
 
-document.getElementById("primaryColor")
-.value=primary;
+                    <div class="section-title">
 
-document.getElementById("primaryText")
-.value=primary;
+                        <div>
 
-}
+                            <span class="section-kicker">
+                                MONITORAMENTO
+                            </span>
 
-if(secondary){
+                            <h2>
+                                Última análise
+                            </h2>
 
-document.documentElement.style
-.setProperty("--secondary",secondary);
+                        </div>
 
-document.getElementById("secondaryColor")
-.value=secondary;
 
-document.getElementById("secondaryText")
-.value=secondary;
+                        <button
+                            class="text-button"
+                            onclick="abrirPaginaPorNome('monitoramento')">
 
-}
+                            Ver monitoramento →
+                            
+                        </button>
 
-loadHistory();
+                    </div>
 
-}
 
-loadSettings();
+                    <div class="monitor-card">
 
-</script>
+                        <div class="monitor-main">
+
+                            <div class="monitor-camera">
+
+                                <div class="camera-placeholder">
+
+                                    <span>
+                                        📷
+                                    </span>
+
+                                    <small>
+                                        ESP32-S3-CAM
+                                    </small>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="monitor-information">
+
+                                <span class="info-label">
+                                    RESULTADO DA ANÁLISE
+                                </span>
+
+
+                                <div
+                                    id="reading-value"
+                                    class="reading-value">
+
+                                    ---
+
+                                </div>
+
+
+                                <div
+                                    id="reading-status"
+                                    class="reading-status">
+
+                                    Aguardando análise
+
+                                </div>
+
+
+                                <p
+                                    id="reading-detail"
+                                    class="reading-detail">
+
+                                    Nenhum resultado disponível.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="monitor-side">
+
+                            <div class="monitor-side-item">
+
+                                <span>
+                                    Dispositivo
+                                </span>
+
+                                <strong>
+                                    ESP32-S3-CAM
+                                </strong>
+
+                            </div>
+
+
+                            <div class="monitor-side-item">
+
+                                <span>
+                                    IA
+                                </span>
+
+                                <strong>
+                                    Edge Impulse
+                                </strong>
+
+                            </div>
+
+
+                            <div class="monitor-side-item">
+
+                                <span>
+                                    Conexão
+                                </span>
+
+                                <strong
+                                    id="monitorConnection">
+
+                                    Online
+
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     MONITORAMENTO
+                ================================================== -->
+
+                <section
+                    id="monitoramento"
+                    class="page">
+
+
+                    <div class="page-introduction">
+
+                        <span class="section-kicker">
+                            ESP32-S3-CAM
+                        </span>
+
+                        <h2>
+                            Monitoramento
+                        </h2>
+
+                        <p>
+                            Acompanhe os resultados enviados pelo
+                            dispositivo em tempo real.
+                        </p>
+
+                    </div>
+
+
+                    <div class="monitor-grid">
+
+
+                        <!-- RESULTADO -->
+
+                        <div class="large-result-card">
+
+                            <div class="result-card-top">
+
+                                <span class="info-label">
+                                    RESULTADO ATUAL
+                                </span>
+
+                                <span
+                                    class="result-indicator"
+                                    id="resultIndicator">
+
+                                    ●
+
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                id="monitorReadingValue"
+                                class="large-result-value">
+
+                                ---
+
+                            </div>
+
+
+                            <div
+                                id="monitorReadingStatus"
+                                class="large-result-status">
+
+                                Aguardando análise
+
+                            </div>
+
+
+                            <p
+                                id="monitorReadingDetail"
+                                class="large-result-detail">
+
+                                O sistema ainda não recebeu um
+                                resultado do ESP32-S3-CAM.
+
+                            </p>
+
+                        </div>
+
+
+                        <!-- DISPOSITIVO -->
+
+                        <div class="device-card">
+
+                            <div class="device-card-header">
+
+                                <div class="device-icon">
+                                    📷
+                                </div>
+
+                                <div>
+
+                                    <span>
+                                        DISPOSITIVO
+                                    </span>
+
+                                    <h3>
+                                        ESP32-S3-CAM
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="device-status-line">
+
+                                <span class="device-dot"></span>
+
+                                <span id="monitorDeviceStatus">
+                                    Aguardando conexão
+                                </span>
+
+                            </div>
+
+
+                            <div class="device-information">
+
+                                <div>
+
+                                    <span>
+                                        Câmera
+                                    </span>
+
+                                    <strong>
+                                        Ativa
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Inteligência artificial
+                                    </span>
+
+                                    <strong>
+                                        Edge Impulse
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <span>
+                                        Comunicação
+                                    </span>
+
+                                    <strong>
+                                        Wi-Fi
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- INFORMAÇÕES -->
+
+                    <div class="information-grid">
+
+
+                        <div class="information-card">
+
+                            <div class="information-icon">
+                                🧠
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    Inteligência Artificial
+                                </h3>
+
+                                <p>
+                                    O resultado da análise é processado
+                                    pelo modelo desenvolvido no
+                                    Edge Impulse.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="information-card">
+
+                            <div class="information-icon">
+                                ☁️
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    Comunicação em nuvem
+                                </h3>
+
+                                <p>
+                                    O ESP32 pode enviar os resultados
+                                    diretamente para a API do
+                                    CleanSurface AI.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     ALERTAS
+                ================================================== -->
+
+                <section
+                    id="alertas"
+                    class="page">
+
+
+                    <div class="page-introduction">
+
+                        <span class="section-kicker">
+                            MONITORAMENTO
+                        </span>
+
+                        <h2>
+                            Alertas
+                        </h2>
+
+                        <p>
+                            Acompanhe situações que exigem atenção.
+                        </p>
+
+                    </div>
+
+
+                    <div class="alert-summary">
+
+                        <div class="alert-summary-card">
+
+                            <span class="summary-icon">
+                                ⚠️
+                            </span>
+
+                            <div>
+
+                                <span>
+                                    TOTAL DE ALERTAS
+                                </span>
+
+                                <strong id="totalAlertas">
+                                    0
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="alert-summary-card">
+
+                            <span class="summary-icon green">
+                                ✓
+                            </span>
+
+                            <div>
+
+                                <span>
+                                    SISTEMA
+                                </span>
+
+                                <strong class="green-text">
+                                    NORMAL
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="card alert-list-card">
+
+                        <div class="card-header">
+
+                            <div>
+
+                                <span class="section-kicker">
+                                    REGISTROS
+                                </span>
+
+                                <h3>
+                                    Alertas recentes
+                                </h3>
+
+                            </div>
+
+                        </div>
+
+
+                        <div id="alertList">
+
+                            <div class="empty-state">
+
+                                <div class="empty-icon">
+                                    ✓
+                                </div>
+
+                                <h3>
+                                    Nenhum alerta
+                                </h3>
+
+                                <p>
+                                    Nenhum alerta foi registrado
+                                    até o momento.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     HISTÓRICO
+                ================================================== -->
+
+                <section
+                    id="historico"
+                    class="page">
+
+
+                    <div class="page-introduction">
+
+                        <span class="section-kicker">
+                            REGISTROS
+                        </span>
+
+                        <h2>
+                            Histórico
+                        </h2>
+
+                        <p>
+                            Consulte as análises realizadas anteriormente.
+                        </p>
+
+                    </div>
+
+
+                    <div class="history-toolbar">
+
+                        <div>
+
+                            <span class="history-count">
+                                Análises armazenadas:
+                            </span>
+
+                            <strong id="historyCount">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <button
+                            class="danger-button"
+                            onclick="limparHistorico()">
+
+                            🗑 Limpar histórico
+
+                        </button>
+
+                    </div>
+
+
+                    <div class="card history-card">
+
+                        <div
+                            id="historyList"
+                            class="history-list">
+
+                            <div class="empty-state">
+
+                                <div class="empty-icon">
+                                    📋
+                                </div>
+
+                                <h3>
+                                    Nenhuma análise registrada
+                                </h3>
+
+                                <p>
+                                    Quando uma análise for concluída,
+                                    ela aparecerá aqui.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     CONFIGURAÇÕES
+                ================================================== -->
+
+                <section
+                    id="configuracoes"
+                    class="page">
+
+
+                    <div class="page-introduction">
+
+                        <span class="section-kicker">
+                            SISTEMA
+                        </span>
+
+                        <h2>
+                            Configurações
+                        </h2>
+
+                        <p>
+                            Personalize o funcionamento e a aparência
+                            do CleanSurface AI.
+                        </p>
+
+                    </div>
+
+
+                    <!-- E-MAIL -->
+
+                    <div class="settings-section">
+
+                        <div class="settings-heading">
+
+                            <div class="settings-icon">
+                                ✉️
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    Notificações
+                                </h3>
+
+                                <p>
+                                    Configure o e-mail para receber
+                                    os resultados das análises.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="settings-card">
+
+                            <label for="email">
+                                E-mail
+                            </label>
+
+                            <input
+                                type="email"
+                                id="email"
+                                placeholder="seuemail@email.com">
+
+
+                            <div class="input-help">
+
+                                O resultado poderá ser enviado
+                                para este endereço.
+
+                            </div>
+
+
+                            <button
+                                class="primary-button"
+                                onclick="salvarEmail()">
+
+                                Salvar configuração
+
+                            </button>
+
+
+                            <div
+                                id="saved"
+                                class="saved-message">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- NÍVEL DE ALERTA -->
+
+                    <div class="settings-section">
+
+                        <div class="settings-heading">
+
+                            <div class="settings-icon">
+                                ⚠️
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    Alertas
+                                </h3>
+
+                                <p>
+                                    Defina como o sistema deverá
+                                    tratar resultados de análise.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="settings-card">
+
+                            <label for="nivelAlerta">
+                                Nível de alerta
+                            </label>
+
+                            <select id="nivelAlerta">
+
+                                <option value="todos">
+                                    Todos os resultados
+                                </option>
+
+                                <option value="atencao">
+                                    Somente resultados de atenção
+                                </option>
+
+                                <option value="critico">
+                                    Somente resultados críticos
+                                </option>
+
+                            </select>
+
+
+                            <button
+                                class="primary-button"
+                                onclick="salvarNivelAlerta()">
+
+                                Salvar nível
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- CORES -->
+
+                    <div class="settings-section">
+
+                        <div class="settings-heading">
+
+                            <div class="settings-icon">
+                                🎨
+                            </div>
+
+                            <div>
+
+                                <h3>
+                                    Personalização
+                                </h3>
+
+                                <p>
+                                    Escolha as cores utilizadas
+                                    na interface do sistema.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="settings-card palette-card">
+
+
+                            <!-- COR PRINCIPAL -->
+
+                            <div class="color-setting">
+
+                                <div class="color-setting-info">
+
+                                    <strong>
+                                        Cor principal
+                                    </strong>
+
+                                    <span>
+                                        Botões e elementos de destaque
+                                    </span>
+
+                                </div>
+
+
+                                <div class="color-controls">
+
+                                    <input
+                                        type="color"
+                                        id="corPrincipal"
+                                        value="#39e6a3"
+                                        onchange="sincronizarCor('principal')">
+
+
+                                    <input
+                                        type="text"
+                                        id="hexPrincipal"
+                                        value="#39e6a3"
+                                        maxlength="7"
+                                        oninput="alterarHex('principal')">
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- COR SECUNDÁRIA -->
+
+                            <div class="color-setting">
+
+                                <div class="color-setting-info">
+
+                                    <strong>
+                                        Cor secundária
+                                    </strong>
+
+                                    <span>
+                                        Detalhes e elementos auxiliares
+                                    </span>
+
+                                </div>
+
+
+                                <div class="color-controls">
+
+                                    <input
+                                        type="color"
+                                        id="corSecundaria"
+                                        value="#55cba0"
+                                        onchange="sincronizarCor('secundaria')">
+
+
+                                    <input
+                                        type="text"
+                                        id="hexSecundaria"
+                                        value="#55cba0"
+                                        maxlength="7"
+                                        oninput="alterarHex('secundaria')">
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- COR DE FUNDO -->
+
+                            <div class="color-setting">
+
+                                <div class="color-setting-info">
+
+                                    <strong>
+                                        Cor de fundo
+                                    </strong>
+
+                                    <span>
+                                        Fundo principal da aplicação
+                                    </span>
+
+                                </div>
+
+
+                                <div class="color-controls">
+
+                                    <input
+                                        type="color"
+                                        id="corFundo"
+                                        value="#07100f"
+                                        onchange="sincronizarCor('fundo')">
+
+
+                                    <input
+                                        type="text"
+                                        id="hexFundo"
+                                        value="#07100f"
+                                        maxlength="7"
+                                        oninput="alterarHex('fundo')">
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- COR DOS CARDS -->
+
+                            <div class="color-setting">
+
+                                <div class="color-setting-info">
+
+                                    <strong>
+                                        Cor dos cartões
+                                    </strong>
+
+                                    <span>
+                                        Painéis e cartões do sistema
+                                    </span>
+
+                                </div>
+
+
+                                <div class="color-controls">
+
+                                    <input
+                                        type="color"
+                                        id="corCartao"
+                                        value="#0b1917"
+                                        onchange="sincronizarCor('cartao')">
+
+
+                                    <input
+                                        type="text"
+                                        id="hexCartao"
+                                        value="#0b1917"
+                                        maxlength="7"
+                                        oninput="alterarHex('cartao')">
+
+                                </div>
+
+                            </div>
+
+
+
+                            <!-- COR DO TEXTO -->
+
+                            <div class="color-setting">
+
+                                <div class="color-setting-info">
+
+                                    <strong>
+                                        Cor do texto
+                                    </strong>
+
+                                    <span>
+                                        Textos principais da interface
+                                    </span>
+
+                                </div>
+
+
+                                <div class="color-controls">
+
+                                    <input
+                                        type="color"
+                                        id="corTexto"
+                                        value="#edf7f4"
+                                        onchange="sincronizarCor('texto')">
+
+
+                                    <input
+                                        type="text"
+                                        id="hexTexto"
+                                        value="#edf7f4"
+                                        maxlength="7"
+                                        oninput="alterarHex('texto')">
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- PRESETS -->
+
+                            <div class="palette-presets">
+
+                                <div class="preset-title">
+                                    Temas rápidos
+                                </div>
+
+
+                                <div class="preset-buttons">
+
+                                    <button
+                                        onclick="aplicarPreset('verde')">
+
+                                        Verde Clean
+
+                                    </button>
+
+
+                                    <button
+                                        onclick="aplicarPreset('azul')">
+
+                                        Azul Tech
+
+                                    </button>
+
+
+                                    <button
+                                        onclick="aplicarPreset('roxo')">
+
+                                        Roxo AI
+
+                                    </button>
+
+
+                                    <button
+                                        onclick="aplicarPreset('vermelho')">
+
+                                        Vermelho
+
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="palette-actions">
+
+                                <button
+                                    class="primary-button"
+                                    onclick="aplicarCoresPersonalizadas()">
+
+                                    Aplicar cores
+
+                                </button>
+
+
+                                <button
+                                    class="secondary-button"
+                                    onclick="restaurarPaleta()">
+
+                                    Restaurar padrão
+
+                                </button>
+
+                            </div>
+
+
+                            <div
+                                id="paletteSaved"
+                                class="saved-message">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =================================================
+                     CRÉDITOS
+                ================================================== -->
+
+                <section
+                    id="creditos"
+                    class="page">
+
+
+                    <div class="page-introduction">
+
+                        <span class="section-kicker">
+                            PROJETO
+                        </span>
+
+                        <h2>
+                            Créditos
+                        </h2>
+
+                        <p>
+                            Informações sobre o desenvolvimento
+                            do CleanSurface AI.
+                        </p>
+
+                    </div>
+
+
+                    <div class="credits-hero">
+
+                        <div class="credits-logo">
+                            🧽
+                        </div>
+
+
+                        <div>
+
+                            <span class="section-kicker">
+                                CLEAN SURFACE
+                            </span>
+
+                            <h2>
+                                CleanSurface AI
+                            </h2>
+
+                            <p>
+                                Sistema inteligente desenvolvido para
+                                análise de superfícies utilizando
+                                visão computacional e inteligência
+                                artificial.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="credits-grid">
+
+
+                        <div class="credit-card">
+
+                            <div class="credit-icon">
+                                💻
+                            </div>
+
+                            <h3>
+                                Desenvolvimento
+                            </h3>
+
+                            <p>
+                                Projeto CleanSurface AI
+                            </p>
+
+                        </div>
+
+
+                        <div class="credit-card">
+
+                            <div class="credit-icon">
+                                📷
+                            </div>
+
+                            <h3>
+                                Hardware
+                            </h3>
+
+                            <p>
+                                ESP32-S3-CAM
+                            </p>
+
+                        </div>
+
+
+                        <div class="credit-card">
+
+                            <div class="credit-icon">
+                                🧠
+                            </div>
+
+                            <h3>
+                                Inteligência Artificial
+                            </h3>
+
+                            <p>
+                                Edge Impulse
+                            </p>
+
+                        </div>
+
+
+                        <div class="credit-card">
+
+                            <div class="credit-icon">
+                                ☁️
+                            </div>
+
+                            <h3>
+                                Infraestrutura
+                            </h3>
+
+                            <p>
+                                Cloudflare Workers e D1
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="credits-footer">
+
+                        <strong>
+                            CleanSurface AI
+                        </strong>
+
+                        <span>
+                            Tecnologia • Inteligência • Inovação
+                        </span>
+
+                    </div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    </div>
+
+
+    <!-- =========================================================
+         MODAL DE ANÁLISE
+    ========================================================== -->
+
+    <div
+        id="analysisModal"
+        class="modal">
+
+        <div class="modal-content">
+
+            <button
+                class="modal-close"
+                onclick="fecharModal()">
+
+                ×
+
+            </button>
+
+
+            <div class="modal-icon">
+                🔍
+            </div>
+
+
+            <h2>
+                Análise iniciada
+            </h2>
+
+
+            <p id="modalMessage">
+
+                Aguardando o ESP32-S3-CAM...
+
+            </p>
+
+
+            <div class="loading-animation">
+
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================================================
+         TOAST
+    ========================================================== -->
+
+    <div
+        id="toast"
+        class="toast">
+
+        <span id="toastIcon">
+            ✓
+        </span>
+
+        <span id="toastMessage">
+            Operação concluída.
+        </span>
+
+    </div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT PRINCIPAL
+    ========================================================== -->
+
+    <script src="script.js"></script>
 
 </body>
-</html>`;
-
-
-export default {
-  async fetch(request) {
-
-    const url = new URL(request.url);
-
-    if (url.pathname === "/") {
-      return new Response(HTML, {
-        headers: {
-          "content-type": "text/html; charset=UTF-8"
-        }
-      });
-    }
-
-    return new Response("CleanSurface AI", {
-      status: 404
-    });
-
-  }
-};
+</html>
