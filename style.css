@@ -3,13 +3,17 @@
 :root{
   --primary:#39e6a3;
   --secondary:#55cba0;
+
   --background:#07100f;
   --sidebar:#091615;
   --card:#0b1917;
+
   --text:#edf7f4;
   --muted:#78918c;
+
   --border:#1a3732;
   --border-light:#1b3934;
+
   --primary-dark:#062019;
 }
 
