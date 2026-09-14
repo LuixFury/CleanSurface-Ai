@@ -1,1101 +1,1827 @@
-* {
-  box-sizing: border-box;
-}
 
-:root {
-  --primary: #39e6a3;
-  --secondary: #55cba0;
+// ============================================================
+// CleanSurface AI
+// API + ESP32-S3-CAM + Histórico + Personalização
+// ============================================================
 
-  --background: #07100f;
-  --sidebar: #091615;
-  --card: #0b1917;
+const API_URL =
+    "https://cleansurface-api.luizinfernando19.workers.dev";
 
-  --text: #edf7f4;
-  --muted: #78918c;
+let analiseAtualId = null;
+let verificandoResultado = false;
 
-  --border: #1a3732;
-  --border-light: #1b3934;
 
-  --primary-dark: #062019;
-}
+// ============================================================
+// PALETAS
+// ============================================================
 
+const PALETAS = {
 
-body {
-  margin: 0;
+    original: {
+        primary: "#39e6a3",
+        secondary: "#55cba0",
+        background: "#07100f",
+        card: "#0b1917",
+        text: "#edf7f4"
+    },
 
-  font-family:
-    Inter,
-    Segoe UI,
-    Arial,
-    sans-serif;
+    azul: {
+        primary: "#38bdf8",
+        secondary: "#60a5fa",
+        background: "#07111f",
+        card: "#0b1728",
+        text: "#edf7ff"
+    },
 
-  background: var(--background);
+    roxo: {
+        primary: "#a78bfa",
+        secondary: "#c4b5fd",
+        background: "#100b1c",
+        card: "#171025",
+        text: "#f5f3ff"
+    },
 
-  color: var(--text);
+    vermelho: {
+        primary: "#fb7185",
+        secondary: "#fda4af",
+        background: "#1a090c",
+        card: "#241013",
+        text: "#fff1f2"
+    },
 
-  display: flex;
+    laranja: {
+        primary: "#fb923c",
+        secondary: "#fdba74",
+        background: "#1b0e06",
+        card: "#26140a",
+        text: "#fff7ed"
+    }
 
-  min-height: 100vh;
-}
+};
 
 
-/* SIDEBAR */
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
 
-.sidebar {
-  width: 250px;
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
 
-  background: var(--sidebar);
+        configurarNavegacao();
 
-  border-right:
-    1px solid var(--border);
+        carregarConfiguracoes();
 
-  padding: 28px 18px;
+        carregarHistorico();
 
-  display: flex;
+        carregarPaleta();
 
-  flex-direction: column;
-}
+        configurarSeletoresDeCor();
 
+        atualizarDashboard();
 
-.brand {
-  display: flex;
+        verificarAPI();
 
-  align-items: center;
+    }
+);
 
-  gap: 12px;
 
-  padding:
-    4px 10px 42px;
-}
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
 
+function configurarNavegacao() {
 
-.brand-icon {
-  width: 40px;
-  height: 40px;
+    const botoes =
+        document.querySelectorAll(
+            ".nav-item"
+        );
 
-  border-radius: 12px;
+    botoes.forEach(
+        botao => {
 
-  background: var(--primary);
+            botao.addEventListener(
+                "click",
+                () => {
 
-  color: var(--primary-dark);
+                    const pagina =
+                        botao.dataset.page;
 
-  display: grid;
+                    if (pagina) {
+                        mostrarPagina(pagina);
+                    }
 
-  place-items: center;
+                }
+            );
 
-  font-size: 23px;
-
-  font-weight: 900;
-}
-
-
-.brand strong {
-  display: block;
-
-  font-size: 16px;
-}
-
-
-.brand span {
-  display: block;
-
-  color: var(--primary);
-
-  font-size: 13px;
-
-  font-weight: 800;
-
-  letter-spacing: 2px;
-
-  margin-top: 2px;
-}
-
-
-/* MENU */
-
-nav {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 7px;
-}
-
-
-.nav-item {
-  border: 0;
-
-  background: transparent;
-
-  color: #89a29d;
-
-  text-align: left;
-
-  padding: 13px 14px;
-
-  border-radius: 11px;
-
-  font-size: 14px;
-
-  cursor: pointer;
-
-  display: flex;
-
-  gap: 12px;
-
-  align-items: center;
-}
-
-
-.nav-item:hover,
-.nav-item.active {
-  background: #102521;
-
-  color: #fff;
-}
-
-
-.nav-item.active {
-  box-shadow:
-    inset 3px 0 var(--primary);
-}
-
-
-/* STATUS */
-
-.connection-card {
-  margin-top: auto;
-
-  border:
-    1px solid var(--border);
-
-  background: #0d201d;
-
-  border-radius: 13px;
-
-  padding: 13px;
-
-  display: flex;
-
-  gap: 10px;
-
-  align-items: center;
-}
-
-
-.status-dot {
-  width: 9px;
-  height: 9px;
-
-  background: #f0b85b;
-
-  border-radius: 50%;
-
-  box-shadow:
-    0 0 10px #f0b85b;
-}
-
-
-.connection-card small {
-  font-size: 9px;
-
-  color: #68847e;
-
-  display: block;
-
-  letter-spacing: 1px;
-}
-
-
-.connection-card strong {
-  font-size: 11px;
-}
-
-
-/* MAIN */
-
-.main {
-  flex: 1;
-
-  padding: 30px 42px;
-
-  max-width: 1500px;
-
-  margin: auto;
-}
-
-
-/* TOP */
-
-.topbar {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  margin-bottom: 28px;
-}
-
-
-.eyebrow {
-  font-size: 10px;
-
-  letter-spacing: 2px;
-
-  color: var(--secondary);
-
-  font-weight: 800;
-
-  margin: 0 0 7px;
-}
-
-
-.topbar h1 {
-  font-size: 27px;
-
-  margin: 0;
-}
-
-
-.user-chip {
-  border:
-    1px solid var(--border);
-
-  padding: 9px 13px;
-
-  border-radius: 30px;
-
-  color: #8ba6a0;
-
-  font-size: 12px;
-}
-
-
-.user-chip:first-letter {
-  color: var(--primary);
-}
-
-
-/* HERO */
-
-.hero {
-  min-height: 330px;
-
-  border:
-    1px solid var(--border-light);
-
-  border-radius: 22px;
-
-  background:
-    radial-gradient(
-      circle at 80% 45%,
-      var(--card) 0,
-      var(--sidebar) 45%,
-      var(--background) 75%
+        }
     );
 
-  padding: 48px;
+}
 
-  display: flex;
 
-  align-items: center;
+function mostrarPagina(nomePagina) {
 
-  justify-content: space-between;
+    const paginas =
+        document.querySelectorAll(
+            ".page"
+        );
 
-  overflow: hidden;
-}
+    const botoes =
+        document.querySelectorAll(
+            ".nav-item"
+        );
 
 
-.hero h2 {
-  font-size: 42px;
+    paginas.forEach(
+        pagina =>
+            pagina.classList.remove(
+                "active-page"
+            )
+    );
 
-  line-height: 1.08;
 
-  margin: 0 0 15px;
-}
+    botoes.forEach(
+        botao =>
+            botao.classList.remove(
+                "active"
+            )
+    );
 
 
-.hero h2 em {
-  font-style: normal;
+    const paginaSelecionada =
+        document.getElementById(
+            nomePagina
+        );
 
-  color: var(--primary);
-}
 
+    if (paginaSelecionada) {
 
-.hero-text {
-  color: #8ea8a2;
+        paginaSelecionada.classList.add(
+            "active-page"
+        );
 
-  max-width: 570px;
+    }
 
-  line-height: 1.6;
-}
 
+    const botaoSelecionado =
+        document.querySelector(
+            `.nav-item[data-page="${nomePagina}"]`
+        );
 
-/* BOTÕES */
 
-.primary {
-  background: var(--primary);
+    if (botaoSelecionado) {
 
-  color: var(--primary-dark);
+        botaoSelecionado.classList.add(
+            "active"
+        );
 
-  border: 0;
+    }
 
-  border-radius: 10px;
 
-  padding: 12px 18px;
+    const titulo =
+        document.getElementById(
+            "page-title"
+        );
 
-  font-weight: 800;
 
-  cursor: pointer;
+    if (titulo) {
 
-  margin-top: 12px;
-}
+        const titulos = {
+
+            dashboard:
+                "Dashboard",
+
+            monitoramento:
+                "Monitoramento",
+
+            alertas:
+                "Alertas",
+
+            historico:
+                "Histórico",
 
+            configuracoes:
+                "Configurações"
 
-.primary:hover {
-  filter: brightness(1.08);
+        };
+
+        titulo.textContent =
+            titulos[nomePagina] ||
+            "CleanSurface AI";
+    }
+
+
+    if (
+        nomePagina ===
+        "historico"
+    ) {
+
+        carregarHistorico();
+
+    }
+
 }
+
 
+function showPage(nomePagina) {
 
-.primary:disabled {
-  opacity: .6;
+    mostrarPagina(nomePagina);
 
-  cursor: wait;
 }
 
 
-.secondary-button {
-  background: transparent;
+// ============================================================
+// API
+// ============================================================
 
-  color: var(--text);
+async function verificarAPI() {
 
-  border:
-    1px solid var(--border);
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-  border-radius: 10px;
 
-  padding: 12px 18px;
+    try {
 
-  font-weight: 700;
+        const resposta =
+            await fetch(
+                API_URL,
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
 
-  cursor: pointer;
-}
 
+        if (!resposta.ok) {
+            throw new Error(
+                "API offline"
+            );
+        }
 
-.secondary-button:hover {
-  border-color: var(--primary);
 
-  color: var(--primary);
-}
+        const dados =
+            await resposta.json();
 
 
-.analysis-status {
-  color: var(--muted);
+        console.log(
+            "API:",
+            dados
+        );
 
-  font-size: 12px;
 
-  margin-top: 10px;
-}
+        if (dispositivo) {
 
+            dispositivo.textContent =
+                "Online";
 
-/* ORB */
+        }
 
-.hero-orb {
-  width: 210px;
-  height: 210px;
 
-  border:
-    1px solid #27574d;
+    } catch (erro) {
 
-  border-radius: 50%;
+        console.error(
+            "API:",
+            erro
+        );
 
-  display: grid;
 
-  place-items: center;
+        if (dispositivo) {
 
-  position: relative;
+            dispositivo.textContent =
+                "Offline";
 
-  margin-right: 50px;
+        }
+
+    }
+
 }
 
 
-.orb-ring {
-  position: absolute;
+// ============================================================
+// INICIAR ANÁLISE
+// ============================================================
 
-  width: 155px;
-  height: 155px;
+async function iniciarAnalise() {
 
-  border:
-    1px solid var(--primary);
+    const botao =
+        document.getElementById(
+            "analisarBtn"
+        );
 
-  border-radius: 50%;
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
-  opacity: .45;
-}
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
 
-.orb-core {
-  width: 82px;
-  height: 82px;
+    if (verificandoResultado) {
+        return;
+    }
 
-  border-radius: 50%;
 
-  background: var(--primary);
+    if (botao) {
 
-  color: var(--primary-dark);
+        botao.disabled = true;
 
-  display: grid;
+        botao.innerHTML =
+            "⏳ SOLICITANDO ANÁLISE...";
 
-  place-items: center;
+    }
 
-  font-weight: 900;
 
-  font-size: 25px;
+    if (status) {
 
-  box-shadow:
-    0 0 55px var(--primary);
-}
+        status.textContent =
+            "Solicitando análise ao ESP32-S3-CAM...";
 
+    }
 
-/* CARDS */
 
-.cards {
-  display: grid;
+    if (dispositivo) {
 
-  grid-template-columns:
-    repeat(3, 1fr);
+        dispositivo.textContent =
+            "Solicitando...";
 
-  gap: 16px;
+    }
 
-  margin: 18px 0;
-}
 
+    try {
 
-.stat-card,
-.section-card {
-  border:
-    1px solid var(--border);
+        const configuracoes =
+            obterConfiguracoes();
 
-  background: var(--card);
 
-  border-radius: 16px;
-}
+        const resposta =
+            await fetch(
+                `${API_URL}/iniciar-analise`,
+                {
 
+                    method: "POST",
 
-.stat-card {
-  padding: 20px;
-}
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
+                    body: JSON.stringify({
 
-.stat-icon {
-  color: var(--primary);
+                        email:
+                            configuracoes.email ||
+                            ""
 
-  font-size: 20px;
+                    }),
 
-  margin-bottom: 17px;
-}
+                    cache: "no-store"
 
+                }
+            );
 
-.stat-card span {
-  display: block;
 
-  font-size: 9px;
+        if (!resposta.ok) {
 
-  letter-spacing: 1.5px;
+            throw new Error(
+                `Erro HTTP ${resposta.status}`
+            );
 
-  color: #66817b;
-}
+        }
 
 
-.stat-card strong {
-  display: block;
+        const dados =
+            await resposta.json();
 
-  font-size: 22px;
 
-  margin: 7px 0;
-}
+        console.log(
+            "Análise criada:",
+            dados
+        );
 
 
-.stat-card small {
-  color: var(--muted);
-}
+        if (!dados.sucesso) {
 
+            throw new Error(
+                dados.mensagem ||
+                "Não foi possível iniciar a análise."
+            );
 
-/* SECTION */
+        }
 
-.section-card {
-  padding: 25px;
-}
 
+        analiseAtualId =
+            dados.analise_id;
 
-.section-card.big {
-  min-height: 520px;
-}
 
+        if (status) {
 
-.section-head {
-  display: flex;
+            status.textContent =
+                "Análise solicitada. Aguardando ESP32-S3-CAM...";
 
-  justify-content: space-between;
+        }
 
-  align-items: center;
-}
 
+        if (dispositivo) {
 
-.section-head h3 {
-  margin: 0;
+            dispositivo.textContent =
+                "Aguardando ESP32";
 
-  font-size: 21px;
-}
+        }
 
 
-.section-head p:not(.eyebrow) {
-  color: #708983;
+        aguardarResultado();
 
-  margin:
-    6px 0 0;
-}
 
+    } catch (erro) {
 
-/* FLOW */
+        console.error(
+            "Erro:",
+            erro
+        );
 
-.flow {
-  display: flex;
 
-  align-items: stretch;
+        if (status) {
 
-  margin-top: 30px;
-}
+            status.textContent =
+                "❌ Não foi possível iniciar a análise.";
 
+        }
 
-.flow-step {
-  flex: 1;
 
-  border:
-    1px solid var(--border);
+        if (dispositivo) {
 
-  border-radius: 13px;
+            dispositivo.textContent =
+                "Offline";
 
-  padding: 22px;
+        }
 
-  display: flex;
 
-  flex-direction: column;
+    } finally {
 
-  gap: 7px;
-}
+        if (botao) {
 
+            botao.disabled = false;
 
-.flow-step b {
-  color: var(--primary);
+            botao.innerHTML =
+                "🔍 INICIAR ANÁLISE";
 
-  font-size: 11px;
+        }
+
+    }
+
 }
 
 
-.flow-step span {
-  color: var(--muted);
+// ============================================================
+// RESULTADO
+// ============================================================
 
-  font-size: 12px;
-}
+async function aguardarResultado() {
 
+    if (verificandoResultado) {
+        return;
+    }
 
-.flow-line {
-  width: 40px;
 
-  height: 1px;
+    if (!analiseAtualId) {
+        return;
+    }
 
-  background: #285149;
 
-  align-self: center;
-}
+    verificandoResultado = true;
 
 
-/* BADGE */
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
-.badge {
-  font-size: 9px;
 
-  padding: 7px 10px;
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-  border-radius: 20px;
 
-  letter-spacing: 1px;
-}
+    let tentativas = 0;
 
+    const limiteTentativas = 40;
 
-.waiting {
-  color: #e6b968;
 
-  background: #2b2515;
-}
+    const intervalo =
+        setInterval(
+            async () => {
 
+                tentativas++;
 
-/* READING */
 
-.reading {
-  display: flex;
+                try {
 
-  align-items: center;
+                    const resposta =
+                        await fetch(
+                            `${API_URL}/resultado?analise_id=${analiseAtualId}`,
+                            {
+                                method: "GET",
+                                headers: {
+                                    "Accept":
+                                        "application/json"
+                                },
+                                cache:
+                                    "no-store"
+                            }
+                        );
 
-  gap: 55px;
 
-  margin:
-    65px 0 0 25px;
-}
+                    if (!resposta.ok) {
 
+                        throw new Error(
+                            `HTTP ${resposta.status}`
+                        );
 
-.reading-circle {
-  width: 190px;
-  height: 190px;
+                    }
 
-  border:
-    8px solid var(--border);
 
-  border-radius: 50%;
+                    const dados =
+                        await resposta.json();
 
-  display: flex;
 
-  align-items: center;
+                    console.log(
+                        "Resultado:",
+                        dados
+                    );
 
-  justify-content: center;
 
-  font-size: 55px;
+                    if (
+                        dados.disponivel !==
+                        true
+                    ) {
 
-  font-weight: 800;
+                        if (status) {
 
-  color: var(--primary);
-}
+                            status.textContent =
+                                "Aguardando análise do ESP32-S3-CAM...";
 
+                        }
 
-.reading-circle small {
-  font-size: 18px;
-}
+                        return;
 
+                    }
 
-.reading .label {
-  font-size: 10px;
 
-  letter-spacing: 2px;
+                    if (
+                        String(
+                            dados.analise_id
+                        ) !==
+                        String(
+                            analiseAtualId
+                        )
+                    ) {
 
-  color: #6f8983;
-}
+                        return;
 
+                    }
 
-.reading h2 {
-  font-size: 30px;
 
-  margin: 9px 0;
-}
+                    clearInterval(
+                        intervalo
+                    );
 
 
-.reading p {
-  color: #77918b;
-}
+                    verificandoResultado =
+                        false;
 
 
-/* EMPTY */
+                    processarResultado(
+                        dados
+                    );
 
-.empty {
-  height: 330px;
 
-  display: flex;
+                } catch (erro) {
 
-  flex-direction: column;
+                    console.log(
+                        "Aguardando resultado..."
+                    );
 
-  align-items: center;
+                }
 
-  justify-content: center;
 
-  color: var(--muted);
+                if (
+                    tentativas >=
+                    limiteTentativas
+                ) {
 
-  text-align: center;
-}
+                    clearInterval(
+                        intervalo
+                    );
 
 
-.empty div {
-  width: 55px;
-  height: 55px;
+                    verificandoResultado =
+                        false;
 
-  border-radius: 50%;
 
-  background: #102923;
+                    if (status) {
 
-  color: var(--primary);
+                        status.textContent =
+                            "⏳ O ESP32 ainda não enviou o resultado.";
 
-  display: grid;
+                    }
 
-  place-items: center;
 
-  font-size: 25px;
+                    if (dispositivo) {
 
-  margin-bottom: 15px;
-}
+                        dispositivo.textContent =
+                            "Aguardando";
+
+                    }
 
+                }
 
-.empty strong {
-  color: var(--text);
+            },
+            3000
+        );
 
-  margin-bottom: 7px;
 }
 
 
-.empty span {
-  max-width: 390px;
+// ============================================================
+// PROCESSAR RESULTADO
+// ============================================================
 
-  font-size: 13px;
-}
+function processarResultado(
+    dados
+) {
 
+    const valor =
+        dados.valor ??
+        "--";
 
-/* HISTÓRICO */
 
-.table-placeholder {
-  margin-top: 35px;
+    const resultadoStatus =
+        dados.status ??
+        "Analisado";
 
-  border:
-    1px solid var(--border);
 
-  border-radius: 10px;
+    const detalhe =
+        dados.detalhe ??
+        "Resultado recebido pelo CleanSurface AI.";
 
-  display: grid;
 
-  grid-template-columns:
-    1.2fr 1fr .7fr .7fr;
+    atualizarMonitoramento(
+        valor,
+        resultadoStatus,
+        detalhe
+    );
 
-  padding: 16px;
 
-  color: #68837d;
+    salvarHistorico({
 
-  font-size: 11px;
+        id:
+            dados.analise_id ??
+            Date.now(),
 
-  letter-spacing: 1px;
-}
+        data:
+            dados.criado_em ??
+            new Date().toISOString(),
 
+        valor:
+            valor,
 
-.table-placeholder p {
-  grid-column: 1 / -1;
+        status:
+            resultadoStatus,
 
-  text-align: center;
+        detalhe:
+            detalhe
 
-  padding: 60px 0;
+    });
 
-  color: #5c756f;
 
-  letter-spacing: 0;
-}
+    atualizarDashboard();
 
 
-/* CONFIGURAÇÕES */
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
-.settings {
-  max-width: 700px;
 
-  margin-top: 35px;
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
 
-  display: grid;
 
-  gap: 18px;
-}
+    if (status) {
+
+        status.textContent =
+            "✅ Análise concluída.";
+
+    }
 
 
-.settings label {
-  font-size: 12px;
+    if (dispositivo) {
 
-  color: #8da59f;
+        dispositivo.textContent =
+            "Online";
+
+    }
+
 }
 
 
-.settings input {
-  display: block;
+// ============================================================
+// MONITORAMENTO
+// ============================================================
 
-  width: 100%;
+function atualizarMonitoramento(
+    valor,
+    status,
+    detalhe
+) {
 
-  margin-top: 7px;
+    const valorElemento =
+        document.getElementById(
+            "reading-value"
+        );
 
-  background: #081311;
 
-  border:
-    1px solid var(--border);
+    const statusElemento =
+        document.getElementById(
+            "reading-status"
+        );
 
-  border-radius: 9px;
 
-  padding: 13px;
+    const detalheElemento =
+        document.getElementById(
+            "reading-detail"
+        );
 
-  color: #fff;
 
-  outline: none;
-}
+    const ultimoResultado =
+        document.getElementById(
+            "last-result"
+        );
 
 
-.settings input:focus {
-  border-color: var(--primary);
-}
+    if (valorElemento) {
 
+        valorElemento.textContent =
+            valor;
 
-.saved {
-  color: var(--primary);
+    }
 
-  font-size: 12px;
-}
 
+    if (statusElemento) {
 
-/* PERSONALIZAÇÃO */
+        statusElemento.textContent =
+            formatarStatus(status);
 
-.appearance-box {
-  margin-top: 25px;
+    }
 
-  padding-top: 25px;
 
-  border-top:
-    1px solid var(--border);
-}
+    if (detalheElemento) {
 
+        detalheElemento.textContent =
+            detalhe;
 
-.appearance-title h3 {
-  margin: 0;
+    }
 
-  font-size: 20px;
-}
 
+    if (ultimoResultado) {
 
-.appearance-title p:not(.eyebrow) {
-  color: var(--muted);
+        ultimoResultado.textContent =
+            formatarStatus(status);
 
-  font-size: 13px;
+    }
 
-  margin-top: 6px;
 }
+
+
+// ============================================================
+// STATUS
+// ============================================================
+
+function formatarStatus(status) {
+
+    if (!status) {
+        return "Analisado";
+    }
+
+
+    const texto =
+        String(status);
 
 
-/* PALETAS */
+    const normalizado =
+        texto.toLowerCase();
 
-.palette-presets {
-  display: grid;
 
-  grid-template-columns:
-    repeat(5, 1fr);
+    if (
+        normalizado ===
+            "aprovado" ||
+        normalizado ===
+            "ok" ||
+        normalizado ===
+            "limpo"
+    ) {
 
-  gap: 10px;
+        return "Aprovado";
 
-  margin-top: 22px;
+    }
+
+
+    if (
+        normalizado ===
+            "reprovado" ||
+        normalizado ===
+            "alerta" ||
+        normalizado ===
+            "sujo"
+    ) {
+
+        return "Alerta";
+
+    }
+
+
+    return texto;
+
 }
+
+
+// ============================================================
+// HISTÓRICO
+// ============================================================
+
+const CHAVE_HISTORICO =
+    "cleansurface_historico";
+
 
+function salvarHistorico(
+    resultado
+) {
 
-.palette-card {
-  background: #081311;
+    let historico =
+        obterHistorico();
 
-  border:
-    1px solid var(--border);
 
-  border-radius: 11px;
+    const existe =
+        historico.some(
+            item =>
+                String(item.id) ===
+                String(resultado.id)
+        );
 
-  padding: 12px;
 
-  color: var(--text);
+    if (!existe) {
 
-  cursor: pointer;
+        historico.unshift(
+            resultado
+        );
 
-  text-align: center;
+    }
+
+
+    historico =
+        historico.slice(
+            0,
+            100
+        );
+
+
+    localStorage.setItem(
+        CHAVE_HISTORICO,
+        JSON.stringify(
+            historico
+        )
+    );
+
+
+    carregarHistorico();
+
 }
+
+
+function obterHistorico() {
+
+    try {
 
+        const salvo =
+            localStorage.getItem(
+                CHAVE_HISTORICO
+            );
 
-.palette-card:hover {
-  border-color: var(--primary);
 
-  transform: translateY(-2px);
+        if (!salvo) {
+            return [];
+        }
+
+
+        const dados =
+            JSON.parse(salvo);
+
+
+        return Array.isArray(dados)
+            ? dados
+            : [];
+
+
+    } catch (erro) {
+
+        return [];
+
+    }
+
 }
+
+
+function carregarHistorico() {
+
+    const historico =
+        obterHistorico();
+
+
+    const tabela =
+        document.querySelector(
+            ".table-placeholder"
+        );
+
+
+    if (!tabela) {
+        return;
+    }
+
+
+    tabela.innerHTML = "";
+
+
+    const cabecalhos = [
+        "DATA E HORA",
+        "RESULTADO",
+        "NÍVEL",
+        "STATUS"
+    ];
+
+
+    cabecalhos.forEach(
+        texto => {
+
+            const elemento =
+                document.createElement(
+                    "div"
+                );
+
+            elemento.textContent =
+                texto;
+
+            tabela.appendChild(
+                elemento
+            );
+
+        }
+    );
+
+
+    if (
+        historico.length === 0
+    ) {
+
+        const vazio =
+            document.createElement(
+                "p"
+            );
+
+        vazio.textContent =
+            "Nenhuma análise registrada ainda.";
+
+        tabela.appendChild(
+            vazio
+        );
 
+        return;
 
-.palette-card strong {
-  display: block;
+    }
 
-  font-size: 11px;
 
-  margin-top: 8px;
+    historico.forEach(
+        item => {
+
+            const data =
+                document.createElement(
+                    "div"
+                );
+
+            data.textContent =
+                formatarData(
+                    item.data
+                );
+
+
+            const resultado =
+                document.createElement(
+                    "div"
+                );
+
+            resultado.textContent =
+                formatarStatus(
+                    item.status
+                );
+
+
+            const nivel =
+                document.createElement(
+                    "div"
+                );
+
+            nivel.textContent =
+                item.valor ??
+                "--";
+
+
+            const detalhe =
+                document.createElement(
+                    "div"
+                );
+
+            detalhe.textContent =
+                item.detalhe ??
+                "Registrado";
+
+
+            tabela.appendChild(data);
+            tabela.appendChild(resultado);
+            tabela.appendChild(nivel);
+            tabela.appendChild(detalhe);
+
+        }
+    );
+
 }
+
+
+function formatarData(
+    data
+) {
+
+    if (!data) {
+        return "--";
+    }
+
+
+    const dataObj =
+        new Date(data);
+
 
+    if (
+        isNaN(
+            dataObj.getTime()
+        )
+    ) {
 
-.palette-colors {
-  display: flex;
+        return String(data);
 
-  gap: 4px;
+    }
+
+
+    return dataObj.toLocaleString(
+        "pt-BR",
+        {
+            dateStyle: "short",
+            timeStyle: "short"
+        }
+    );
+
 }
+
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+
+function atualizarDashboard() {
+
+    const historico =
+        obterHistorico();
+
+
+    const contador =
+        document.getElementById(
+            "alert-count"
+        );
+
+
+    if (contador) {
+
+        const alertas =
+            historico.filter(
+                item => {
+
+                    const status =
+                        String(
+                            item.status ??
+                            ""
+                        ).toLowerCase();
+
+
+                    return (
+                        status.includes(
+                            "alerta"
+                        ) ||
+                        status.includes(
+                            "reprovado"
+                        ) ||
+                        status.includes(
+                            "sujo"
+                        )
+                    );
+
+                }
+            );
+
+
+        contador.textContent =
+            alertas.length;
+
+    }
+
+
+    if (
+        historico.length >
+        0
+    ) {
 
+        const ultimo =
+            historico[0];
 
-.palette-colors i {
-  display: block;
 
-  height: 25px;
+        const elemento =
+            document.getElementById(
+                "last-result"
+            );
 
-  flex: 1;
 
-  border-radius: 5px;
+        if (elemento) {
+
+            elemento.textContent =
+                formatarStatus(
+                    ultimo.status
+                );
+
+        }
+
+    }
+
 }
+
+
+// ============================================================
+// CONFIGURAÇÕES
+// ============================================================
+
+function saveSettings() {
+
+    const email =
+        document.getElementById(
+            "email"
+        );
+
+
+    const nivel =
+        document.getElementById(
+            "nivelAlerta"
+        );
 
 
-/* CORES */
+    const configuracoes = {
 
-.custom-colors {
-  display: grid;
+        email:
+            email
+                ? email.value
+                : "",
 
-  grid-template-columns:
-    repeat(2, 1fr);
+        nivelAlerta:
+            nivel
+                ? nivel.value
+                : 70
 
-  gap: 15px;
+    };
 
-  margin-top: 22px;
+
+    localStorage.setItem(
+        "cleansurface_config",
+        JSON.stringify(
+            configuracoes
+        )
+    );
+
+
+    const salvo =
+        document.getElementById(
+            "saved"
+        );
+
+
+    if (salvo) {
+
+        salvo.textContent =
+            "✓ Configurações salvas";
+
+        setTimeout(
+            () => {
+                salvo.textContent =
+                    "";
+            },
+            3000
+        );
+
+    }
+
 }
+
 
+function carregarConfiguracoes() {
 
-.color-input {
-  display: flex;
+    try {
 
-  gap: 8px;
+        const salvo =
+            localStorage.getItem(
+                "cleansurface_config"
+            );
+
+
+        if (!salvo) {
+            return;
+        }
+
+
+        const configuracoes =
+            JSON.parse(
+                salvo
+            );
+
+
+        const email =
+            document.getElementById(
+                "email"
+            );
+
+
+        const nivel =
+            document.getElementById(
+                "nivelAlerta"
+            );
+
+
+        if (email) {
+
+            email.value =
+                configuracoes.email ||
+                "";
+
+        }
+
+
+        if (nivel) {
+
+            nivel.value =
+                configuracoes.nivelAlerta ??
+                70;
+
+        }
+
+    } catch (erro) {
+
+        console.error(
+            erro
+        );
+
+    }
+
 }
+
 
+function obterConfiguracoes() {
 
-.color-input input[type="color"] {
-  width: 48px;
+    try {
 
-  height: 43px;
+        const salvo =
+            localStorage.getItem(
+                "cleansurface_config"
+            );
 
-  padding: 3px;
 
-  margin: 7px 0 0;
+        if (!salvo) {
 
-  cursor: pointer;
+            return {
+                email: "",
+                nivelAlerta: 70
+            };
+
+        }
+
+
+        return JSON.parse(
+            salvo
+        );
+
+    } catch (erro) {
+
+        return {
+            email: "",
+            nivelAlerta: 70
+        };
+
+    }
+
 }
+
+
+// ============================================================
+// PERSONALIZAÇÃO
+// ============================================================
+
+function aplicarPaleta(
+    paleta
+) {
+
+    document.documentElement.style.setProperty(
+        "--primary",
+        paleta.primary
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--secondary",
+        paleta.secondary
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--background",
+        paleta.background
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--card",
+        paleta.card
+    );
+
+
+    document.documentElement.style.setProperty(
+        "--text",
+        paleta.text
+    );
+
+
+    preencherCores(
+        paleta
+    );
 
 
-.color-input input[type="text"] {
-  flex: 1;
+    localStorage.setItem(
+        "cleansurface_paleta",
+        JSON.stringify(
+            paleta
+        )
+    );
+
 }
+
+
+function aplicarPreset(
+    nome
+) {
+
+    const paleta =
+        PALETAS[nome];
+
+
+    if (!paleta) {
+        return;
+    }
+
+
+    aplicarPaleta(
+        paleta
+    );
+
+
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
 
 
-.appearance-buttons {
-  display: flex;
+    if (mensagem) {
 
-  gap: 10px;
+        mensagem.textContent =
+            "✓ Paleta aplicada";
 
-  margin-top: 5px;
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            2500
+        );
+
+    }
+
 }
+
+
+function preencherCores(
+    paleta
+) {
+
+    const mapa = {
+
+        corPrincipal:
+            paleta.primary,
+
+        corSecundaria:
+            paleta.secondary,
+
+        corFundo:
+            paleta.background,
+
+        corCartao:
+            paleta.card,
+
+        corTexto:
+            paleta.text
+
+    };
 
 
-.appearance-buttons button {
-  margin-top: 0;
+    Object.entries(
+        mapa
+    ).forEach(
+        ([id, valor]) => {
+
+            const elemento =
+                document.getElementById(
+                    id
+                );
+
+
+            if (elemento) {
+
+                elemento.value =
+                    valor;
+
+            }
+
+        }
+    );
+
+
+    const hex = {
+
+        hexPrincipal:
+            paleta.primary,
+
+        hexSecundaria:
+            paleta.secondary,
+
+        hexFundo:
+            paleta.background,
+
+        hexCartao:
+            paleta.card,
+
+        hexTexto:
+            paleta.text
+
+    };
+
+
+    Object.entries(
+        hex
+    ).forEach(
+        ([id, valor]) => {
+
+            const elemento =
+                document.getElementById(
+                    id
+                );
+
+
+            if (elemento) {
+
+                elemento.value =
+                    valor.toUpperCase();
+
+            }
+
+        }
+    );
+
 }
+
+
+function aplicarCoresPersonalizadas() {
+
+    const paleta = {
+
+        primary:
+            obterCor(
+                "hexPrincipal",
+                "#39e6a3"
+            ),
+
+        secondary:
+            obterCor(
+                "hexSecundaria",
+                "#55cba0"
+            ),
+
+        background:
+            obterCor(
+                "hexFundo",
+                "#07100f"
+            ),
+
+        card:
+            obterCor(
+                "hexCartao",
+                "#0b1917"
+            ),
 
+        text:
+            obterCor(
+                "hexTexto",
+                "#edf7f4"
+            )
 
-/* PÁGINAS */
+    };
 
-.page {
-  display: none;
+
+    aplicarPaleta(
+        paleta
+    );
+
+
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
+
+
+    if (mensagem) {
+
+        mensagem.textContent =
+            "✓ Paleta personalizada aplicada";
+
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            3000
+        );
+
+    }
+
 }
+
+
+function obterCor(
+    id,
+    padrao
+) {
 
+    const elemento =
+        document.getElementById(
+            id
+        );
 
-.active-page {
-  display: block;
+
+    if (!elemento) {
+        return padrao;
+    }
+
+
+    let valor =
+        elemento.value.trim();
+
+
+    if (
+        !/^#[0-9A-Fa-f]{6}$/.test(
+            valor
+        )
+    ) {
+
+        valor =
+            padrao;
+
+        elemento.value =
+            padrao.toUpperCase();
+
+    }
+
+
+    return valor;
+
 }
+
+
+// ============================================================
+// SELETORES DE COR
+// ============================================================
+
+function configurarSeletoresDeCor() {
+
+    const pares = [
+
+        [
+            "corPrincipal",
+            "hexPrincipal"
+        ],
+
+        [
+            "corSecundaria",
+            "hexSecundaria"
+        ],
+
+        [
+            "corFundo",
+            "hexFundo"
+        ],
+
+        [
+            "corCartao",
+            "hexCartao"
+        ],
+
+        [
+            "corTexto",
+            "hexTexto"
+        ]
+
+    ];
 
 
-/* MOBILE */
+    pares.forEach(
+        ([colorId, hexId]) => {
 
-@media(max-width: 800px) {
+            const color =
+                document.getElementById(
+                    colorId
+                );
 
-  .sidebar {
-    width: 72px;
+            const hex =
+                document.getElementById(
+                    hexId
+                );
 
-    padding:
-      20px 10px;
-  }
 
+            if (!color || !hex) {
+                return;
+            }
 
-  .brand div:last-child,
-  .nav-item span,
-  .connection-card div:last-child {
-    display: none;
-  }
 
+            color.addEventListener(
+                "input",
+                () => {
 
-  .brand {
-    padding:
-      4px 6px 35px;
-  }
+                    hex.value =
+                        color.value.toUpperCase();
 
+                }
+            );
 
-  .nav-item {
-    justify-content: center;
-  }
 
+            hex.addEventListener(
+                "input",
+                () => {
 
-  .main {
-    padding: 20px;
-  }
+                    const valor =
+                        hex.value.trim();
 
 
-  .hero {
-    padding: 30px;
-  }
+                    if (
+                        /^#[0-9A-Fa-f]{6}$/.test(
+                            valor
+                        )
+                    ) {
 
+                        color.value =
+                            valor;
 
-  .hero h2 {
-    font-size: 31px;
-  }
+                    }
 
+                }
+            );
 
-  .hero-orb {
-    display: none;
-  }
+        }
+    );
 
+}
+
+
+function carregarPaleta() {
+
+    try {
+
+        const salva =
+            localStorage.getItem(
+                "cleansurface_paleta"
+            );
+
+
+        if (!salva) {
+
+            preencherCores(
+                PALETAS.original
+            );
+
+            return;
+
+        }
 
-  .cards {
-    grid-template-columns: 1fr;
-  }
 
+        const paleta =
+            JSON.parse(
+                salva
+            );
 
-  .flow {
-    flex-direction: column;
 
-    gap: 10px;
-  }
+        aplicarPaleta(
+            paleta
+        );
 
 
-  .flow-line {
-    width: 1px;
+    } catch (erro) {
 
-    height: 25px;
-  }
+        aplicarPaleta(
+            PALETAS.original
+        );
 
+    }
 
-  .reading {
-    margin-left: 0;
+}
+
+
+// ============================================================
+// FUNÇÕES GLOBAIS
+// ============================================================
+
+window.iniciarAnalise =
+    iniciarAnalise;
+
+window.saveSettings =
+    saveSettings;
 
-    gap: 25px;
-  }
+window.showPage =
+    showPage;
 
+window.aplicarPreset =
+    aplicarPreset;
 
-  .reading-circle {
-    width: 130px;
-    height: 130px;
+window.aplicarCoresPersonalizadas =
+    aplicarCoresPersonalizadas;
 
-    font-size: 38px;
-  }
 
+// ============================================================
+// RESTAURAR PALETA
+// ============================================================
 
-  .palette-presets {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
+function restaurarPaleta() {
 
+    aplicarPaleta(
+        PALETAS.original
+    );
 
-  .custom-colors {
-    grid-template-columns: 1fr;
-  }
 
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
 
-  .appearance-buttons {
-    flex-direction: column;
-  }
 
+    if (mensagem) {
+
+        mensagem.textContent =
+            "✓ Paleta original restaurada";
+
+        setTimeout(
+            () => {
+                mensagem.textContent =
+                    "";
+            },
+            3000
+        );
+
+    }
+
 }
+
+
+window.restaurarPaleta =
+    restaurarPaleta;
