@@ -1173,7 +1173,7 @@ async function iniciarAnalise(){
     document.getElementById("device-status").textContent="Aguardando";
 
     showPage("monitoramento");
-    tempoLimiteAnalise=Date.now()+30000;
+    tempoLimiteAnalise=Date.now()+5000;
     iniciarPolling();
 
   }catch(e){
