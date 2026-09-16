@@ -639,6 +639,48 @@ nav{display:flex;flex-direction:column;gap:6px}
 @media(max-width:560px){.welcome-card{padding:38px 22px 28px;border-radius:22px}.welcome-symbol{width:65px;height:65px;border-radius:18px;font-size:32px}.welcome-kicker{font-size:10px;letter-spacing:2.2px}.welcome-card h1{font-size:38px}.welcome-lead{font-size:15px;margin-top:18px}.welcome-description{font-size:12px}.welcome-button{margin-top:25px}}
 </style>
 
+
+<style id="authScreenStyles">
+.auth-screen{
+  position:fixed;inset:0;z-index:99998;display:flex;align-items:center;justify-content:center;
+  overflow:auto;padding:24px;background:linear-gradient(135deg,#111827,#080d16);
+}
+.auth-card{
+  width:min(460px,100%);padding:34px;border:1px solid rgba(255,255,255,.13);
+  border-radius:24px;background:rgba(17,24,39,.88);box-shadow:0 30px 80px rgba(0,0,0,.45);
+  color:#fff;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+}
+.auth-back{
+  border:0;background:none;color:rgba(255,255,255,.55);cursor:pointer;font-size:13px;margin-bottom:22px;
+}
+.auth-logo{
+  width:58px;height:58px;border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;
+  justify-content:center;background:#1f2937;border:1px solid rgba(255,255,255,.12);font-size:28px;
+}
+.auth-kicker{text-align:center;font-size:10px;letter-spacing:2.5px;font-weight:800;opacity:.55}
+.auth-card h2{text-align:center;font-size:28px;margin:9px 0 7px}
+.auth-card>p{text-align:center;color:rgba(255,255,255,.55);font-size:13px;margin:0 0 25px}
+.auth-form{display:flex;flex-direction:column;gap:8px}
+.auth-form label{font-size:12px;font-weight:700;margin-top:7px;color:rgba(255,255,255,.75)}
+.auth-form label span{font-weight:400;opacity:.55}
+.auth-form input{
+  width:100%;box-sizing:border-box;padding:13px 14px;border-radius:11px;
+  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);
+  color:#fff;outline:none;font-size:14px;
+}
+.auth-form input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.12)}
+.auth-form input::placeholder{color:rgba(255,255,255,.35)}
+.auth-primary{
+  margin-top:16px;width:100%;padding:14px;border:0;border-radius:11px;
+  background:#2563eb;color:#fff;font-weight:900;letter-spacing:.7px;cursor:pointer;
+}
+.auth-switch{
+  border:0;background:none;color:#60a5fa;cursor:pointer;font-size:12px;padding:12px 0 0;
+}
+.auth-message{text-align:center!important;font-size:12px!important;min-height:17px;margin:7px 0 0!important;color:#fca5a5!important}
+@media(max-width:560px){.auth-card{padding:27px 20px;border-radius:20px}.auth-card h2{font-size:24px}}
+</style>
+
 </head>
 
 <body>
@@ -1447,5 +1489,242 @@ function entrarNoSistema(){
 }
 </script>
 
+
+<!-- CLEAN SURFACE AI - TELA DE LOGIN/CADASTRO -->
+<div id="authScreen" class="auth-screen" style="display:none">
+  <div class="auth-card">
+    <button class="auth-back" onclick="voltarBoasVindas()">← Voltar</button>
+
+    <div class="auth-logo">✦</div>
+    <div class="auth-kicker">CLEAN SURFACE AI</div>
+    <h2 id="authTitle">Entrar na sua conta</h2>
+    <p id="authSubtitle">Acesse suas análises e seu histórico.</p>
+
+    <div id="loginForm" class="auth-form">
+      <label>E-mail</label>
+      <input id="loginEmail" type="email" placeholder="seu@email.com">
+
+      <label>Senha</label>
+      <input id="loginSenha" type="password" placeholder="Sua senha">
+
+      <button class="auth-primary" onclick="fazerLogin()">ENTRAR</button>
+
+      <p id="loginMessage" class="auth-message"></p>
+
+      <button class="auth-switch" onclick="mostrarCadastro()">
+        Ainda não tenho uma conta → Criar cadastro
+      </button>
+    </div>
+
+    <div id="cadastroForm" class="auth-form" style="display:none">
+      <label>Nome completo</label>
+      <input id="cadastroNome" type="text" placeholder="Seu nome">
+
+      <label>E-mail</label>
+      <input id="cadastroEmail" type="email" placeholder="seu@email.com">
+
+      <label>CPF <span>(opcional)</span></label>
+      <input id="cadastroCpf" type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00">
+
+      <label>Senha</label>
+      <input id="cadastroSenha" type="password" placeholder="Mínimo de 6 caracteres">
+
+      <label>Confirmar senha</label>
+      <input id="cadastroSenha2" type="password" placeholder="Digite a senha novamente">
+
+      <button class="auth-primary" onclick="fazerCadastro()">CRIAR CONTA</button>
+
+      <p id="cadastroMessage" class="auth-message"></p>
+
+      <button class="auth-switch" onclick="mostrarLogin()">
+        ← Já tenho uma conta
+      </button>
+    </div>
+  </div>
+</div>
+<!-- FIM TELA DE LOGIN/CADASTRO -->
+
+
+<script id="authScreenScript">
+const CLEAN_SURFACE_API = "https://cleansurface-api.luizinfernando19.workers.dev";
+
+function mostrarAuth(){
+  const welcome=document.getElementById("welcomeScreen");
+  const auth=document.getElementById("authScreen");
+  if(welcome){
+    welcome.classList.add("hidden");
+    setTimeout(()=>welcome.style.display="none",500);
+  }
+  if(auth) auth.style.display="flex";
+}
+
+function voltarBoasVindas(){
+  const auth=document.getElementById("authScreen");
+  const welcome=document.getElementById("welcomeScreen");
+  if(auth) auth.style.display="none";
+  if(welcome){
+    welcome.style.display="flex";
+    requestAnimationFrame(()=>welcome.classList.remove("hidden"));
+  }
+}
+
+function mostrarCadastro(){
+  document.getElementById("loginForm").style.display="none";
+  document.getElementById("cadastroForm").style.display="flex";
+  document.getElementById("authTitle").textContent="Criar sua conta";
+  document.getElementById("authSubtitle").textContent="Cadastre-se para salvar suas análises na nuvem.";
+  document.getElementById("loginMessage").textContent="";
+}
+
+function mostrarLogin(){
+  document.getElementById("cadastroForm").style.display="none";
+  document.getElementById("loginForm").style.display="flex";
+  document.getElementById("authTitle").textContent="Entrar na sua conta";
+  document.getElementById("authSubtitle").textContent="Acesse suas análises e seu histórico.";
+  document.getElementById("cadastroMessage").textContent="";
+}
+
+function formatarCPF(valor){
+  let cpf=valor.replace(/\D/g,"").slice(0,11);
+  if(cpf.length>9) return cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/,"$1.$2.$3-$4");
+  if(cpf.length>6) return cpf.replace(/(\d{3})(\d{3})(\d{1,3})/,"$1.$2.$3");
+  if(cpf.length>3) return cpf.replace(/(\d{3})(\d{1,3})/,"$1.$2");
+  return cpf;
+}
+
+const cpfInput=document.getElementById("cadastroCpf");
+if(cpfInput) cpfInput.addEventListener("input",e=>e.target.value=formatarCPF(e.target.value));
+
+async function fazerCadastro(){
+  const nome=document.getElementById("cadastroNome").value.trim();
+  const email=document.getElementById("cadastroEmail").value.trim();
+  const cpf=document.getElementById("cadastroCpf").value.trim();
+  const senha=document.getElementById("cadastroSenha").value;
+  const senha2=document.getElementById("cadastroSenha2").value;
+  const msg=document.getElementById("cadastroMessage");
+
+  msg.textContent="";
+
+  if(!nome||!email||!senha){
+    msg.textContent="Preencha os campos obrigatórios.";
+    return;
+  }
+
+  if(senha.length<6){
+    msg.textContent="A senha precisa ter pelo menos 6 caracteres.";
+    return;
+  }
+
+  if(senha!==senha2){
+    msg.textContent="As senhas não coincidem.";
+    return;
+  }
+
+  msg.textContent="Criando sua conta...";
+
+  try{
+    const resposta=await fetch(CLEAN_SURFACE_API+"/cadastro",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({nome,email,cpf,senha})
+    });
+
+    const dados=await resposta.json();
+
+    if(!resposta.ok||!dados.sucesso){
+      msg.textContent=dados.erro||"Não foi possível criar a conta.";
+      return;
+    }
+
+    msg.style.color="#86efac";
+    msg.textContent="Cadastro realizado! Agora faça login.";
+
+    setTimeout(()=>{
+      mostrarLogin();
+      document.getElementById("loginEmail").value=email;
+    },1000);
+
+  }catch(erro){
+    msg.textContent="Erro de conexão com a API.";
+  }
+}
+
+async function fazerLogin(){
+  const email=document.getElementById("loginEmail").value.trim();
+  const senha=document.getElementById("loginSenha").value;
+  const msg=document.getElementById("loginMessage");
+
+  msg.textContent="";
+  msg.style.color="#fca5a5";
+
+  if(!email||!senha){
+    msg.textContent="Informe seu e-mail e sua senha.";
+    return;
+  }
+
+  msg.textContent="Entrando...";
+
+  try{
+    const resposta=await fetch(CLEAN_SURFACE_API+"/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({email,senha})
+    });
+
+    const dados=await resposta.json();
+
+    if(!resposta.ok||!dados.sucesso){
+      msg.textContent=dados.erro||"Não foi possível entrar.";
+      return;
+    }
+
+    localStorage.setItem("cleanSurfaceToken",dados.token);
+    localStorage.setItem("cleanSurfaceUsuario",JSON.stringify(dados.usuario));
+
+    msg.style.color="#86efac";
+    msg.textContent="Login realizado!";
+
+    setTimeout(()=>{
+      document.getElementById("authScreen").style.display="none";
+    },500);
+
+  }catch(erro){
+    msg.textContent="Erro de conexão com a API.";
+  }
+}
+
+// Substitui a função do botão COMEÇAR da tela de boas-vindas.
+function entrarNoSistema(){
+  mostrarAuth();
+}
+
+// Se já houver sessão, valida no servidor e pula login.
+async function verificarSessaoInicial(){
+  const token=localStorage.getItem("cleanSurfaceToken");
+  if(!token) return;
+
+  try{
+    const resposta=await fetch(CLEAN_SURFACE_API+"/usuario",{
+      headers:{Authorization:"Bearer "+token}
+    });
+
+    if(resposta.ok){
+      const dados=await resposta.json();
+      if(dados.sucesso){
+        localStorage.setItem("cleanSurfaceUsuario",JSON.stringify(dados.usuario));
+        const welcome=document.getElementById("welcomeScreen");
+        if(welcome) welcome.style.display="none";
+        return;
+      }
+    }
+  }catch(e){}
+
+  localStorage.removeItem("cleanSurfaceToken");
+  localStorage.removeItem("cleanSurfaceUsuario");
+}
+</script>
+
+<script>verificarSessaoInicial();</script>
 </body>
 </html>
+
