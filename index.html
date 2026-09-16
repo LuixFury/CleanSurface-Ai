@@ -243,7 +243,21 @@ nav{display:flex;flex-direction:column;gap:6px}
   gap:16px;
   margin:18px 0;
 }
-.stat-card,.section-card,.credit-card,.credits-header{
+.stat-card,.section-card,.credit-card,/* CONTA */
+.account-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:25px}
+.account-box{border:1px solid var(--border);background:var(--card2);border-radius:14px;padding:20px}
+.account-box.full{grid-column:1/-1}
+.account-box h4{margin:0 0 15px;font-size:15px}
+.account-form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.account-form label{font-size:11px;color:var(--muted)}
+.account-form input{display:block;width:100%;margin-top:6px;background:var(--input);border:1px solid var(--border);border-radius:9px;padding:12px;color:var(--text);outline:none}
+.account-form input:focus{border-color:var(--primary)}
+.account-info{display:flex;align-items:center;gap:15px;margin-bottom:20px}
+.account-avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:var(--primary);color:var(--primary-dark);font-size:25px;font-weight:900}
+.account-info strong{font-size:18px}.account-info span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+.account-message{min-height:18px;color:var(--primary);font-size:12px;margin:10px 0 0}
+@media(max-width:800px){.account-grid,.account-form{grid-template-columns:1fr}.account-box.full{grid-column:auto}}
+.credits-header{
   border:1px solid var(--border);
   background:var(--card);
   border-radius:16px;
@@ -725,6 +739,9 @@ nav{display:flex;flex-direction:column;gap:6px}
     <button class="nav-item" data-page="configuracoes">
       <span class="ico">⚙</span><span>Configurações</span>
     </button>
+    <button class="nav-item" data-page="conta">
+      <span class="ico">👤</span><span>Conta</span>
+    </button>
     <button class="nav-item" data-page="creditos">
       <span class="ico">★</span><span>Equipe / Créditos</span>
     </button>
@@ -963,6 +980,47 @@ nav{display:flex;flex-direction:column;gap:6px}
   </div>
 </section>
 
+<section id="conta" class="page">
+  <div class="section-card big">
+    <div class="section-head"><div>
+      <p class="eyebrow">MINHA CONTA</p>
+      <h3>Dados da conta</h3>
+      <p>Confira seus dados e, se quiser, complete seu perfil.</p>
+    </div></div>
+    <div class="account-grid">
+      <div class="account-box full">
+        <div class="account-info">
+          <div class="account-avatar" id="contaAvatar">👤</div>
+          <div><strong id="contaNomeTopo">Usuário</strong><span id="contaEmailTopo">Carregando...</span></div>
+        </div>
+        <div class="account-form">
+          <label>Nome completo<input id="contaNome" type="text" placeholder="Seu nome completo"></label>
+          <label>E-mail<input id="contaEmail" type="email" placeholder="seu@email.com" disabled></label>
+          <label>CPF<input id="contaCpf" type="text" placeholder="000.000.000-00"></label>
+          <label>Data de nascimento<input id="contaNascimento" type="date"></label>
+          <label>Telefone<input id="contaTelefone" type="tel" placeholder="(00) 00000-0000"></label>
+        </div>
+      </div>
+      <div class="account-box full">
+        <h4>📍 Endereço <span style="font-size:11px;color:var(--muted);font-weight:400">(opcional)</span></h4>
+        <div class="account-form">
+          <label>CEP<input id="contaCep" type="text" inputmode="numeric" maxlength="9" placeholder="00000-000"></label>
+          <label>Estado<input id="contaEstado" type="text" maxlength="2" placeholder="PR"></label>
+          <label>Rua<input id="contaRua" type="text" placeholder="Nome da rua"></label>
+          <label>Número<input id="contaNumero" type="text" placeholder="123"></label>
+          <label>Complemento<input id="contaComplemento" type="text" placeholder="Casa, apartamento, etc."></label>
+          <label>Bairro<input id="contaBairro" type="text" placeholder="Seu bairro"></label>
+          <label>Cidade<input id="contaCidade" type="text" placeholder="Sua cidade"></label>
+        </div>
+      </div>
+      <div class="account-box full">
+        <button class="primary" id="salvarContaBtn" onclick="salvarPerfil()">💾 Salvar dados da conta</button>
+        <p id="contaMessage" class="account-message"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="creditos" class="page">
   <div class="credits-header">
     <div class="credits-symbol">✦</div>
@@ -1046,6 +1104,7 @@ const titleMap={
   alertas:"Alertas",
   historico:"Histórico",
   configuracoes:"Configurações",
+  conta:"Conta",
   creditos:"Equipe / Créditos"
 };
 
@@ -1062,6 +1121,7 @@ document.addEventListener("DOMContentLoaded",()=>{
   carregarConfiguracoes();
   atualizarHistorico();
   atualizarDashboard();
+  carregarPerfil();
 });
 
 function showPage(id){
@@ -1469,6 +1529,41 @@ function atualizarAlertas(){
   `).join("");
 }
 
+async function carregarPerfil(){
+  const token=localStorage.getItem("cleanSurfaceToken");
+  if(!token)return;
+  try{
+    const r=await fetch(CLEAN_SURFACE_API+"/perfil",{headers:{Authorization:"Bearer "+token},cache:"no-store"});
+    if(!r.ok)return;
+    const data=await r.json();
+    if(data.sucesso&&data.usuario)preencherPerfil(data.usuario);
+  }catch(e){console.log("Perfil não carregado.",e)}
+}
+function preencherPerfil(u){
+  const campos={contaNome:u.nome||"",contaEmail:u.email||"",contaCpf:u.cpf||"",contaNascimento:u.data_nascimento||"",contaTelefone:u.telefone||"",contaCep:u.cep||"",contaRua:u.rua||"",contaNumero:u.numero||"",contaComplemento:u.complemento||"",contaBairro:u.bairro||"",contaCidade:u.cidade||"",contaEstado:u.estado||""};
+  Object.entries(campos).forEach(([id,v])=>{const e=document.getElementById(id);if(e)e.value=v});
+  document.getElementById("contaNomeTopo").textContent=u.nome||"Usuário";
+  document.getElementById("contaEmailTopo").textContent=u.email||"";
+  document.getElementById("contaAvatar").textContent=(u.nome||"U").trim().charAt(0).toUpperCase();
+}
+async function salvarPerfil(){
+  const token=localStorage.getItem("cleanSurfaceToken"),msg=document.getElementById("contaMessage"),btn=document.getElementById("salvarContaBtn");
+  if(!token){msg.textContent="Faça login novamente para salvar seus dados.";return}
+  const body={nome:document.getElementById("contaNome").value.trim(),cpf:document.getElementById("contaCpf").value.trim(),data_nascimento:document.getElementById("contaNascimento").value,telefone:document.getElementById("contaTelefone").value.trim(),cep:document.getElementById("contaCep").value.trim(),rua:document.getElementById("contaRua").value.trim(),numero:document.getElementById("contaNumero").value.trim(),complemento:document.getElementById("contaComplemento").value.trim(),bairro:document.getElementById("contaBairro").value.trim(),cidade:document.getElementById("contaCidade").value.trim(),estado:document.getElementById("contaEstado").value.trim().toUpperCase()};
+  if(!body.nome){msg.textContent="Informe seu nome.";return}
+  btn.disabled=true;msg.textContent="Salvando...";
+  try{
+    const r=await fetch(CLEAN_SURFACE_API+"/perfil",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify(body)});
+    const data=await r.json();
+    if(!r.ok||!data.sucesso){msg.textContent=data.erro||"Não foi possível salvar os dados.";return}
+    if(data.usuario){localStorage.setItem("cleanSurfaceUsuario",JSON.stringify(data.usuario));preencherPerfil(data.usuario)}
+    msg.textContent="✓ Dados da conta salvos com sucesso.";
+  }catch(e){msg.textContent="❌ Erro de conexão com a API."}finally{btn.disabled=false}
+}
+function formatarCep(v){v=v.replace(/\D/g,"").slice(0,8);return v.length>5?v.replace(/(\d{5})(\d{1,3})/,"$1-$2"):v}
+const cepConta=document.getElementById("contaCep");
+if(cepConta)cepConta.addEventListener("input",e=>e.target.value=formatarCep(e.target.value));
+
 function escapeHtml(v){
   return String(v)
     .replaceAll("&","&amp;")
@@ -1712,6 +1807,7 @@ async function verificarSessaoInicial(){
       const dados=await resposta.json();
       if(dados.sucesso){
         localStorage.setItem("cleanSurfaceUsuario",JSON.stringify(dados.usuario));
+        carregarPerfil();
         const welcome=document.getElementById("welcomeScreen");
         if(welcome) welcome.style.display="none";
         return;
@@ -1727,4 +1823,3 @@ async function verificarSessaoInicial(){
 <script>verificarSessaoInicial();</script>
 </body>
 </html>
-
