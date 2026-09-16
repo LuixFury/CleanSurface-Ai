@@ -617,9 +617,46 @@ nav{display:flex;flex-direction:column;gap:6px}
   .credit-card{padding:18px}
 }
 </style>
+
+<style id="welcomeScreenStyles">
+.welcome-screen{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 35%,rgba(255,255,255,.08),transparent 34%),linear-gradient(135deg,#111827 0%,#0b1220 52%,#080d16 100%);transition:opacity .45s ease,visibility .45s ease}
+.welcome-screen.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.welcome-card{position:relative;z-index:2;width:min(620px,calc(100% - 34px));padding:52px 42px 38px;text-align:center;border:1px solid rgba(255,255,255,.13);border-radius:28px;background:rgba(17,24,39,.72);box-shadow:0 30px 90px rgba(0,0,0,.45);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);animation:welcomeUp .7s ease both}
+.welcome-symbol{width:78px;height:78px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;border-radius:22px;font-size:40px;color:#fff;background:linear-gradient(145deg,#26364f,#111827);border:1px solid rgba(255,255,255,.15);box-shadow:0 12px 35px rgba(0,0,0,.3)}
+.welcome-kicker{font-size:12px;font-weight:800;letter-spacing:3px;opacity:.7;color:#fff;margin-bottom:12px}
+.welcome-card h1{margin:0;color:#fff;font-size:clamp(38px,6vw,58px);line-height:1.05;letter-spacing:-1.5px}
+.welcome-lead{max-width:510px;margin:22px auto 0;color:rgba(255,255,255,.88);font-size:18px;line-height:1.55}
+.welcome-description{max-width:470px;margin:12px auto 0;color:rgba(255,255,255,.58);font-size:14px;line-height:1.6}
+.welcome-button{width:min(310px,100%);margin:30px auto 0;padding:16px 24px;border:0;border-radius:14px;cursor:pointer;color:#fff;font-size:14px;font-weight:900;letter-spacing:.8px;background:linear-gradient(135deg,#2563eb,#1d4ed8);box-shadow:0 12px 30px rgba(37,99,235,.32);transition:transform .2s ease,box-shadow .2s ease}
+.welcome-button:hover{transform:translateY(-2px);box-shadow:0 16px 36px rgba(37,99,235,.42)}
+.welcome-button:active{transform:translateY(0)}
+.welcome-button span{margin-right:7px}
+.welcome-footer{margin-top:28px;color:rgba(255,255,255,.38);font-size:10px;letter-spacing:.7px}
+.welcome-glow{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;opacity:.18}
+.welcome-glow-1{width:360px;height:360px;top:-150px;left:-120px;background:#2563eb}
+.welcome-glow-2{width:300px;height:300px;right:-100px;bottom:-120px;background:#7c3aed}
+@keyframes welcomeUp{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:560px){.welcome-card{padding:38px 22px 28px;border-radius:22px}.welcome-symbol{width:65px;height:65px;border-radius:18px;font-size:32px}.welcome-kicker{font-size:10px;letter-spacing:2.2px}.welcome-card h1{font-size:38px}.welcome-lead{font-size:15px;margin-top:18px}.welcome-description{font-size:12px}.welcome-button{margin-top:25px}}
+</style>
+
 </head>
 
 <body>
+<!-- CLEAN SURFACE AI - TELA DE BOAS-VINDAS -->
+<div id="welcomeScreen" class="welcome-screen">
+  <div class="welcome-glow welcome-glow-1"></div>
+  <div class="welcome-glow welcome-glow-2"></div>
+  <div class="welcome-card">
+    <div class="welcome-symbol">✦</div>
+    <div class="welcome-kicker">CLEAN SURFACE AI</div>
+    <h1>Seja bem-vindo!</h1>
+    <p class="welcome-lead">Uma solução inteligente para análise de superfícies utilizando inteligência artificial.</p>
+    <p class="welcome-description">Analise superfícies de forma rápida e inteligente com o CleanSurface AI.</p>
+    <button class="welcome-button" onclick="entrarNoSistema()"><span>🚀</span> COMEÇAR</button>
+    <div class="welcome-footer">Tecnologia • Inteligência Artificial • Análise de Superfícies</div>
+  </div>
+</div>
+
 
 <aside class="sidebar">
   <div class="brand">
@@ -1173,7 +1210,7 @@ async function iniciarAnalise(){
     document.getElementById("device-status").textContent="Aguardando";
 
     showPage("monitoramento");
-    tempoLimiteAnalise=Date.now()+5000;
+    tempoLimiteAnalise=Date.now()+30000;
     iniciarPolling();
 
   }catch(e){
@@ -1397,6 +1434,16 @@ function escapeHtml(v){
     .replaceAll(">","&gt;")
     .replaceAll('"',"&quot;")
     .replaceAll("'","&#039;");
+}
+</script>
+
+
+<script id="welcomeScreenScript">
+function entrarNoSistema(){
+  const tela=document.getElementById("welcomeScreen");
+  if(!tela)return;
+  tela.classList.add("hidden");
+  setTimeout(()=>{tela.style.display="none"},500);
 }
 </script>
 
