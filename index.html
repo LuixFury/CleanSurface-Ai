@@ -1293,12 +1293,22 @@ async function iniciarAnalise(){
   status.textContent="⏳ Solicitando análise...";
 
   try{
-    const r=await fetch(API_URL+"/iniciar-analise",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({email})
-    });
+   const token = localStorage.getItem("cleanSurfaceToken");
 
+if(!token){
+  status.textContent="❌ Faça login para iniciar uma análise.";
+  btn.disabled=false;
+  return;
+}
+
+const r=await fetch(API_URL+"/iniciar-analise",{
+  method:"POST",
+  headers:{
+    "Content-Type":"application/json",
+    "Authorization":"Bearer "+token
+  },
+  body:JSON.stringify({email})
+});
     if(!r.ok)throw new Error("HTTP "+r.status);
 
     const data=await r.json();
