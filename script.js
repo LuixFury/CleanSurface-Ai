@@ -6,10 +6,12 @@
 const API_URL =
     "https://cleansurface-api.luizinfernando19.workers.dev";
 
-let analiseAtualId=null;
-let pollingAtivo=false;
-let analiseFinalizada=false;
-let tempoLimiteAnalise=null;
+let analiseAtualId = null;
+let pollingAtivo = false;
+let analiseFinalizada = false;
+let tempoLimiteAnalise = null;
+let timerPolling = null;
+
 
 // ============================================================
 // PALETAS
@@ -17,103 +19,104 @@ let tempoLimiteAnalise=null;
 
 const PALETAS = {
 
-verde:{
-primary:"#39e6a3",
-secondary:"#55cba0",
-background:"#07100f",
-card:"#0b1917",
-text:"#edf7f4"
-},
+    verde: {
+        primary: "#39e6a3",
+        secondary: "#55cba0",
+        background: "#07100f",
+        card: "#0b1917",
+        text: "#edf7f4"
+    },
 
-azul:{
-primary:"#38bdf8",
-secondary:"#60a5fa",
-background:"#07111f",
-card:"#0b1728",
-text:"#edf7ff"
-},
+    azul: {
+        primary: "#38bdf8",
+        secondary: "#60a5fa",
+        background: "#07111f",
+        card: "#0b1728",
+        text: "#edffff"
+    },
 
-roxo:{
-primary:"#a78bfa",
-secondary:"#c4b5fd",
-background:"#100b1c",
-card:"#171025",
-text:"#f5f3ff"
-},
+    roxo: {
+        primary: "#a78bfa",
+        secondary: "#c4b5fd",
+        background: "#100b1c",
+        card: "#171025",
+        text: "#f5f3ff"
+    },
 
-vermelho:{
-primary:"#fb7185",
-secondary:"#fda4af",
-background:"#1a090c",
-card:"#241013",
-text:"#fff1f2"
-},
+    vermelho: {
+        primary: "#fb7185",
+        secondary: "#fda4af",
+        background: "#1a090c",
+        card: "#241013",
+        text: "#fff1f2"
+    },
 
-laranja:{
-primary:"#fb923c",
-secondary:"#fdba74",
-background:"#1b0e06",
-card:"#26140a",
-text:"#fff7ed"
-},
+    laranja: {
+        primary: "#fb923c",
+        secondary: "#fdba74",
+        background: "#1b0e06",
+        card: "#26140a",
+        text: "#fff7ed"
+    },
 
-amarelo:{
-primary:"#facc15",
-secondary:"#fde047",
-background:"#171304",
-card:"#211c08",
-text:"#fffbea"
-},
+    amarelo: {
+        primary: "#facc15",
+        secondary: "#fde047",
+        background: "#171304",
+        card: "#211c08",
+        text: "#fffbea"
+    },
 
-rosa:{
-primary:"#f472b6",
-secondary:"#f9a8d4",
-background:"#190b14",
-card:"#24101d",
-text:"#fff1f8"
-},
+    rosa: {
+        primary: "#f472b6",
+        secondary: "#f9a8d4",
+        background: "#190b14",
+        card: "#24101d",
+        text: "#fff1f8"
+    },
 
-ciano:{
-primary:"#22d3ee",
-secondary:"#67e8f9",
-background:"#061519",
-card:"#0a1d21",
-text:"#ecfeff"
-},
+    ciano: {
+        primary: "#22d3ee",
+        secondary: "#67e8f9",
+        background: "#061519",
+        card: "#0a1d21",
+        text: "#ecfeff"
+    },
 
-azulescuro:{
-primary:"#6366f1",
-secondary:"#818cf8",
-background:"#090b1d",
-card:"#11142d",
-text:"#eef2ff"
-},
+    azulescuro: {
+        primary: "#6366f1",
+        secondary: "#818cf8",
+        background: "#090b1d",
+        card: "#11142d",
+        text: "#eef2ff"
+    },
 
-branco:{
-primary:"#ffffff",
-secondary:"#d1d5db",
-background:"#111827",
-card:"#1f2937",
-text:"#f9fafb"
-},
+    branco: {
+        primary: "#ffffff",
+        secondary: "#d1d5db",
+        background: "#111827",
+        card: "#1f2937",
+        text: "#f9fafb"
+    },
 
-dourado:{
-primary:"#eab308",
-secondary:"#facc15",
-background:"#151005",
-card:"#211a08",
-text:"#fffbeb"
-},
+    dourado: {
+        primary: "#eab308",
+        secondary: "#facc15",
+        background: "#151005",
+        card: "#211a08",
+        text: "#fffbeb"
+    },
 
-turquesa:{
-primary:"#2dd4bf",
-secondary:"#5eead4",
-background:"#061512",
-card:"#0b211d",
-text:"#ecfdf5"
-}
+    turquesa: {
+        primary: "#2dd4bf",
+        secondary: "#5eead4",
+        background: "#061512",
+        card: "#0b211d",
+        text: "#ecfdf5"
+    }
 
 };
+
 
 // ============================================================
 // INICIALIZAÇÃO
@@ -136,6 +139,8 @@ document.addEventListener(
         atualizarDashboard();
 
         verificarAPI();
+
+        restaurarEstadoBotao();
 
     }
 );
@@ -163,7 +168,11 @@ function configurarNavegacao() {
                         botao.dataset.page;
 
                     if (pagina) {
-                        mostrarPagina(pagina);
+
+                        mostrarPagina(
+                            pagina
+                        );
+
                     }
 
                 }
@@ -175,7 +184,9 @@ function configurarNavegacao() {
 }
 
 
-function mostrarPagina(nomePagina) {
+function mostrarPagina(
+    nomePagina
+) {
 
     const paginas =
         document.querySelectorAll(
@@ -261,9 +272,11 @@ function mostrarPagina(nomePagina) {
 
         };
 
+
         titulo.textContent =
             titulos[nomePagina] ||
             "CleanSurface AI";
+
     }
 
 
@@ -279,15 +292,19 @@ function mostrarPagina(nomePagina) {
 }
 
 
-function showPage(nomePagina) {
+function showPage(
+    nomePagina
+) {
 
-    mostrarPagina(nomePagina);
+    mostrarPagina(
+        nomePagina
+    );
 
 }
 
 
 // ============================================================
-// API
+// VERIFICAR API
 // ============================================================
 
 async function verificarAPI() {
@@ -311,9 +328,11 @@ async function verificarAPI() {
 
 
         if (!resposta.ok) {
+
             throw new Error(
                 "API offline"
             );
+
         }
 
 
@@ -334,8 +353,8 @@ async function verificarAPI() {
 
         }
 
-
-    } catch (erro) {
+    }
+    catch (erro) {
 
         console.error(
             "API:",
@@ -356,222 +375,977 @@ async function verificarAPI() {
 
 
 // ============================================================
-// INICIAR ANÁLISE
+// INICIAR / NOVA ANÁLISE
 // ============================================================
-async function iniciarAnalise(){
-  const btn=document.getElementById("analisarBtn");
-  const status=document.getElementById("statusAnalise");
-  const email=document.getElementById("email").value.trim()||
-               localStorage.getItem("cleansurface_email")||"";
 
-  if(!email){
-    status.textContent="Digite seu e-mail em Configurações antes de iniciar.";
-    showPage("configuracoes");
-    return;
-  }
+async function iniciarAnalise() {
 
-  localStorage.setItem("cleansurface_email",email);
+    const btn =
+        document.getElementById(
+            "analisarBtn"
+        );
 
-  btn.disabled=true;
-  analiseFinalizada=false;
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
 
-  status.textContent="⏳ Solicitando análise...";
+    const emailElemento =
+        document.getElementById(
+            "email"
+        );
 
-  try{
-    const r=await fetch(API_URL+"/iniciar-analise",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({email})
-    });
 
-    if(!r.ok){
-      throw new Error("HTTP "+r.status);
+    const email =
+        emailElemento
+            ? emailElemento.value.trim()
+            : localStorage.getItem(
+                "cleansurface_email"
+            ) || "";
+
+
+    // --------------------------------------------------------
+    // VERIFICAR E-MAIL
+    // --------------------------------------------------------
+
+    if (!email) {
+
+        if (status) {
+
+            status.textContent =
+                "Digite seu e-mail em Configurações antes de iniciar.";
+
+        }
+
+        showPage(
+            "configuracoes"
+        );
+
+        return;
+
     }
 
-    const data=await r.json();
-
-    if(!data.analise_id){
-      throw new Error(data.mensagem||"ID não recebido.");
-    }
-
-    analiseAtualId=String(data.analise_id);
 
     localStorage.setItem(
-      "cleansurface_analise_atual",
-      analiseAtualId
+        "cleansurface_email",
+        email
     );
 
-    status.textContent="📷 Aguardando ESP32-S3-CAM...";
-    document.getElementById("device-status").textContent="Aguardando";
 
-    document.getElementById("reading-value").textContent="--";
-    document.getElementById("reading-status").textContent="AGUARDANDO LEITURA";
-    document.getElementById("reading-detail").textContent=
-      "Aguardando a câmera visualizar a superfície.";
+    // --------------------------------------------------------
+    // PARAR POLLING ANTERIOR
+    // --------------------------------------------------------
 
-    const badge=document.getElementById("monitorBadge");
-    badge.textContent="AGUARDANDO DISPOSITIVO";
-    badge.className="badge waiting";
+    pararPolling();
 
-    showPage("monitoramento");
+    clearTimeout(
+        tempoLimiteAnalise
+    );
 
-    iniciarPolling();
 
-    /*
-      Se o ESP32 não enviar absolutamente nenhum resultado
-      dentro de 30 segundos, considera a superfície
-      como não visualizada.
-    */
+    // --------------------------------------------------------
+    // RESET
+    // --------------------------------------------------------
 
-    clearTimeout(tempoLimiteAnalise);
+    analiseAtualId =
+        null;
 
-    tempoLimiteAnalise=setTimeout(()=>{
-      if(!analiseFinalizada){
-        finalizarSemResultado();
-      }
-    },30000);
+    analiseFinalizada =
+        false;
 
-  }catch(e){
-    console.error(e);
+    pollingAtivo =
+        false;
 
-    status.textContent=
-      "❌ Não foi possível iniciar a análise.";
 
-    btn.disabled=false;
-  }
+    // --------------------------------------------------------
+    // BOTÃO
+    // --------------------------------------------------------
+
+    if (btn) {
+
+        btn.disabled =
+            true;
+
+        btn.textContent =
+            "⏳ ANALISANDO...";
+
+    }
+
+
+    if (status) {
+
+        status.textContent =
+            "⏳ Solicitando análise...";
+
+    }
+
+
+    try {
+
+        // ----------------------------------------------------
+        // CRIAR NOVA ANÁLISE
+        // ----------------------------------------------------
+
+        const resposta =
+            await fetch(
+                API_URL +
+                "/iniciar-analise",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            email: email
+                        })
+                }
+            );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "HTTP " +
+                resposta.status
+            );
+
+        }
+
+
+        const dados =
+            await resposta.json();
+
+
+        console.log(
+            "Nova análise:",
+            dados
+        );
+
+
+        if (!dados.analise_id) {
+
+            throw new Error(
+                dados.mensagem ||
+                "ID da análise não recebido."
+            );
+
+        }
+
+
+        // ----------------------------------------------------
+        // SALVAR ID
+        // ----------------------------------------------------
+
+        analiseAtualId =
+            String(
+                dados.analise_id
+            );
+
+
+        localStorage.setItem(
+            "cleansurface_analise_atual",
+            analiseAtualId
+        );
+
+
+        console.log(
+            "ANÁLISE CRIADA:",
+            analiseAtualId
+        );
+
+
+        // ----------------------------------------------------
+        // LIMPAR MONITORAMENTO
+        // ----------------------------------------------------
+
+        limparMonitoramento();
+
+
+        // ----------------------------------------------------
+        // MOSTRAR MONITORAMENTO
+        // ----------------------------------------------------
+
+        showPage(
+            "monitoramento"
+        );
+
+
+        // ----------------------------------------------------
+        // STATUS
+        // ----------------------------------------------------
+
+        if (status) {
+
+            status.textContent =
+                "📷 Aguardando ESP32-S3-CAM...";
+
+        }
+
+
+        // ----------------------------------------------------
+        // INICIAR POLLING
+        // ----------------------------------------------------
+
+        iniciarPolling();
+
+
+        // ----------------------------------------------------
+        // LIMITE DE 30 SEGUNDOS
+        // ----------------------------------------------------
+
+        tempoLimiteAnalise =
+            setTimeout(
+                () => {
+
+                    if (
+                        !analiseFinalizada &&
+                        analiseAtualId
+                    ) {
+
+                        finalizarSemResultado();
+
+                    }
+
+                },
+                30000
+            );
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao iniciar análise:",
+            erro
+        );
+
+
+        analiseFinalizada =
+            true;
+
+        pollingAtivo =
+            false;
+
+
+        if (status) {
+
+            status.textContent =
+                "❌ Não foi possível iniciar a análise.";
+
+        }
+
+
+        if (btn) {
+
+            btn.disabled =
+                false;
+
+            btn.textContent =
+                "🔍 INICIAR ANÁLISE";
+
+        }
+
+    }
+
 }
 
 
 // ============================================================
-// RESULTADO
+// POLLING
 // ============================================================
 
-async function verificarResultado(){
-  if(!analiseAtualId || analiseFinalizada){
-    pollingAtivo=false;
-    return;
-  }
+function iniciarPolling() {
 
-  try{
-    const r=await fetch(
-      API_URL+"/resultado?analise_id="+
-      encodeURIComponent(analiseAtualId),
-      {
-        cache:"no-store"
-      }
-    );
+    pararPolling();
 
-    if(r.ok){
-      const data=await r.json();
 
-      if(
-        data.disponivel===true &&
-        String(data.analise_id)===String(analiseAtualId)
-      ){
-        processarResultado(data);
-        pollingAtivo=false;
+    if (!analiseAtualId) {
+
         return;
-      }
+
     }
 
-  }catch(e){
-    console.log("Aguardando ESP32...",e);
-  }
 
-  if(!analiseFinalizada){
-    setTimeout(verificarResultado,3000);
-  }
+    pollingAtivo =
+        true;
+
+
+    console.log(
+        "Polling iniciado para análise:",
+        analiseAtualId
+    );
+
+
+    verificarResultado();
+
 }
+
+
+function pararPolling() {
+
+    pollingAtivo =
+        false;
+
+
+    if (timerPolling) {
+
+        clearTimeout(
+            timerPolling
+        );
+
+        timerPolling =
+            null;
+
+    }
+
+}
+
+
 // ============================================================
-// PROCESSAR RESULTADO
+// VERIFICAR RESULTADO
 // ============================================================
 
-async function finalizarSemResultado(){
+async function verificarResultado() {
 
-  if(analiseFinalizada)return;
+    if (
+        !pollingAtivo ||
+        !analiseAtualId ||
+        analiseFinalizada
+    ) {
 
-  analiseFinalizada=true;
-  pollingAtivo=false;
+        return;
 
-  clearTimeout(tempoLimiteAnalise);
+    }
 
-  const btn=document.getElementById("analisarBtn");
-  const status=document.getElementById("statusAnalise");
 
-  btn.disabled=false;
+    try {
 
-  status.textContent=
-    "⚠️ Superfície não visualizada.";
+        const resposta =
+            await fetch(
+                API_URL +
+                "/resultado?analise_id=" +
+                encodeURIComponent(
+                    analiseAtualId
+                ),
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
 
-  document.getElementById("device-status").textContent=
-    "Sem resultado";
 
-  document.getElementById("reading-value").textContent=
-    "--";
+        if (resposta.ok) {
 
-  document.getElementById("reading-status").textContent=
-    "SUPERFÍCIE NÃO VISUALIZADA";
+            const dados =
+                await resposta.json();
 
-  document.getElementById("reading-detail").textContent=
-    "O ESP32-S3-CAM não enviou nenhum resultado da análise.";
 
-  const badge=document.getElementById("monitorBadge");
+            console.log(
+                "Resultado:",
+                dados
+            );
 
-  badge.textContent="SEM RESULTADO";
-  badge.className="badge bad";
 
-  const item={
-    data:new Date().toLocaleString("pt-BR"),
-    analise_id:analiseAtualId,
-    valor:"--",
-    status:"nao_visualizada",
-    detalhe:"Superfície não visualizada — nenhum resultado recebido do ESP32-S3-CAM."
-  };
+            if (
+                dados.disponivel === true &&
+                String(
+                    dados.analise_id
+                ) ===
+                String(
+                    analiseAtualId
+                )
+            ) {
 
-  salvarHistorico(item);
-  atualizarHistorico();
-  atualizarDashboard();
-  atualizarAlertas();
+                processarResultado(
+                    dados
+                );
 
-  /*
-    Envia para a API.
-    A API usa o e-mail cadastrado na análise
-    e dispara a notificação por e-mail.
-  */
+                return;
 
-  try{
+            }
 
-    const r=await fetch(API_URL+"/resultado",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify({
-        analise_id:analiseAtualId,
-        valor:null,
-        status:"nao_visualizada",
+        }
+
+    }
+    catch (erro) {
+
+        console.log(
+            "Aguardando resultado do ESP32...",
+            erro
+        );
+
+    }
+
+
+    // --------------------------------------------------------
+    // CONTINUAR POLLING
+    // --------------------------------------------------------
+
+    if (
+        pollingAtivo &&
+        !analiseFinalizada
+    ) {
+
+        timerPolling =
+            setTimeout(
+                verificarResultado,
+                3000
+            );
+
+    }
+
+}
+
+
+// ============================================================
+// PROCESSAR RESULTADO REAL
+// ============================================================
+
+function processarResultado(
+    data
+) {
+
+    if (
+        analiseFinalizada
+    ) {
+
+        return;
+
+    }
+
+
+    analiseFinalizada =
+        true;
+
+
+    pararPolling();
+
+
+    clearTimeout(
+        tempoLimiteAnalise
+    );
+
+
+    const btn =
+        document.getElementById(
+            "analisarBtn"
+        );
+
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
+
+
+    const valor =
+        data.valor ??
+        "--";
+
+
+    const statusResultado =
+        data.status ||
+        "analisado";
+
+
+    const detalhe =
+        data.detalhe ||
+        "Análise realizada pelo ESP32-S3-CAM.";
+
+
+    // --------------------------------------------------------
+    // MONITOR
+    // --------------------------------------------------------
+
+    atualizarMonitoramento(
+        valor,
+        statusResultado,
+        detalhe
+    );
+
+
+    // --------------------------------------------------------
+    // BADGE
+    // --------------------------------------------------------
+
+    const badge =
+        document.getElementById(
+            "monitorBadge"
+        );
+
+
+    if (badge) {
+
+        const normalizado =
+            String(
+                statusResultado
+            ).toLowerCase();
+
+
+        if (
+            normalizado ===
+                "aprovado" ||
+            normalizado ===
+                "ok" ||
+            normalizado ===
+                "limpo"
+        ) {
+
+            badge.textContent =
+                "APROVADO";
+
+            badge.className =
+                "badge good";
+
+        }
+        else if (
+            normalizado ===
+                "reprovado" ||
+            normalizado ===
+                "alerta" ||
+            normalizado ===
+                "sujo"
+        ) {
+
+            badge.textContent =
+                "ALERTA";
+
+            badge.className =
+                "badge bad";
+
+        }
+        else {
+
+            badge.textContent =
+                "ANALISADO";
+
+            badge.className =
+                "badge waiting";
+
+        }
+
+    }
+
+
+    // --------------------------------------------------------
+    // STATUS PRINCIPAL
+    // --------------------------------------------------------
+
+    if (status) {
+
+        status.textContent =
+            "✅ Análise concluída.";
+
+    }
+
+
+    // --------------------------------------------------------
+    // BOTÃO NOVA ANÁLISE
+    // --------------------------------------------------------
+
+    if (btn) {
+
+        btn.disabled =
+            false;
+
+        btn.textContent =
+            "🔄 REALIZAR NOVA ANÁLISE";
+
+    }
+
+
+    // --------------------------------------------------------
+    // HISTÓRICO
+    // --------------------------------------------------------
+
+    const item = {
+
+        id:
+            data.id ||
+            analiseAtualId,
+
+        data:
+            data.criado_em ||
+            new Date().toISOString(),
+
+        analise_id:
+            analiseAtualId,
+
+        valor:
+            valor,
+
+        status:
+            statusResultado,
+
         detalhe:
-          "Superfície não visualizada — nenhum resultado recebido do ESP32-S3-CAM."
-      })
-    });
+            detalhe
 
-    if(!r.ok){
-      throw new Error("HTTP "+r.status);
+    };
+
+
+    salvarHistorico(
+        item
+    );
+
+
+    atualizarDashboard();
+
+    atualizarAlertas();
+
+}
+
+
+// ============================================================
+// FINALIZAR SEM RESULTADO
+// ============================================================
+
+async function finalizarSemResultado() {
+
+    if (
+        analiseFinalizada
+    ) {
+
+        return;
+
     }
 
-    status.textContent=
-      "⚠️ Superfície não visualizada. Notificação enviada ao e-mail.";
 
-  }catch(e){
+    analiseFinalizada =
+        true;
 
-    console.error("Erro ao enviar notificação:",e);
 
-    status.textContent=
-      "⚠️ Superfície não visualizada. Não foi possível confirmar o envio do e-mail.";
-  }
+    pararPolling();
+
+
+    clearTimeout(
+        tempoLimiteAnalise
+    );
+
+
+    const btn =
+        document.getElementById(
+            "analisarBtn"
+        );
+
+    const status =
+        document.getElementById(
+            "statusAnalise"
+        );
+
+
+    // --------------------------------------------------------
+    // BOTÃO
+    // --------------------------------------------------------
+
+    if (btn) {
+
+        btn.disabled =
+            false;
+
+        btn.textContent =
+            "🔄 REALIZAR NOVA ANÁLISE";
+
+    }
+
+
+    // --------------------------------------------------------
+    // STATUS
+    // --------------------------------------------------------
+
+    if (status) {
+
+        status.textContent =
+            "⚠️ Superfície não visualizada.";
+
+    }
+
+
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
+
+
+    if (dispositivo) {
+
+        dispositivo.textContent =
+            "Sem resultado";
+
+    }
+
+
+    const valor =
+        document.getElementById(
+            "reading-value"
+        );
+
+
+    if (valor) {
+
+        valor.textContent =
+            "--";
+
+    }
+
+
+    const statusLeitura =
+        document.getElementById(
+            "reading-status"
+        );
+
+
+    if (statusLeitura) {
+
+        statusLeitura.textContent =
+            "SUPERFÍCIE NÃO VISUALIZADA";
+
+    }
+
+
+    const detalhe =
+        document.getElementById(
+            "reading-detail"
+        );
+
+
+    if (detalhe) {
+
+        detalhe.textContent =
+            "O ESP32-S3-CAM não enviou nenhum resultado da análise.";
+
+    }
+
+
+    const badge =
+        document.getElementById(
+            "monitorBadge"
+        );
+
+
+    if (badge) {
+
+        badge.textContent =
+            "SEM RESULTADO";
+
+        badge.className =
+            "badge bad";
+
+    }
+
+
+    // --------------------------------------------------------
+    // HISTÓRICO
+    // --------------------------------------------------------
+
+    const item = {
+
+        id:
+            "sem-" +
+            analiseAtualId +
+            "-" +
+            Date.now(),
+
+        data:
+            new Date().toISOString(),
+
+        analise_id:
+            analiseAtualId,
+
+        valor:
+            "--",
+
+        status:
+            "nao_visualizada",
+
+        detalhe:
+            "Superfície não visualizada — nenhum resultado recebido do ESP32-S3-CAM."
+
+    };
+
+
+    salvarHistorico(
+        item
+    );
+
+
+    atualizarDashboard();
+
+    atualizarAlertas();
+
+
+    // --------------------------------------------------------
+    // ENVIAR RESULTADO PARA API
+    // --------------------------------------------------------
+
+    try {
+
+        const resposta =
+            await fetch(
+                API_URL +
+                "/resultado",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            analise_id:
+                                analiseAtualId,
+
+                            valor:
+                                null,
+
+                            status:
+                                "nao_visualizada",
+
+                            detalhe:
+                                "Superfície não visualizada — nenhum resultado recebido do ESP32-S3-CAM."
+
+                        })
+                }
+            );
+
+
+        if (!resposta.ok) {
+
+            throw new Error(
+                "HTTP " +
+                resposta.status
+            );
+
+        }
+
+
+        if (status) {
+
+            status.textContent =
+                "⚠️ Superfície não visualizada. Notificação enviada ao e-mail.";
+
+        }
+
+    }
+    catch (erro) {
+
+        console.error(
+            "Erro ao enviar resultado:",
+            erro
+        );
+
+
+        if (status) {
+
+            status.textContent =
+                "⚠️ Superfície não visualizada. Não foi possível confirmar o envio.";
+
+        }
+
+    }
+
 }
+
+
+// ============================================================
+// LIMPAR MONITORAMENTO
+// ============================================================
+
+function limparMonitoramento() {
+
+    const valor =
+        document.getElementById(
+            "reading-value"
+        );
+
+
+    const status =
+        document.getElementById(
+            "reading-status"
+        );
+
+
+    const detalhe =
+        document.getElementById(
+            "reading-detail"
+        );
+
+
+    const dispositivo =
+        document.getElementById(
+            "device-status"
+        );
+
+
+    const ultimo =
+        document.getElementById(
+            "last-result"
+        );
+
+
+    const badge =
+        document.getElementById(
+            "monitorBadge"
+        );
+
+
+    if (valor) {
+
+        valor.textContent =
+            "--";
+
+    }
+
+
+    if (status) {
+
+        status.textContent =
+            "AGUARDANDO LEITURA";
+
+    }
+
+
+    if (detalhe) {
+
+        detalhe.textContent =
+            "Aguardando a câmera visualizar a superfície.";
+
+    }
+
+
+    if (dispositivo) {
+
+        dispositivo.textContent =
+            "Aguardando";
+
+    }
+
+
+    if (ultimo) {
+
+        ultimo.textContent =
+            "Aguardando análise";
+
+    }
+
+
+    if (badge) {
+
+        badge.textContent =
+            "AGUARDANDO DISPOSITIVO";
+
+        badge.className =
+            "badge waiting";
+
+    }
+
+}
+
+
 // ============================================================
 // MONITORAMENTO
 // ============================================================
@@ -617,7 +1391,9 @@ function atualizarMonitoramento(
     if (statusElemento) {
 
         statusElemento.textContent =
-            formatarStatus(status);
+            formatarStatus(
+                status
+            );
 
     }
 
@@ -633,7 +1409,9 @@ function atualizarMonitoramento(
     if (ultimoResultado) {
 
         ultimoResultado.textContent =
-            formatarStatus(status);
+            formatarStatus(
+                status
+            );
 
     }
 
@@ -641,18 +1419,24 @@ function atualizarMonitoramento(
 
 
 // ============================================================
-// STATUS
+// FORMATAR STATUS
 // ============================================================
 
-function formatarStatus(status) {
+function formatarStatus(
+    status
+) {
 
     if (!status) {
+
         return "Analisado";
+
     }
 
 
     const texto =
-        String(status);
+        String(
+            status
+        );
 
 
     const normalizado =
@@ -687,6 +1471,16 @@ function formatarStatus(status) {
     }
 
 
+    if (
+        normalizado ===
+        "nao_visualizada"
+    ) {
+
+        return "Não visualizada";
+
+    }
+
+
     return texto;
 
 }
@@ -711,8 +1505,12 @@ function salvarHistorico(
     const existe =
         historico.some(
             item =>
-                String(item.id) ===
-                String(resultado.id)
+                String(
+                    item.id
+                ) ===
+                String(
+                    resultado.id
+                )
         );
 
 
@@ -756,20 +1554,26 @@ function obterHistorico() {
 
 
         if (!salvo) {
+
             return [];
+
         }
 
 
         const dados =
-            JSON.parse(salvo);
+            JSON.parse(
+                salvo
+            );
 
 
-        return Array.isArray(dados)
+        return Array.isArray(
+            dados
+        )
             ? dados
             : [];
 
-
-    } catch (erro) {
+    }
+    catch (erro) {
 
         return [];
 
@@ -791,18 +1595,26 @@ function carregarHistorico() {
 
 
     if (!tabela) {
+
         return;
+
     }
 
 
-    tabela.innerHTML = "";
+    tabela.innerHTML =
+        "";
 
 
     const cabecalhos = [
+
         "DATA E HORA",
+
         "RESULTADO",
+
         "NÍVEL",
+
         "STATUS"
+
     ];
 
 
@@ -814,8 +1626,10 @@ function carregarHistorico() {
                     "div"
                 );
 
+
             elemento.textContent =
                 texto;
+
 
             tabela.appendChild(
                 elemento
@@ -826,7 +1640,8 @@ function carregarHistorico() {
 
 
     if (
-        historico.length === 0
+        historico.length ===
+        0
     ) {
 
         const vazio =
@@ -834,12 +1649,15 @@ function carregarHistorico() {
                 "p"
             );
 
+
         vazio.textContent =
             "Nenhuma análise registrada ainda.";
+
 
         tabela.appendChild(
             vazio
         );
+
 
         return;
 
@@ -854,6 +1672,7 @@ function carregarHistorico() {
                     "div"
                 );
 
+
             data.textContent =
                 formatarData(
                     item.data
@@ -864,6 +1683,7 @@ function carregarHistorico() {
                 document.createElement(
                     "div"
                 );
+
 
             resultado.textContent =
                 formatarStatus(
@@ -876,6 +1696,7 @@ function carregarHistorico() {
                     "div"
                 );
 
+
             nivel.textContent =
                 item.valor ??
                 "--";
@@ -886,15 +1707,30 @@ function carregarHistorico() {
                     "div"
                 );
 
+
             detalhe.textContent =
                 item.detalhe ??
                 "Registrado";
 
 
-            tabela.appendChild(data);
-            tabela.appendChild(resultado);
-            tabela.appendChild(nivel);
-            tabela.appendChild(detalhe);
+            tabela.appendChild(
+                data
+            );
+
+
+            tabela.appendChild(
+                resultado
+            );
+
+
+            tabela.appendChild(
+                nivel
+            );
+
+
+            tabela.appendChild(
+                detalhe
+            );
 
         }
     );
@@ -902,17 +1738,25 @@ function carregarHistorico() {
 }
 
 
+// ============================================================
+// FORMATAR DATA
+// ============================================================
+
 function formatarData(
     data
 ) {
 
     if (!data) {
+
         return "--";
+
     }
 
 
     const dataObj =
-        new Date(data);
+        new Date(
+            data
+        );
 
 
     if (
@@ -921,7 +1765,9 @@ function formatarData(
         )
     ) {
 
-        return String(data);
+        return String(
+            data
+        );
 
     }
 
@@ -929,8 +1775,11 @@ function formatarData(
     return dataObj.toLocaleString(
         "pt-BR",
         {
-            dateStyle: "short",
-            timeStyle: "short"
+            dateStyle:
+                "short",
+
+            timeStyle:
+                "short"
         }
     );
 
@@ -967,15 +1816,19 @@ function atualizarDashboard() {
 
 
                     return (
+
                         status.includes(
                             "alerta"
                         ) ||
+
                         status.includes(
                             "reprovado"
                         ) ||
+
                         status.includes(
                             "sujo"
                         )
+
                     );
 
                 }
@@ -1013,6 +1866,55 @@ function atualizarDashboard() {
         }
 
     }
+
+}
+
+
+// ============================================================
+// ALERTAS
+// ============================================================
+
+function atualizarAlertas() {
+
+    const historico =
+        obterHistorico();
+
+
+    const alertas =
+        historico.filter(
+            item => {
+
+                const status =
+                    String(
+                        item.status ??
+                        ""
+                    ).toLowerCase();
+
+
+                return (
+
+                    status.includes(
+                        "alerta"
+                    ) ||
+
+                    status.includes(
+                        "reprovado"
+                    ) ||
+
+                    status.includes(
+                        "sujo"
+                    )
+
+                );
+
+            }
+        );
+
+
+    console.log(
+        "Alertas:",
+        alertas.length
+    );
 
 }
 
@@ -1058,6 +1960,16 @@ function saveSettings() {
     );
 
 
+    if (email) {
+
+        localStorage.setItem(
+            "cleansurface_email",
+            email.value
+        );
+
+    }
+
+
     const salvo =
         document.getElementById(
             "saved"
@@ -1069,10 +1981,13 @@ function saveSettings() {
         salvo.textContent =
             "✓ Configurações salvas";
 
+
         setTimeout(
             () => {
+
                 salvo.textContent =
                     "";
+
             },
             3000
         );
@@ -1093,7 +2008,9 @@ function carregarConfiguracoes() {
 
 
         if (!salvo) {
+
             return;
+
         }
 
 
@@ -1132,7 +2049,20 @@ function carregarConfiguracoes() {
 
         }
 
-    } catch (erro) {
+
+        if (
+            configuracoes.email
+        ) {
+
+            localStorage.setItem(
+                "cleansurface_email",
+                configuracoes.email
+            );
+
+        }
+
+    }
+    catch (erro) {
 
         console.error(
             erro
@@ -1156,8 +2086,11 @@ function obterConfiguracoes() {
         if (!salvo) {
 
             return {
+
                 email: "",
+
                 nivelAlerta: 70
+
             };
 
         }
@@ -1167,11 +2100,15 @@ function obterConfiguracoes() {
             salvo
         );
 
-    } catch (erro) {
+    }
+    catch (erro) {
 
         return {
+
             email: "",
+
             nivelAlerta: 70
+
         };
 
     }
@@ -1186,6 +2123,13 @@ function obterConfiguracoes() {
 function aplicarPaleta(
     paleta
 ) {
+
+    if (!paleta) {
+
+        return;
+
+    }
+
 
     document.documentElement.style.setProperty(
         "--primary",
@@ -1241,7 +2185,9 @@ function aplicarPreset(
 
 
     if (!paleta) {
+
         return;
+
     }
 
 
@@ -1261,10 +2207,13 @@ function aplicarPreset(
         mensagem.textContent =
             "✓ Paleta aplicada";
 
+
         setTimeout(
             () => {
+
                 mensagem.textContent =
                     "";
+
             },
             2500
         );
@@ -1277,6 +2226,13 @@ function aplicarPreset(
 function preencherCores(
     paleta
 ) {
+
+    if (!paleta) {
+
+        return;
+
+    }
+
 
     const mapa = {
 
@@ -1417,10 +2373,13 @@ function aplicarCoresPersonalizadas() {
         mensagem.textContent =
             "✓ Paleta personalizada aplicada";
 
+
         setTimeout(
             () => {
+
                 mensagem.textContent =
                     "";
+
             },
             3000
         );
@@ -1442,7 +2401,9 @@ function obterCor(
 
 
     if (!elemento) {
+
         return padrao;
+
     }
 
 
@@ -1458,6 +2419,7 @@ function obterCor(
 
         valor =
             padrao;
+
 
         elemento.value =
             padrao.toUpperCase();
@@ -1514,14 +2476,20 @@ function configurarSeletoresDeCor() {
                     colorId
                 );
 
+
             const hex =
                 document.getElementById(
                     hexId
                 );
 
 
-            if (!color || !hex) {
+            if (
+                !color ||
+                !hex
+            ) {
+
                 return;
+
             }
 
 
@@ -1564,6 +2532,10 @@ function configurarSeletoresDeCor() {
 }
 
 
+// ============================================================
+// CARREGAR PALETA
+// ============================================================
+
 function carregarPaleta() {
 
     try {
@@ -1576,8 +2548,8 @@ function carregarPaleta() {
 
         if (!salva) {
 
-            preencherCores(
-                PALETAS.original
+            aplicarPaleta(
+                PALETAS.verde
             );
 
             return;
@@ -1595,12 +2567,96 @@ function carregarPaleta() {
             paleta
         );
 
-
-    } catch (erro) {
+    }
+    catch (erro) {
 
         aplicarPaleta(
-            PALETAS.original
+            PALETAS.verde
         );
+
+    }
+
+}
+
+
+// ============================================================
+// RESTAURAR PALETA
+// ============================================================
+
+function restaurarPaleta() {
+
+    aplicarPaleta(
+        PALETAS.verde
+    );
+
+
+    const mensagem =
+        document.getElementById(
+            "paletteSaved"
+        );
+
+
+    if (mensagem) {
+
+        mensagem.textContent =
+            "✓ Paleta original restaurada";
+
+
+        setTimeout(
+            () => {
+
+                mensagem.textContent =
+                    "";
+
+            },
+            3000
+        );
+
+    }
+
+}
+
+
+// ============================================================
+// RESTAURAR ESTADO DO BOTÃO
+// ============================================================
+
+function restaurarEstadoBotao() {
+
+    const btn =
+        document.getElementById(
+            "analisarBtn"
+        );
+
+
+    if (!btn) {
+
+        return;
+
+    }
+
+
+    btn.disabled =
+        false;
+
+
+    btn.textContent =
+        "🔍 INICIAR ANÁLISE";
+
+
+    const analiseSalva =
+        localStorage.getItem(
+            "cleansurface_analise_atual"
+        );
+
+
+    if (
+        analiseSalva &&
+        !analiseFinalizada
+    ) {
+
+        analiseAtualId =
+            analiseSalva;
 
     }
 
@@ -1625,42 +2681,6 @@ window.aplicarPreset =
 
 window.aplicarCoresPersonalizadas =
     aplicarCoresPersonalizadas;
-
-
-// ============================================================
-// RESTAURAR PALETA
-// ============================================================
-
-function restaurarPaleta() {
-
-    aplicarPaleta(
-        PALETAS.original
-    );
-
-
-    const mensagem =
-        document.getElementById(
-            "paletteSaved"
-        );
-
-
-    if (mensagem) {
-
-        mensagem.textContent =
-            "✓ Paleta original restaurada";
-
-        setTimeout(
-            () => {
-                mensagem.textContent =
-                    "";
-            },
-            3000
-        );
-
-    }
-
-}
-
 
 window.restaurarPaleta =
     restaurarPaleta;
