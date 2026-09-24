@@ -800,6 +800,9 @@ body{background:radial-gradient(ellipse at 65% -15%,#12374a 0%,#081827 55%);colo
     <button class="nav-item" data-page="conta">
       <span class="ico">👤</span><span>Conta</span>
     </button>
+    <button id="admin-nav" class="nav-item" data-page="admin" hidden style="display:none">
+      <span class="ico">🔒</span><span>Cadastros</span>
+    </button>
     <button class="nav-item" data-page="creditos">
       <span class="ico">★</span><span>Equipe / Créditos</span>
     </button>
@@ -1086,6 +1089,31 @@ body{background:radial-gradient(ellipse at 65% -15%,#12374a 0%,#081827 55%);colo
   </div>
 </section>
 
+<section id="admin" class="page" aria-label="Painel privado de cadastros">
+  <div class="section-card big" style="border:1px solid var(--primary);border-radius:22px;box-shadow:0 12px 32px #0003">
+    <div class="section-head"><div>
+      <p class="eyebrow">ACESSO RESTRITO</p><h3>Cadastros da Feira Técnica</h3>
+      <p>Somente sua conta de administrador pode consultar estes dados.</p>
+    </div></div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:20px 0">
+      <div class="section-card" style="padding:18px;min-width:170px;border-radius:16px">
+        <small>Total de cadastros</small><h2 id="admin-total">—</h2>
+      </div>
+      <div class="section-card" style="padding:18px;min-width:170px;border-radius:16px">
+        <small>Cadastros hoje</small><h2 id="admin-hoje">—</h2>
+      </div>
+      <button type="button" class="primary" onclick="carregarCadastros()">↻ Atualizar</button>
+    </div>
+    <p id="admin-msg" role="status">Entre na sua conta para visualizar os cadastros.</p>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;text-align:left">
+        <thead><tr><th style="padding:12px">Nome</th><th style="padding:12px">E-mail</th><th style="padding:12px">Data do cadastro</th></tr></thead>
+        <tbody id="admin-lista"><tr><td colspan="3" style="padding:16px">Nenhum dado carregado.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <section id="creditos" class="page">
   <div class="credits-header">
     <div class="credits-symbol">✦</div>
@@ -1172,6 +1200,7 @@ const titleMap={
   historico:"Histórico",
   configuracoes:"Configurações",
   conta:"Conta",
+  admin:"Cadastros (privado)",
   creditos:"Equipe / Créditos"
 };
 
@@ -1192,6 +1221,8 @@ document.addEventListener("DOMContentLoaded",()=>{
 });
 
 function showPage(id){
+  if (id === "admin" && document.getElementById("admin-nav")?.hidden) return;
+  if (id === "admin") carregarCadastros();
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active-page"));
   document.getElementById(id)?.classList.add("active-page");
 
@@ -1821,6 +1852,57 @@ async function fazerCadastro(){
   }
 }
 
+// Admin: a API verifica o token, a role e o e-mail no servidor.
+function ocultarPainelAdmin(){
+  const botao=document.getElementById("admin-nav");
+  if(botao){botao.hidden=true;botao.style.display="none";}
+  const corpo=document.getElementById("admin-lista");
+  if(corpo) corpo.replaceChildren();
+  if(document.getElementById("admin")?.classList.contains("active-page")) showPage("dashboard");
+}
+async function habilitarPainelAdmin(){
+  ocultarPainelAdmin();
+  const token=localStorage.getItem("cleanSurfaceToken");
+  if(!token) return;
+  try{
+    const r=await fetch(CLEAN_SURFACE_API+"/admin/usuarios",{
+      headers:{Authorization:"Bearer "+token},cache:"no-store"
+    });
+    if(r.ok){
+      const botao=document.getElementById("admin-nav");
+      if(botao){botao.hidden=false;botao.style.display="";}
+    }
+  }catch(e){/* Sem conexão: não exibir área privada. */}
+}
+async function carregarCadastros(){
+  const msg=document.getElementById("admin-msg");
+  const token=localStorage.getItem("cleanSurfaceToken");
+  if(!token){ocultarPainelAdmin();return;}
+  msg.textContent="Carregando cadastros...";
+  try{
+    const r=await fetch(CLEAN_SURFACE_API+"/admin/usuarios",{
+      headers:{Authorization:"Bearer "+token},cache:"no-store"
+    });
+    if(!r.ok){ocultarPainelAdmin();msg.textContent="Acesso negado ou sessão expirada.";return;}
+    const data=await r.json();
+    const usuarios=Array.isArray(data.usuarios)?data.usuarios:[];
+    document.getElementById("admin-total").textContent=String(usuarios.length);
+    const hoje=new Date().toLocaleDateString("en-CA");
+    document.getElementById("admin-hoje").textContent=String(usuarios.filter(u=>String(u.criado_em||"").slice(0,10)===hoje).length);
+    const corpo=document.getElementById("admin-lista");
+    corpo.replaceChildren();
+    for(const u of usuarios){
+      const tr=document.createElement("tr");
+      const campos=[u.nome||"—",u.email||"—",u.criado_em?String(u.criado_em).replace("T"," ").slice(0,19):"—"];
+      for(const campo of campos){
+        const td=document.createElement("td");td.textContent=String(campo);td.style.padding="12px";td.style.borderTop="1px solid var(--border)";tr.appendChild(td);
+      }
+      corpo.appendChild(tr);
+    }
+    msg.textContent=usuarios.length?"Lista atualizada. Os dados são visíveis somente para o administrador.":"Nenhum cadastro encontrado.";
+  }catch(e){msg.textContent="Não foi possível consultar a API.";}
+}
+
 async function fazerLogin(){
   const email=document.getElementById("loginEmail").value.trim();
   const senha=document.getElementById("loginSenha").value;
@@ -1852,6 +1934,7 @@ async function fazerLogin(){
 
     localStorage.setItem("cleanSurfaceToken",dados.token);
     localStorage.setItem("cleanSurfaceUsuario",JSON.stringify(dados.usuario));
+    await habilitarPainelAdmin();
 
     msg.style.color="#86efac";
     msg.textContent="Login realizado!";
@@ -1884,6 +1967,7 @@ async function verificarSessaoInicial(){
       const dados=await resposta.json();
       if(dados.sucesso){
         localStorage.setItem("cleanSurfaceUsuario",JSON.stringify(dados.usuario));
+        await habilitarPainelAdmin();
         carregarPerfil();
         const welcome=document.getElementById("welcomeScreen");
         if(welcome) welcome.style.display="none";
@@ -1894,6 +1978,7 @@ async function verificarSessaoInicial(){
 
   localStorage.removeItem("cleanSurfaceToken");
   localStorage.removeItem("cleanSurfaceUsuario");
+  ocultarPainelAdmin();
 }
 </script>
 
