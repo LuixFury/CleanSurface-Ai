@@ -649,6 +649,35 @@ nav{display:flex;flex-direction:column;gap:6px}
   .credits-header h2{font-size:22px}
   .credit-card{padding:18px}
 }
+
+/* CleanSurface AI — cards flutuantes, preservando HTML e JavaScript existentes */
+:root{--primary:#35d2c4;--secondary:#2ca7bd;--background:#081827;--sidebar:#091b2b;--card:#10273b;--card2:#153349;--border:#27455b;--text:#f1f8fc;--muted:#a5bdc9;--input:#0b2032;--primary-dark:#082b32}
+body{background:radial-gradient(ellipse at 65% -15%,#12374a 0%,#081827 55%);color:var(--text)}
+.main{min-width:0;max-width:1700px;margin:0 auto;width:100%;padding:30px 34px 60px}
+.sidebar{background:#091b2b}.school-logo{width:64px;height:64px;object-fit:contain;display:block;flex-shrink:0;filter:drop-shadow(0 5px 12px #0005)}
+.topbar{border-bottom:1px solid #244358;padding-bottom:18px}.topbar .eyebrow{color:#56d7d1}
+.hero,.credits-header,.section-card,.stat-card,.credit-card,.account-box,.connection-card{box-sizing:border-box;border:1px solid #2a516a!important;background:linear-gradient(145deg,#102b42,#0b2032)!important;border-radius:22px!important;box-shadow:0 14px 34px #0003, inset 0 1px #ffffff0b;position:relative;min-width:0}
+.hero{background:radial-gradient(circle at 85% 35%,#175269,#102b42 55%,#0b2032)!important;padding:34px;overflow:hidden}
+.cards{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:18px!important;margin:24px 0!important}
+.stat-card{padding:24px!important;min-height:180px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:9px}
+.stat-card .stat-icon{display:grid;place-items:center;width:48px;height:48px;margin:0 0 4px;border-radius:15px;background:#1a5262;color:#6bf2e6;font-size:23px}
+.stat-card span{font-size:11px!important;letter-spacing:.12em;color:#a8cbd5!important;line-height:1.5}
+.stat-card strong{font-size:clamp(19px,2vw,29px)!important;line-height:1.2;overflow-wrap:anywhere;margin:0!important;color:#f5fbff}
+.stat-card small{font-size:12px;color:#a8cbd5!important;line-height:1.5}
+.cpu-card{background:linear-gradient(145deg,#164458,#102b42)!important;border-color:#2d8e98!important}
+.cpu-card #cpu-temp{color:#75f1e5!important;font-variant-numeric:tabular-nums;font-size:clamp(25px,2.6vw,36px)!important}
+.section-card{padding:28px!important;margin-top:24px}.section-head h3{font-size:23px}.section-head p{color:#aec6d4}
+.flow{display:grid!important;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr) 22px minmax(0,1fr)!important;gap:10px;align-items:center!important;margin-top:24px!important}
+.flow-step{background:linear-gradient(145deg,#14364d,#10283e)!important;border:1px solid #32617c!important;border-radius:18px!important;padding:24px 17px!important;min-height:166px;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:12px!important;box-shadow:0 10px 24px #0002!important;color:#f3f9ff!important;font-size:inherit!important}
+.flow-step b{color:#67f0e3!important;font-size:13px!important;letter-spacing:.12em}.flow-step strong{color:#fff!important;font-size:clamp(14px,1.2vw,18px)!important;line-height:1.3;overflow-wrap:anywhere}.flow-step span{color:#b6d1dd!important;font-size:13px!important;line-height:1.5}.flow-line{height:2px!important;width:100%!important;background:linear-gradient(90deg,#29b7c5,#76f5e6)!important;position:relative}.flow-line:after{content:'›';position:absolute;right:-5px;top:-17px;color:#6ff4e7;font-size:29px}
+.credits-header{display:flex!important;align-items:center!important;gap:24px;padding:28px!important;margin-bottom:22px!important}.credits-symbol{display:grid;place-items:center;width:80px;height:80px;flex-shrink:0;border-radius:20px;background:#29bdb5;color:#082a35;font-size:38px}.credits-header h2{font-size:30px!important}
+.credits-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important;align-items:stretch!important}.credit-card{display:flex!important;flex-direction:column!important;align-items:flex-start!important;padding:28px!important;min-height:280px!important;gap:8px!important}.credit-card.teachers{grid-column:1/-1!important;min-height:auto!important}.credit-icon{display:grid!important;place-items:center;width:66px;height:66px;border-radius:19px;background:linear-gradient(145deg,#1d6976,#103f52);border:1px solid #2b9b9f;font-size:32px!important;margin:0 0 7px!important}.credit-card .eyebrow{font-size:11px;letter-spacing:.13em;color:#67d9e3}.credit-card h3{margin:0!important;font-size:26px!important}.credit-count{color:#75f1e5!important;font-size:12px!important;background:#1b4758;padding:6px 11px;border-radius:20px}.people-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;width:100%;margin-top:16px!important}.people-list div{border:1px solid #31566b!important;background:#19384d!important;border-radius:12px!important;padding:12px!important;color:#f1f8fc!important;font-size:13px!important;overflow-wrap:anywhere}
+.stat-card,.credit-card,.flow-step,.section-card{transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}.stat-card:hover,.credit-card:hover,.flow-step:hover,.section-card:hover{transform:translateY(-5px);border-color:#3abebc!important;box-shadow:0 20px 42px #0005,0 0 0 1px #43dedb22!important}
+@media(max-width:1250px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}.flow{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px}.flow-line{display:none}}
+@media(max-width:800px){.main{padding:18px 15px 42px}.credits-header{flex-direction:column!important;align-items:flex-start!important}.credits-grid{grid-template-columns:1fr!important}.credit-card.teachers{grid-column:auto!important}.flow{grid-template-columns:repeat(2,minmax(0,1fr))!important}.cards{grid-template-columns:repeat(2,minmax(0,1fr))!important}.stat-card{min-height:155px;padding:18px!important}.section-card{padding:20px!important}}
+@media(max-width:520px){.cards,.flow,.credits-grid{grid-template-columns:1fr!important}.stat-card{min-height:125px}.flow-step{min-height:130px}.people-list{grid-template-columns:1fr!important}.school-logo{width:48px;height:48px}}
+@media(prefers-reduced-motion:reduce){.stat-card,.credit-card,.flow-step,.section-card{transition:none!important}.stat-card:hover,.credit-card:hover,.flow-step:hover,.section-card:hover{transform:none}}
+
 </style>
 
 <style id="welcomeScreenStyles">
