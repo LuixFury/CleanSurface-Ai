@@ -712,6 +712,13 @@ nav{display:flex;flex-direction:column;gap:6px}
 }
 .auth-message{text-align:center!important;font-size:12px!important;min-height:17px;margin:7px 0 0!important;color:#fca5a5!important}
 @media(max-width:560px){.auth-card{padding:27px 20px;border-radius:20px}.auth-card h2{font-size:24px}}
+
+/* Identidade visual institucional e painel de temperatura */
+:root{--primary:#35d2c4;--secondary:#2ca7bd;--background:#081827;--sidebar:#091b2b;--card:#10273b;--card2:#153349;--border:#27455b;--text:#f1f8fc;--muted:#a5bdc9;--input:#0b2032;--primary-dark:#082b32}
+.sidebar{background:#091b2b!important}.brand{gap:12px!important}.school-logo{width:64px;height:64px;object-fit:contain;flex-shrink:0;display:block;filter:drop-shadow(0 3px 9px rgba(0,0,0,.25))}
+.topbar .eyebrow{color:#56d7d1!important;letter-spacing:.09em}.hero{background:radial-gradient(circle at 85% 45%,#16495b,#10273b 56%,#0c2031 100%)!important}
+.stat-card,.card,.panel{border-radius:16px}.cpu-card{border-color:rgba(53,210,196,.45)!important;background:linear-gradient(145deg,#143a50,#10283e)!important}.cpu-card #cpu-temp{font-variant-numeric:tabular-nums;color:#70f0dd;font-size:clamp(24px,2.8vw,38px)}
+@media(max-width:720px){.school-logo{width:44px;height:44px}.topbar .eyebrow{font-size:10px}}
 </style>
 
 </head>
@@ -735,7 +742,7 @@ nav{display:flex;flex-direction:column;gap:6px}
 
 <aside class="sidebar">
   <div class="brand">
-    <div class="brand-icon">✦</div>
+    <img src="logo-ceep.png" class="school-logo" alt="Logo do CEEP Ozório Gonçalves Nogueira">
     <div>
       <strong>CleanSurface</strong>
       <span>AI</span>
@@ -779,10 +786,10 @@ nav{display:flex;flex-direction:column;gap:6px}
 
 <header class="topbar">
   <div>
-    <p class="eyebrow">MONITORAMENTO INTELIGENTE</p>
+    <p class="eyebrow">CEEP OZÓRIO GONÇALVES NOGUEIRA</p>
     <h1 id="page-title">Dashboard</h1>
   </div>
-  <div class="user-chip">CA &nbsp; CleanSurface AI</div>
+  <div class="user-chip">CleanSurface AI · CEEP</div>
 </header>
 
 <section id="dashboard" class="page active-page">
@@ -813,6 +820,13 @@ nav{display:flex;flex-direction:column;gap:6px}
       <span>DISPOSITIVO</span>
       <strong id="device-status">Aguardando</strong>
       <small>ESP32-S3-CAM</small>
+    </div>
+
+    <div class="stat-card cpu-card" aria-live="polite">
+      <div class="stat-icon">🌡</div>
+      <span>TEMPERATURA INTERNA DO ESP32</span>
+      <strong id="cpu-temp">-- °C</strong>
+      <small id="cpu-updated">Aguardando leitura real</small>
     </div>
 
     <div class="stat-card">
@@ -1850,5 +1864,29 @@ async function verificarSessaoInicial(){
 </script>
 
 <script>verificarSessaoInicial();</script>
+<script>
+/* Monitor real: sem valores fictícios. Exibe temperatura somente se o ESP enviar. */
+(function(){
+  const endpoint="https://cleansurface-api.luizinfernando19.workers.dev/esp/status";
+  async function atualizarTemperatura(){
+    const temp=document.getElementById("cpu-temp"),info=document.getElementById("cpu-updated");
+    if(!temp||!info)return;
+    try{
+      const resposta=await fetch(endpoint,{cache:"no-store"});
+      if(!resposta.ok)throw new Error("API indisponível");
+      const dados=await resposta.json();
+      const valor=Number(dados.temperatura_cpu);
+      if(dados.conectado===true && dados.temperatura_cpu!==null && dados.temperatura_cpu!==undefined && Number.isFinite(valor)){
+        temp.textContent=valor.toFixed(1).replace(".",",")+" °C";
+        info.textContent="Leitura interna do chip · Atualização automática";
+      }else{
+        temp.textContent="-- °C";
+        info.textContent=dados.conectado===true?"ESP conectado; aguardando temperatura":"ESP desconectado ou sem leitura recente";
+      }
+    }catch(e){temp.textContent="-- °C";info.textContent="Não foi possível consultar a temperatura";}
+  }
+  atualizarTemperatura();setInterval(atualizarTemperatura,10000);
+})();
+</script>
 </body>
 </html>
