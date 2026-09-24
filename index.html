@@ -133,6 +133,9 @@ nav{display:flex;flex-direction:column;gap:6px}
   display:block;letter-spacing:1px;
 }
 .connection-card strong{font-size:11px}
+.status-dot.online{background:#22c55e;box-shadow:0 0 12px #22c55e}
+.status-dot.offline{background:#ef4444;box-shadow:0 0 12px #ef4444}
+.status-dot.checking{background:var(--warning);box-shadow:0 0 10px var(--warning)}
 
 .main{
   flex:1;
@@ -803,10 +806,10 @@ body{background:radial-gradient(ellipse at 65% -15%,#12374a 0%,#081827 55%);colo
   </nav>
 
   <div class="connection-card">
-    <div class="status-dot"></div>
+    <div class="status-dot" id="esp-status-dot"></div>
     <div>
       <small>STATUS DO SISTEMA</small>
-      <strong>Pronto para conectar</strong>
+      <strong id="esp-sidebar-status" aria-live="polite">Verificando ESP32...</strong>
     </div>
   </div>
 </aside>
@@ -1896,27 +1899,55 @@ async function verificarSessaoInicial(){
 
 <script>verificarSessaoInicial();</script>
 <script>
-/* Monitor real: sem valores fictícios. Exibe temperatura somente se o ESP enviar. */
+/* Monitor real do ESP32: consulta o heartbeat na API a cada 10 segundos. */
 (function(){
   const endpoint="https://cleansurface-api.luizinfernando19.workers.dev/esp/status";
-  async function atualizarTemperatura(){
-    const temp=document.getElementById("cpu-temp"),info=document.getElementById("cpu-updated");
-    if(!temp||!info)return;
+  const texto=document.getElementById("esp-sidebar-status");
+  const bolinha=document.getElementById("esp-status-dot");
+  const dispositivo=document.getElementById("device-status");
+  const temperatura=document.getElementById("cpu-temp");
+  const detalhe=document.getElementById("cpu-updated");
+
+  function exibirStatus(estado, mensagem){
+    if(texto) texto.textContent=mensagem;
+    if(bolinha){
+      bolinha.classList.remove("online","offline","checking");
+      bolinha.classList.add(estado);
+    }
+    if(dispositivo){
+      dispositivo.textContent=estado==="online"?"Conectado":estado==="offline"?"Desconectado":"Verificando";
+    }
+  }
+
+  async function atualizarESP(){
     try{
       const resposta=await fetch(endpoint,{cache:"no-store"});
-      if(!resposta.ok)throw new Error("API indisponível");
+      if(!resposta.ok) throw new Error("HTTP "+resposta.status);
       const dados=await resposta.json();
-      const valor=Number(dados.temperatura_cpu);
-      if(dados.conectado===true && dados.temperatura_cpu!==null && dados.temperatura_cpu!==undefined && Number.isFinite(valor)){
-        temp.textContent=valor.toFixed(1).replace(".",",")+" °C";
-        info.textContent="Leitura interna do chip · Atualização automática";
+      if(dados.conectado===true){
+        exibirStatus("online","ESP32 conectado");
+        const valor=Number(dados.temperatura_cpu);
+        if(temperatura && dados.temperatura_cpu!=null && Number.isFinite(valor)){
+          temperatura.textContent=valor.toFixed(1).replace(".",",")+" °C";
+          if(detalhe) detalhe.textContent="Leitura interna do chip · Atualização automática";
+        }else{
+          if(temperatura) temperatura.textContent="-- °C";
+          if(detalhe) detalhe.textContent="ESP conectado; aguardando temperatura";
+        }
       }else{
-        temp.textContent="-- °C";
-        info.textContent=dados.conectado===true?"ESP conectado; aguardando temperatura":"ESP desconectado ou sem leitura recente";
+        exibirStatus("offline","ESP32 desconectado");
+        if(temperatura) temperatura.textContent="-- °C";
+        if(detalhe) detalhe.textContent="ESP desconectado ou sem sinal recente";
       }
-    }catch(e){temp.textContent="-- °C";info.textContent="Não foi possível consultar a temperatura";}
+    }catch(e){
+      exibirStatus("checking","API indisponível");
+      if(temperatura) temperatura.textContent="-- °C";
+      if(detalhe) detalhe.textContent="Não foi possível consultar a API";
+      console.warn("Status ESP32:",e);
+    }
   }
-  atualizarTemperatura();setInterval(atualizarTemperatura,10000);
+  atualizarESP();
+  setInterval(atualizarESP,10000);
 })();
 </script>
 </body>
