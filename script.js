@@ -1,4 +1,3 @@
-
 // ============================================================
 // CleanSurface AI
 // API + ESP32-S3-CAM + Histórico + Personalização
