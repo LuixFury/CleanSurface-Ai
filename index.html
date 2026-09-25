@@ -1215,6 +1215,11 @@ document.addEventListener("DOMContentLoaded",()=>{
   carregarTema();
   carregarPaleta();
   carregarConfiguracoes();
+  if(analiseAtualId){
+    document.getElementById("statusAnalise").textContent="⏳ Retomando análise pendente...";
+    tempoLimiteAnalise=Date.now()+30000;
+    iniciarPolling();
+  }
   atualizarHistorico();
   atualizarDashboard();
   carregarPerfil();
@@ -1420,7 +1425,7 @@ const r=await fetch(API_URL+"/iniciar-analise",{
     document.getElementById("device-status").textContent="Aguardando";
 
     showPage("monitoramento");
-    tempoLimiteAnalise=Date.now()+30000;
+    tempoLimiteAnalise=Date.now()+30000; // Apenas aviso visual; nunca registra falha no banco.
     iniciarPolling();
 
   }catch(e){
@@ -1431,107 +1436,64 @@ const r=await fetch(API_URL+"/iniciar-analise",{
 }
 
 function iniciarPolling(){
-  if(pollingAtivo)return;
+  if(pollingAtivo || !analiseAtualId) return;
   pollingAtivo=true;
+  document.getElementById("analisarBtn").disabled=true;
   verificarResultado();
 }
 
+// O site apenas LÊ resultados: somente o ESP32 envia POST /resultado.
 async function verificarResultado(){
-  if(!analiseAtualId){
+  if(!pollingAtivo || !analiseAtualId){
     pollingAtivo=false;
     return;
   }
 
+  const idConsultado=String(analiseAtualId);
   try{
     const r=await fetch(
-      API_URL+"/resultado?analise_id="+encodeURIComponent(analiseAtualId),
+      API_URL+"/resultado?analise_id="+encodeURIComponent(idConsultado),
       {cache:"no-store"}
     );
-
-    if(r.ok){
-      const data=await r.json();
-
-      if(data.disponivel===true &&
-         String(data.analise_id)===String(analiseAtualId)){
-        processarResultado(data);
-        pollingAtivo=false;
-        return;
-      }
-    }
-  }catch(e){
-    console.log("Aguardando ESP32...",e);
-  }
-
-  if(tempoLimiteAnalise && Date.now() >= tempoLimiteAnalise){
-    await finalizarSemResultado();
-    pollingAtivo=false;
-    return;
-  }
-
-  setTimeout(verificarResultado,3000);
-}
-
-async function finalizarSemResultado(){
-  const btn=document.getElementById("analisarBtn");
-  const statusEl=document.getElementById("statusAnalise");
-  const detalhe="Superfície não visualizada.";
-
-  statusEl.textContent="⚠️ Superfície não visualizada.";
-  document.getElementById("device-status").textContent="Sem resultado";
-  document.getElementById("reading-value").textContent="--";
-  document.getElementById("reading-status").textContent="NÃO VISUALIZADA";
-  document.getElementById("reading-detail").textContent=detalhe;
-  document.getElementById("last-result").textContent="--";
-
-  const badge=document.getElementById("monitorBadge");
-  badge.textContent="SUPERFÍCIE NÃO VISUALIZADA";
-  badge.className="badge warning";
-
-  try{
-    const r=await fetch(API_URL+"/resultado",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        analise_id:analiseAtualId,
-        valor:null,
-        status:"nao_visualizada",
-        detalhe:detalhe
-      })
-    });
-
-    if(!r.ok)throw new Error("HTTP "+r.status);
+    if(!r.ok) throw new Error("Consulta do resultado: HTTP "+r.status);
     const data=await r.json();
 
-    if(data.email_enviado===true){
-      statusEl.textContent="⚠️ Superfície não visualizada. E-mail enviado.";
-    }else{
-      statusEl.textContent="⚠️ Superfície não visualizada.";
+    // Se o usuário iniciou outra análise durante a requisição, ignore a resposta antiga.
+    if(String(analiseAtualId)!==idConsultado) return;
+
+    if(data.disponivel===true && String(data.analise_id)===idConsultado){
+      processarResultado(data);
+      pollingAtivo=false;
+      tempoLimiteAnalise=null;
+      analiseAtualId=null;
+      localStorage.removeItem("cleansurface_analise_atual");
+      return;
     }
 
-    salvarHistorico({
-      data:new Date().toLocaleString("pt-BR"),
-      analise_id:analiseAtualId,
-      valor:"--",
-      status:"nao_visualizada",
-      detalhe:detalhe
-    });
-
-    atualizarHistorico();
-    atualizarDashboard();
-    atualizarAlertas();
+    if(tempoLimiteAnalise && Date.now()>=tempoLimiteAnalise){
+      document.getElementById("statusAnalise").textContent=
+        "⏳ Aguardando resultado do ESP32. A análise continua em andamento...";
+      document.getElementById("reading-detail").textContent=
+        "Ainda não recebemos a classificação. O site continuará consultando a API.";
+      tempoLimiteAnalise=null; // Não repetir o aviso.
+    }
   }catch(e){
-    console.error(e);
-    statusEl.textContent="⚠️ Superfície não visualizada, mas não foi possível enviar o e-mail.";
-  }finally{
-    btn.disabled=false;
-    tempoLimiteAnalise=null;
+    console.warn("Aguardando resultado real do ESP32:",e);
+    if(String(analiseAtualId)===idConsultado){
+      document.getElementById("statusAnalise").textContent=
+        "⚠️ Não foi possível consultar a API. Tentando novamente...";
+    }
+  }
+
+  if(pollingAtivo && String(analiseAtualId)===idConsultado){
+    setTimeout(verificarResultado,3000);
   }
 }
 
 function processarResultado(data){
   document.getElementById("analisarBtn").disabled=false;
   document.getElementById("statusAnalise").textContent="✅ Análise concluída.";
-  document.getElementById("device-status").textContent="Online";
+  // Conexão do ESP32 é atualizada exclusivamente pelo heartbeat.
 
   const valor=data.valor??data.resultado??"--";
   const status=data.status??"concluido";
